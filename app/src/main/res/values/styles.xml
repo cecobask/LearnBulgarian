@@ -8,4 +8,18 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="EditText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="Button">
+        <item name="android:drawablePadding">16dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
 </resources>
