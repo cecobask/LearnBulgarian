@@ -11,15 +11,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity android:name=".activities.HomeActivity" />
         <activity
-            android:name=".activities.LoginActivity"
-            android:theme="@style/LoginTheme">
+            android:name=".activities.AuthActivity"
+            android:theme="@style/AuthTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activities.HomeActivity" />
     </application>
 
 </manifest>

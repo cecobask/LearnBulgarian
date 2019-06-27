@@ -29,7 +29,7 @@ class HomeActivity : AppCompatActivity() {
         logoutBtn.setOnClickListener {
             firebaseAuth.signOut()
             finish()
-            val intent = Intent(this, LoginActivity::class.java)
+            val intent = Intent(this, AuthActivity::class.java)
             startActivity(intent)
         }
     }
