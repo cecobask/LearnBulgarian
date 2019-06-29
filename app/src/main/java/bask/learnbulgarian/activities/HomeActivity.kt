@@ -14,18 +14,23 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.home)
 
-        val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+        // Instantiate widgets.
         val usernameTV = findViewById<TextView>(R.id.usernameTV)
         val logoutBtn = findViewById<Button>(R.id.logoutBtn)
 
+        // This activity is the first to start after the app launches.
+        // The AuthStateListener decides whether user is brought to the AuthActivity.
+        val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
         firebaseAuth.addAuthStateListener {
             if (firebaseAuth.currentUser == null) {
                 finish()
+                startActivity(Intent(this, AuthActivity::class.java))
             }
         }
 
-        usernameTV.text = intent.getStringExtra("username")
+        usernameTV.text = firebaseAuth.currentUser?.email
 
+        // Bring the user to the AuthActivity when logoutBtn is pressed.
         logoutBtn.setOnClickListener {
             firebaseAuth.signOut()
             finish()

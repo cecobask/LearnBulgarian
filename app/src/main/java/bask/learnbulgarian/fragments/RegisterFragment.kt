@@ -13,34 +13,48 @@ import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import bask.learnbulgarian.R
 import bask.learnbulgarian.activities.HomeActivity
+import bask.learnbulgarian.models.User
 import com.androidadvance.topsnackbar.TSnackbar
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 
 
-class LoginFragment : Fragment() {
+class RegisterFragment : Fragment() {
 
     companion object {
-        fun newInstance(): LoginFragment {
-            return LoginFragment()
+        fun newInstance(): RegisterFragment {
+            return RegisterFragment()
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-        inflater.inflate(R.layout.login, container, false)
+        inflater.inflate(R.layout.register, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // Instantiate widgets.
+        val usernameET = view.findViewById<EditText>(R.id.usernameET)
         val emailET = view.findViewById<EditText>(R.id.emailET)
         val passwordET = view.findViewById<EditText>(R.id.passwordET)
-        val loginBtn = view.findViewById<Button>(R.id.loginBtn)
+        val confirmPasswordET = view.findViewById<EditText>(R.id.confirmPasswordET)
+        val registerBtn = view.findViewById<Button>(R.id.registerBtn)
 
-        // Call signIn() with provided params.
-        loginBtn.setOnClickListener {
+        // Get user input from fields and attempt to call signUp() with provided params.
+        registerBtn.setOnClickListener {
+            val username: String = usernameET.text.toString().trim()
             val email: String = emailET.text.toString().trim()
             val password: String = passwordET.text.toString().trim()
-            signIn(it, email, password)
+            val confirmPassword: String = confirmPasswordET.text.toString().trim()
+
+            // Check if passwords match.
+            if (password == confirmPassword) {
+                signUp(view, username, email, password)
+            } else {
+                passwordET.error = "Passwords must match!"
+                confirmPasswordET.error = "Passwords must match!"
+            }
         }
 
         // Make sure there no empty fields. After all fields are filled out, loginBtn gets enabled.
@@ -48,29 +62,38 @@ class LoginFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val username: String = usernameET.text.toString().trim()
                 val email: String = emailET.text.toString().trim()
                 val password: String = passwordET.text.toString().trim()
-                loginBtn.isEnabled = (email.isNotEmpty() && password.isNotEmpty())
+                val confirmPassword: String = confirmPasswordET.text.toString().trim()
+                registerBtn.isEnabled = (username.isNotEmpty() && email.isNotEmpty() &&
+                        password.isNotEmpty() && confirmPassword.isNotEmpty())
             }
         }
 
         // Attach the TextWatcher to EditTexts.
+        usernameET.addTextChangedListener(textWatcher)
         emailET.addTextChangedListener(textWatcher)
         passwordET.addTextChangedListener(textWatcher)
+        confirmPasswordET.addTextChangedListener(textWatcher)
     }
 
-    // Sign in with Firebase and open HomeActivity.
-    private fun signIn(view: View, email: String, password: String) {
-        showMessage(view, "Authenticating...")
+    // Register user and open HomeActivity if the signing up is a success.
+    private fun signUp(view: View, username: String, email: String, password: String) {
+        showMessage(view, "Creating your account...")
 
         val firebaseAuth: FirebaseAuth? = FirebaseAuth.getInstance()
-        firebaseAuth?.signInWithEmailAndPassword(email, password)?.addOnCompleteListener { task ->
+        firebaseAuth?.createUserWithEmailAndPassword(email, password)?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
+                // Create User object and use it to store data on FirebaseDatabase
+                val newUser = User(firebaseAuth.currentUser!!.uid, username, email)
+                val usersDatabase: DatabaseReference = FirebaseDatabase.getInstance().getReference("users")
+                usersDatabase.child(newUser.userID).setValue(newUser)
+
                 activity?.finish()
                 startActivity(Intent(context, HomeActivity::class.java))
             } else showMessage(view, "Error: ${task.exception?.message}")
         }
-
     }
 
     // Use TopSnackBar to show meaningful messages to the user.
