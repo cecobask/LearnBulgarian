@@ -6,13 +6,20 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import bask.learnbulgarian.R
+import bask.learnbulgarian.main.App
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
 
 class HomeActivity : AppCompatActivity() {
 
+    lateinit var app: App
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.home)
+
+        val firebaseAuth: FirebaseAuth = App.getFirebaseAuth()
+        val googleSignInClient: GoogleSignInClient = App.getGoogleClient(this)
 
         // Instantiate widgets.
         val usernameTV = findViewById<TextView>(R.id.usernameTV)
@@ -20,7 +27,6 @@ class HomeActivity : AppCompatActivity() {
 
         // This activity is the first to start after the app launches.
         // The AuthStateListener decides whether user is brought to the AuthActivity.
-        val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
         firebaseAuth.addAuthStateListener {
             if (firebaseAuth.currentUser == null) {
                 finish()
@@ -33,6 +39,8 @@ class HomeActivity : AppCompatActivity() {
         // Bring the user to the AuthActivity when logoutBtn is pressed.
         logoutBtn.setOnClickListener {
             firebaseAuth.signOut()
+            googleSignInClient.signOut()
+
             finish()
             val intent = Intent(this, AuthActivity::class.java)
             startActivity(intent)

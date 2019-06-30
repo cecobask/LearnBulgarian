@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="bask.learnbulgarian">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:name=".main.App"
         android:allowBackup="true"
@@ -14,8 +16,11 @@
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <activity
             android:name=".activities.AuthActivity"
-            android:theme="@style/AuthTheme"/>
-        <activity android:name=".activities.HomeActivity">
+            android:theme="@style/AuthTheme"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".activities.HomeActivity"
+            android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
