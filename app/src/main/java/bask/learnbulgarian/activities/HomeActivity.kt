@@ -7,19 +7,19 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import bask.learnbulgarian.R
 import bask.learnbulgarian.main.App
+import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
 
 class HomeActivity : AppCompatActivity() {
 
-    lateinit var app: App
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.home)
 
-        val firebaseAuth: FirebaseAuth = App.getFirebaseAuth()
-        val googleSignInClient: GoogleSignInClient = App.getGoogleClient(this)
+        val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+        val googleSignInClient: GoogleSignInClient =
+            App.getGoogleClient(this, getString(R.string.default_web_client_id))
 
         // Instantiate widgets.
         val usernameTV = findViewById<TextView>(R.id.usernameTV)
@@ -40,6 +40,7 @@ class HomeActivity : AppCompatActivity() {
         logoutBtn.setOnClickListener {
             firebaseAuth.signOut()
             googleSignInClient.signOut()
+            LoginManager.getInstance().logOut()
 
             finish()
             val intent = Intent(this, AuthActivity::class.java)

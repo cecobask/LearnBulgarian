@@ -15,12 +15,18 @@ import bask.learnbulgarian.R
 import bask.learnbulgarian.activities.HomeActivity
 import bask.learnbulgarian.main.App
 import com.androidadvance.topsnackbar.TSnackbar
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginResult
+import com.facebook.login.widget.LoginButton
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.android.synthetic.main.login.*
@@ -32,6 +38,7 @@ class LoginFragment : Fragment() {
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var callbackManager: CallbackManager
 
     companion object {
         fun newInstance(): LoginFragment {
@@ -45,26 +52,31 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        firebaseAuth = App.getFirebaseAuth()
-        googleSignInClient = App.getGoogleClient(context!!)
+        firebaseAuth = FirebaseAuth.getInstance()
+        googleSignInClient = App.getGoogleClient(context!!, getString(R.string.default_web_client_id))
 
         // Instantiate widgets.
         val emailET = view.findViewById<EditText>(R.id.emailET)
         val passwordET = view.findViewById<EditText>(R.id.passwordET)
         val loginBtn = view.findViewById<Button>(R.id.loginBtn)
         val googleBtn = view.findViewById<SignInButton>(R.id.googleBtn)
+        val facebookBtn = view.findViewById<LoginButton>(R.id.facebookBtn)
 
-        // Call signIn() with provided params.
+        // Call signInWithEmail() with provided params.
         loginBtn.setOnClickListener {
             val email: String = emailET.text.toString().trim()
             val password: String = passwordET.text.toString().trim()
-            signIn(it, email, password)
+            signInWithEmail(it, email, password)
         }
 
         googleBtn.setOnClickListener {
             val signInIntent: Intent = googleSignInClient.signInIntent
             startActivityForResult(signInIntent, RC_SIGN_IN)
         }
+
+        facebookBtn.fragment = this
+        callbackManager = CallbackManager.Factory.create()
+        facebookBtn.setOnClickListener { signInWithFacebook(it as LoginButton) }
 
         // Make sure there no empty fields. After all fields are filled out, loginBtn gets enabled.
         val textWatcher: TextWatcher = object : TextWatcher {
@@ -83,7 +95,7 @@ class LoginFragment : Fragment() {
     }
 
     // Sign in with Firebase and open HomeActivity.
-    private fun signIn(view: View, email: String, password: String) {
+    private fun signInWithEmail(view: View, email: String, password: String) {
         showMessage(view, "Authenticating...")
 
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
@@ -93,6 +105,44 @@ class LoginFragment : Fragment() {
             } else showMessage(view, "Error: ${task.exception?.message}")
         }
 
+    }
+
+    private fun signInWithGoogle(acct: GoogleSignInAccount) {
+        val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
+        firebaseAuth.signInWithCredential(credential).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                activity?.finish()
+                startActivity(Intent(context, HomeActivity::class.java))
+            } else {
+                showMessage(googleBtn, "Error: ${task.exception.toString()}")
+            }
+        }
+    }
+
+    private fun signInWithFacebook(view: LoginButton) {
+        view.setPermissions(listOf("email", "public_profile", "user_friends"))
+        view.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
+            override fun onSuccess(loginResult: LoginResult) {
+                val credential = FacebookAuthProvider.getCredential(loginResult.accessToken.token)
+                firebaseAuth.signInWithCredential(credential)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            activity?.finish()
+                            startActivity(Intent(context, HomeActivity::class.java))
+                        } else {
+                            showMessage(facebookBtn, "Error: ${task.exception.toString()}")
+                        }
+                    }
+            }
+
+            override fun onCancel() {
+
+            }
+
+            override fun onError(exception: FacebookException) {
+                showMessage(view, "Error: $exception.toString()")
+            }
+        })
     }
 
     // Use TopSnackBar to show meaningful messages to the user.
@@ -107,21 +157,13 @@ class LoginFragment : Fragment() {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 val account = task.getResult(ApiException::class.java)!!
-                firebaseAuthWithGoogle(account)
+                signInWithGoogle(account)
             } catch (e: ApiException) {
                 showMessage(googleBtn, "Error: $e")
             }
         }
-    }
 
-    private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
-        val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
-        firebaseAuth.signInWithCredential(credential).addOnCompleteListener {
-            if (it.isSuccessful) {
-                startActivity(Intent(context, HomeActivity::class.java))
-            } else {
-                showMessage(googleBtn, "Error: $it.exception.toString()")
-            }
-        }
+        // Pass the activity result back to the Facebook SDK
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 }

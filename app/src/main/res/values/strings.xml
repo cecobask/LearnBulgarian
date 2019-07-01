@@ -8,4 +8,6 @@
     <string name="confirm_password">Confirm password</string>
     <string name="username">Username</string>
     <string name="or">OR</string>
+    <string name="facebook_app_id">1308216389327961</string>
+    <string name="fb_login_protocol_scheme">fb1308216389327961</string>
 </resources>
