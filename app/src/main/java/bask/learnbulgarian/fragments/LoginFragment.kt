@@ -34,7 +34,7 @@ import kotlinx.android.synthetic.main.login.*
 
 class LoginFragment : Fragment() {
 
-    private val RC_SIGN_IN: Int = 1
+    private val signInReqCode: Int = 1
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
@@ -52,8 +52,10 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Get instances of auth providers.
         firebaseAuth = FirebaseAuth.getInstance()
         googleSignInClient = App.getGoogleClient(context!!, getString(R.string.default_web_client_id))
+        callbackManager = CallbackManager.Factory.create()
 
         // Instantiate widgets.
         val emailET = view.findViewById<EditText>(R.id.emailET)
@@ -62,23 +64,24 @@ class LoginFragment : Fragment() {
         val googleBtn = view.findViewById<SignInButton>(R.id.googleBtn)
         val facebookBtn = view.findViewById<LoginButton>(R.id.facebookBtn)
 
-        // Call signInWithEmail() with provided params.
+        // FirebaseAuth using signInWithEmail() with provided params.
         loginBtn.setOnClickListener {
             val email: String = emailET.text.toString().trim()
             val password: String = passwordET.text.toString().trim()
             signInWithEmail(it, email, password)
         }
 
+        // Auth with Google.
         googleBtn.setOnClickListener {
             val signInIntent: Intent = googleSignInClient.signInIntent
-            startActivityForResult(signInIntent, RC_SIGN_IN)
+            startActivityForResult(signInIntent, signInReqCode)
         }
 
+        // Auth with Facebook.
         facebookBtn.fragment = this
-        callbackManager = CallbackManager.Factory.create()
         facebookBtn.setOnClickListener { signInWithFacebook(it as LoginButton) }
 
-        // Make sure there no empty fields. After all fields are filled out, loginBtn gets enabled.
+        // Make sure there are no empty fields. After all fields are filled out, loginBtn gets enabled.
         val textWatcher: TextWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -94,41 +97,42 @@ class LoginFragment : Fragment() {
         passwordET.addTextChangedListener(textWatcher)
     }
 
-    // Sign in with Firebase and open HomeActivity.
+    // Sign in with Firebase.
     private fun signInWithEmail(view: View, email: String, password: String) {
         showMessage(view, "Authenticating...")
 
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                activity?.finish()
-                startActivity(Intent(context, HomeActivity::class.java))
+                finishCurrentAndStartHomeActivity()
             } else showMessage(view, "Error: ${task.exception?.message}")
         }
 
     }
 
+    // Sign in with Google.
     private fun signInWithGoogle(acct: GoogleSignInAccount) {
         val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                activity?.finish()
-                startActivity(Intent(context, HomeActivity::class.java))
+                finishCurrentAndStartHomeActivity()
             } else {
                 showMessage(googleBtn, "Error: ${task.exception.toString()}")
             }
         }
     }
 
+    // Sign in with Facebook.
     private fun signInWithFacebook(view: LoginButton) {
+        // Grant permission to access user's email, friends list and public profile data.
         view.setPermissions(listOf("email", "public_profile", "user_friends"))
         view.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(loginResult: LoginResult) {
+                // Extract token from the result and use it to sign in with Firebase.
                 val credential = FacebookAuthProvider.getCredential(loginResult.accessToken.token)
                 firebaseAuth.signInWithCredential(credential)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            activity?.finish()
-                            startActivity(Intent(context, HomeActivity::class.java))
+                            finishCurrentAndStartHomeActivity()
                         } else {
                             showMessage(facebookBtn, "Error: ${task.exception.toString()}")
                         }
@@ -151,9 +155,16 @@ class LoginFragment : Fragment() {
             TSnackbar.LENGTH_LONG).show()
     }
 
+    private fun finishCurrentAndStartHomeActivity() {
+        activity?.finish()
+        startActivity(Intent(context, HomeActivity::class.java))
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == RC_SIGN_IN) {
+
+        // Handle Google sign-in.
+        if (requestCode == signInReqCode) {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 val account = task.getResult(ApiException::class.java)!!
@@ -163,7 +174,7 @@ class LoginFragment : Fragment() {
             }
         }
 
-        // Pass the activity result back to the Facebook SDK
-        callbackManager.onActivityResult(requestCode, resultCode, data);
+        // Pass the activity result back to the Facebook SDK.
+        callbackManager.onActivityResult(requestCode, resultCode, data)
     }
 }

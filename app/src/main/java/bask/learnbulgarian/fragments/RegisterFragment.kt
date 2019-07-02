@@ -57,7 +57,7 @@ class RegisterFragment : Fragment() {
             }
         }
 
-        // Make sure there no empty fields. After all fields are filled out, loginBtn gets enabled.
+        // Make sure there are no empty fields. After all fields are filled out, loginBtn gets enabled.
         val textWatcher: TextWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}

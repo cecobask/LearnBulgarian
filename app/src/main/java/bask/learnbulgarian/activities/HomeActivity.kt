@@ -36,7 +36,7 @@ class HomeActivity : AppCompatActivity() {
 
         usernameTV.text = firebaseAuth.currentUser?.email
 
-        // Bring the user to the AuthActivity when logoutBtn is pressed.
+        // Logout current user and bring it to the AuthActivity when logoutBtn is pressed.
         logoutBtn.setOnClickListener {
             firebaseAuth.signOut()
             googleSignInClient.signOut()
