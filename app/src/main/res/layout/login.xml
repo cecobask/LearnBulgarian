@@ -11,7 +11,7 @@
         android:id="@+id/appName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="20dp"
         android:text="@string/app_name"
         android:textSize="32sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -49,7 +49,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/emailET"
-            android:layout_marginBottom="40dp"
+            android:layout_marginBottom="30dp"
             android:autofillHints="password"
             android:background="@drawable/rounded_edittext"
             android:drawableStart="@drawable/ic_pass"
@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/passwordET"
             android:layout_centerInParent="true"
-            android:layout_marginBottom="40dp"
+            android:layout_marginBottom="30dp"
             android:backgroundTint="@color/colorPrimary"
             android:enabled="false"
             android:text="@string/login" />
@@ -97,30 +97,57 @@
             android:layout_toEndOf="@id/orTV"
             android:background="@color/colorPrimary" />
 
-        <com.google.android.gms.common.SignInButton
-            android:id="@+id/googleBtn"
+        <FrameLayout
+            android:id="@+id/facebookFrame"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/orTV"
+            android:layout_below="@id/orTV"
             android:layout_centerInParent="true"
-            android:layout_marginTop="40dp"
-            app:buttonSize="wide"
-            app:colorScheme="light" />
+            android:layout_marginTop="30dp">
 
-        <com.facebook.login.widget.LoginButton xmlns:facebook="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/facebookBtn"
-            android:layout_width="wrap_content"
+            <com.facebook.login.widget.LoginButton
+                android:id="@+id/facebookBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/facebookBtnCustom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#4267b2"
+                android:drawableStart="@drawable/ic_facebook"
+                android:drawablePadding="15dp"
+                android:text="@string/facebookBtn"
+                android:textAllCaps="false"
+                android:textColor="#fff" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/googleFrame"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/googleBtn"
-            android:layout_centerVertical="true"
-            android:layout_marginTop="11dp"
-            android:layout_marginBottom="30dp"
-            android:layout_centerInParent="true"
-            android:paddingLeft="10dp"
-            android:paddingTop="15dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="15dp"
-            facebook:com_facebook_logout_text="Continue with Facebook" />
+            android:layout_below="@id/facebookFrame"
+            android:layout_alignStart="@id/facebookFrame"
+            android:layout_alignEnd="@id/facebookFrame"
+            android:layout_marginTop="10dp">
+
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/googleBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/googleBtnCustom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#fff"
+                android:drawableStart="@drawable/ic_google"
+                android:text="@string/googleBtn"
+                android:textAllCaps="false" />
+
+        </FrameLayout>
 
     </RelativeLayout>
 

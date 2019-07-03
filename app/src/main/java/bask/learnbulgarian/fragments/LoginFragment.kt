@@ -23,22 +23,20 @@ import com.facebook.login.widget.LoginButton
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import kotlinx.android.synthetic.main.login.*
 
 
 class LoginFragment : Fragment() {
 
-    private val signInReqCode: Int = 1
-
+    private val signInReqCodeGoogle: Int = 1
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var callbackManager: CallbackManager
+    private lateinit var googleBtn: Button
 
     companion object {
         fun newInstance(): LoginFragment {
@@ -61,8 +59,12 @@ class LoginFragment : Fragment() {
         val emailET = view.findViewById<EditText>(R.id.emailET)
         val passwordET = view.findViewById<EditText>(R.id.passwordET)
         val loginBtn = view.findViewById<Button>(R.id.loginBtn)
-        val googleBtn = view.findViewById<SignInButton>(R.id.googleBtn)
+        val googleBtn = view.findViewById<Button>(R.id.googleBtnCustom)
         val facebookBtn = view.findViewById<LoginButton>(R.id.facebookBtn)
+        val facebookBtnCustom = view.findViewById<Button>(R.id.facebookBtnCustom)
+
+        // Workaround for implementing custom social media button
+        facebookBtnCustom.setOnClickListener { facebookBtn.performClick() }
 
         // FirebaseAuth using signInWithEmail() with provided params.
         loginBtn.setOnClickListener {
@@ -74,7 +76,7 @@ class LoginFragment : Fragment() {
         // Auth with Google.
         googleBtn.setOnClickListener {
             val signInIntent: Intent = googleSignInClient.signInIntent
-            startActivityForResult(signInIntent, signInReqCode)
+            startActivityForResult(signInIntent, signInReqCodeGoogle)
         }
 
         // Auth with Facebook.
@@ -116,7 +118,7 @@ class LoginFragment : Fragment() {
             if (task.isSuccessful) {
                 finishCurrentAndStartHomeActivity()
             } else {
-                showMessage(googleBtn, "Error: ${task.exception.toString()}")
+                showMessage(googleBtn, "Error: $task.exception")
             }
         }
     }
@@ -134,7 +136,7 @@ class LoginFragment : Fragment() {
                         if (task.isSuccessful) {
                             finishCurrentAndStartHomeActivity()
                         } else {
-                            showMessage(facebookBtn, "Error: ${task.exception.toString()}")
+                            showMessage(view, "Error: ${task.exception.toString()}")
                         }
                     }
             }
@@ -144,7 +146,7 @@ class LoginFragment : Fragment() {
             }
 
             override fun onError(exception: FacebookException) {
-                showMessage(view, "Error: $exception.toString()")
+                showMessage(view, "Error: $exception")
             }
         })
     }
@@ -164,7 +166,7 @@ class LoginFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
 
         // Handle Google sign-in.
-        if (requestCode == signInReqCode) {
+        if (requestCode == signInReqCodeGoogle) {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 val account = task.getResult(ApiException::class.java)!!
@@ -172,9 +174,9 @@ class LoginFragment : Fragment() {
             } catch (e: ApiException) {
                 showMessage(googleBtn, "Error: $e")
             }
+        } else {
+            // Pass the activity result back to the Facebook SDK.
+            callbackManager.onActivityResult(requestCode, resultCode, data)
         }
-
-        // Pass the activity result back to the Facebook SDK.
-        callbackManager.onActivityResult(requestCode, resultCode, data)
     }
 }
