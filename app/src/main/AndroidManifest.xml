@@ -16,8 +16,8 @@
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <activity
             android:name=".activities.AuthActivity"
-            android:theme="@style/AuthTheme"
-            android:windowSoftInputMode="stateAlwaysHidden" />
+            android:windowSoftInputMode="stateAlwaysHidden"
+            android:theme="@style/AuthTheme" />
         <activity
             android:name=".activities.HomeActivity"
             android:windowSoftInputMode="stateAlwaysHidden">
