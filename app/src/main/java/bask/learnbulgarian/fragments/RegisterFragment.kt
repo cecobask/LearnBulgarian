@@ -7,14 +7,16 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.Button
-import android.widget.EditText
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import bask.learnbulgarian.R
 import bask.learnbulgarian.activities.HomeActivity
 import bask.learnbulgarian.models.User
 import com.androidadvance.topsnackbar.TSnackbar
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -35,10 +37,12 @@ class RegisterFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Instantiate widgets.
-        val usernameET = view.findViewById<EditText>(R.id.usernameET)
-        val emailET = view.findViewById<EditText>(R.id.emailET)
-        val passwordET = view.findViewById<EditText>(R.id.passwordET)
-        val confirmPasswordET = view.findViewById<EditText>(R.id.confirmPasswordET)
+        val usernameET = view.findViewById<TextInputEditText>(R.id.usernameET)
+        val emailET = view.findViewById<TextInputEditText>(R.id.emailET)
+        val passwordET = view.findViewById<TextInputEditText>(R.id.passwordET)
+        val passwordLayout = view.findViewById<TextInputLayout>(R.id.passwordLayout)
+        val confirmPasswordET = view.findViewById<TextInputEditText>(R.id.confirmPasswordET)
+        val confirmPasswordLayout = view.findViewById<TextInputLayout>(R.id.confirmPasswordLayout)
         val registerBtn = view.findViewById<Button>(R.id.registerBtn)
 
         // Get user input from fields and attempt to call signUp() with provided params.
@@ -52,8 +56,8 @@ class RegisterFragment : Fragment() {
             if (password == confirmPassword) {
                 signUp(view, username, email, password)
             } else {
-                passwordET.error = "Passwords must match!"
-                confirmPasswordET.error = "Passwords must match!"
+                passwordLayout.error = "Passwords must match!"
+                confirmPasswordLayout.error = "Passwords must match!"
             }
         }
 
@@ -76,6 +80,14 @@ class RegisterFragment : Fragment() {
         emailET.addTextChangedListener(textWatcher)
         passwordET.addTextChangedListener(textWatcher)
         confirmPasswordET.addTextChangedListener(textWatcher)
+
+        // Listen for IME_ACTION_DONE when the user reaches the confirm password field
+        confirmPasswordET.setOnEditorActionListener { v, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE && v.text.isNotEmpty()) {
+                registerBtn.performClick()
+            }
+            false
+        }
     }
 
     // Register user and open HomeActivity if the signing up is a success.

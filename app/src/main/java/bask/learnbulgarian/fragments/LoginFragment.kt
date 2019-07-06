@@ -7,8 +7,8 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.Button
-import android.widget.EditText
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import bask.learnbulgarian.R
@@ -25,6 +25,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
+import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
@@ -56,8 +57,8 @@ class LoginFragment : Fragment() {
         callbackManager = CallbackManager.Factory.create()
 
         // Instantiate widgets.
-        val emailET = view.findViewById<EditText>(R.id.emailET)
-        val passwordET = view.findViewById<EditText>(R.id.passwordET)
+        val emailET = view.findViewById<TextInputEditText>(R.id.emailET)
+        val passwordET = view.findViewById<TextInputEditText>(R.id.passwordET)
         val loginBtn = view.findViewById<Button>(R.id.loginBtn)
         val googleBtn = view.findViewById<Button>(R.id.googleBtnCustom)
         val facebookBtn = view.findViewById<LoginButton>(R.id.facebookBtn)
@@ -97,6 +98,14 @@ class LoginFragment : Fragment() {
         // Attach the TextWatcher to EditTexts.
         emailET.addTextChangedListener(textWatcher)
         passwordET.addTextChangedListener(textWatcher)
+
+        // Listener for IME_ACTION_DONE when the user reaches the password field
+        passwordET.setOnEditorActionListener { v, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE && v.text.isNotEmpty()) {
+                loginBtn.performClick()
+            }
+            false
+        }
     }
 
     // Sign in with Firebase.
