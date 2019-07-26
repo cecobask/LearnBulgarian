@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginHorizontal="40dp"
+    android:layout_marginTop="20dp">
+
+    <TextView
+        android:id="@+id/wotdDateTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:text="26 Jul 2019" />
+
+    <TextView
+        android:id="@+id/wotdWordTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/wotdDateTV"
+        android:text="мечe"
+        android:textColor="@color/black"
+        android:textSize="40sp"
+        android:textStyle="bold" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/wotdWordTV"
+        android:layout_alignBottom="@id/wotdWordTV"
+        android:layout_alignParentEnd="true"
+        android:backgroundTint="@color/colorPrimary"
+        android:src="@drawable/ic_speaker" />
+
+    <TextView
+        android:id="@+id/wotdTransliterationTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/wotdWordTV"
+        android:text="| meche |" />
+
+    <TextView
+        android:id="@+id/wotdTypeTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/wotdTransliterationTV"
+        android:layout_marginBottom="25dp"
+        android:text="Noun"
+        android:textColor="@color/black"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/wotdDefinitionTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/wotdTypeTV"
+        android:layout_marginBottom="25dp"
+        android:text="A small bear!"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/wotdExampleTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/wotdDefinitionTV"
+        android:text="Мечето се гушна в мама меца."
+        android:textColor="@color/black"
+        android:textStyle="italic" />
+
+</RelativeLayout>
