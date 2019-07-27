@@ -2,14 +2,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginHorizontal="40dp"
-    android:layout_marginTop="20dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingHorizontal="40dp"
+    android:paddingVertical="20dp">
 
     <TextView
         android:id="@+id/wotdDateTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="30dp"
         android:text="26 Jul 2019" />
 
     <TextView
@@ -17,18 +18,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/wotdDateTV"
+        android:layout_marginEnd="10dp"
         android:text="мечe"
         android:textColor="@color/black"
         android:textSize="40sp"
         android:textStyle="bold" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:layout_width="50dp"
+        android:id="@+id/wotdPronounceFAB"
+        style="@style/FABStyle"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@id/wotdWordTV"
         android:layout_alignBottom="@id/wotdWordTV"
-        android:layout_alignParentEnd="true"
-        android:backgroundTint="@color/colorPrimary"
+        android:layout_width="wrap_content"
+        android:layout_toEndOf="@id/wotdWordTV"
         android:src="@drawable/ic_speaker" />
 
     <TextView
@@ -36,7 +38,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/wotdWordTV"
-        android:text="| meche |" />
+        android:text="| meche |"
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/wotdTypeTV"
@@ -46,6 +49,7 @@
         android:layout_marginBottom="25dp"
         android:text="Noun"
         android:textColor="@color/black"
+        android:textSize="20sp"
         android:textStyle="italic" />
 
     <TextView
@@ -55,15 +59,47 @@
         android:layout_below="@id/wotdTypeTV"
         android:layout_marginBottom="25dp"
         android:text="A small bear!"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        android:textSize="20sp" />
 
     <TextView
-        android:id="@+id/wotdExampleTV"
+        android:id="@+id/wotdBGExampleTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/wotdDefinitionTV"
-        android:text="Мечето се гушна в мама меца."
+        android:text="BG: Мечето се гушна в мама меца."
         android:textColor="@color/black"
+        android:textSize="20sp"
         android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/wotdENExampleTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/wotdBGExampleTV"
+        android:text="EN: The little bear cuddled into mama bear."
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="italic" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/wotdLoveFAB"
+        style="@style/FABStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:layout_toStartOf="@id/wotdShareFAB"
+        android:src="@drawable/ic_heart" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/wotdShareFAB"
+        style="@style/FABStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/ic_share" />
 
 </RelativeLayout>

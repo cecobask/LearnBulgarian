@@ -14,5 +14,7 @@
     <string name="facebookBtn">Sign in with Facebook</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string name="wotd">Word of the Day</string>
+    <string name="home">Home</string>
 
 </resources>

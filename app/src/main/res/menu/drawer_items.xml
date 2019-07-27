@@ -2,6 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/navItemWOTD"
+            android:icon="@drawable/ic_wotd"
+            android:title="@string/wotd" />
+        <item
             android:id="@+id/navItemLogOut"
             android:icon="@drawable/ic_logout"
             android:title="@string/logout" />

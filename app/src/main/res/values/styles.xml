@@ -25,4 +25,10 @@
     <style name="UnelevatedButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
     </style>
 
+    <style name="FABStyle" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="fabSize">mini</item>
+        <item name="tint">@color/white</item>
+        <item name="backgroundTint">@color/colorPrimaryDark</item>
+    </style>
+
 </resources>
