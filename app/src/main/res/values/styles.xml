@@ -28,7 +28,7 @@
     <style name="FABStyle" parent="Widget.MaterialComponents.FloatingActionButton">
         <item name="fabSize">mini</item>
         <item name="tint">@color/white</item>
-        <item name="backgroundTint">@color/colorPrimaryDark</item>
+        <item name="backgroundTint">@color/colorPrimary</item>
     </style>
 
 </resources>

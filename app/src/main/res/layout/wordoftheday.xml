@@ -67,7 +67,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/wotdDefinitionTV"
-        android:text="BG: Мечето се гушна в мама меца."
         android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="italic" />
@@ -77,7 +76,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/wotdBGExampleTV"
-        android:text="EN: The little bear cuddled into mama bear."
+        android:text="This is an example sentence in English."
         android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="italic" />
