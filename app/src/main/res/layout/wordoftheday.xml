@@ -9,11 +9,10 @@
         android:id="@+id/wotdDateTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
-        android:text="26 Jul 2019" />
+        android:layout_marginBottom="30dp" />
 
     <TextView
-        android:id="@+id/wotdWordTV"
+        android:id="@+id/wotdTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/wotdDateTV"
@@ -26,17 +25,16 @@
         android:id="@+id/wotdPronounceFAB"
         style="@style/FABStyle"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/wotdWordTV"
+        android:layout_alignBottom="@id/wotdTV"
         android:layout_width="wrap_content"
-        android:layout_toEndOf="@id/wotdWordTV"
+        android:layout_toEndOf="@id/wotdTV"
         android:src="@drawable/ic_speaker" />
 
     <TextView
         android:id="@+id/wotdTransliterationTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/wotdWordTV"
-        android:text="| meche |"
+        android:layout_below="@id/wotdTV"
         android:textSize="20sp" />
 
     <TextView
