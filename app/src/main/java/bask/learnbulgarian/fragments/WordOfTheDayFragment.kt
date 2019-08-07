@@ -7,11 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import bask.learnbulgarian.R
+import bask.learnbulgarian.adapters.WordOfTheDayAdapter
 import bask.learnbulgarian.models.WordDefinition
 import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.FuelError
-import com.github.kittinunf.fuel.httpGet
+import com.github.kittinunf.result.Result
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.translate.Translate
@@ -20,8 +23,10 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import org.json.JSONArray
 import timber.log.Timber
 import java.io.InputStream
+import java.lang.Exception
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -30,6 +35,8 @@ class WordOfTheDayFragment: Fragment() {
 
     private lateinit var translate: Translate
     private lateinit var database: FirebaseDatabase
+    private lateinit var linearLayoutManager: LinearLayoutManager
+    private lateinit var adapter: WordOfTheDayAdapter
 
     companion object {
         fun newInstance(): WordOfTheDayFragment {
@@ -58,20 +65,22 @@ class WordOfTheDayFragment: Fragment() {
         val wotdTV = view.findViewById<TextView>(R.id.wotdTV)
         val wotdPronounceFAB = view.findViewById<FloatingActionButton>(R.id.wotdPronounceFAB)
         val wotdTransliterationTV = view.findViewById<TextView>(R.id.wotdTransliterationTV)
-        val wotdTypeTV = view.findViewById<TextView>(R.id.wotdTypeTV)
-        val wotdDefinitionTV = view.findViewById<TextView>(R.id.wotdDefinitionTV)
-        val wotdBGExampleTV = view.findViewById<TextView>(R.id.wotdBGExampleTV)
-        val wotdENExampleTV = view.findViewById<TextView>(R.id.wotdENExampleTV)
-        val wotdLoveFAB = view.findViewById<FloatingActionButton>(R.id.wotdLoveFAB)
-        val wotdShareFAB = view.findViewById<FloatingActionButton>(R.id.wotdShareFAB)
+//        val wotdLoveFAB = view.findViewById<FloatingActionButton>(R.id.wotdLoveFAB)
+//        val wotdShareFAB = view.findViewById<FloatingActionButton>(R.id.wotdShareFAB)
+        val wotdRV = view.findViewById<RecyclerView>(R.id.wotdRV)
 
-        val wotd = database.reference.child("wordOfTheDay").addValueEventListener(object : ValueEventListener {
+        // Configure RecyclerView.
+        linearLayoutManager = LinearLayoutManager(context)
+        wotdRV.layoutManager = linearLayoutManager
+        wotdRV.addItemDecoration(DividerItemDecoration(wotdRV.context, linearLayoutManager.orientation))
+
+        database.reference.child("wordOfTheDay").addValueEventListener(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
                 Timber.tag("wordOfTheDay").d(p0.toException())
             }
 
             override fun onDataChange(p0: DataSnapshot) {
-                // Set current date.
+                // Display current date.
                 wotdDateTV.text = getCurrentDate()
 
                 // Set word of the day.
@@ -83,12 +92,39 @@ class WordOfTheDayFragment: Fragment() {
                 val transliterationStr = "| ${transliterateBulgarian(wotdStr)} |"
                 wotdTransliterationTV.text = transliterationStr
 
-                // Log all word definitions.
-                Timber.tag("fuel").d(getWordDefinitions(wotdTranslation)!![0].toString())
+                // API call to Google Dictionary to fetch word definitions.
+                val jsonResponse = JSONArray(getWordDefinitions(wotdTranslation))
+                val wordDefinitions: MutableList<WordDefinition> = ArrayList()
+                // Loop through the results.
+                for (i in 0 until jsonResponse.length()) {
+                    val word = jsonResponse.getJSONObject(i)
+                    val wordDefinition = word.getJSONObject("meaning")
+                    // Loop through all the word definitions and extract needed values
+                    for (key in wordDefinition.keys()) {
+                        val currentElement = wordDefinition.getJSONArray(key).getJSONObject(0)
+                        val definition = currentElement.getString("definition")
+                        var exampleEN: String?
+                        var exampleBG: String?
+                        try {
+                            exampleEN = currentElement.getString("example")
+                            exampleBG = translateText(exampleEN, "en", "bg")
+                        } catch (e: Exception) {
+                            Timber.tag("null_example").d(e)
+                            exampleEN = null
+                            exampleBG = null
+                        }
 
-                // Get the value of the English example sentence and translate it to Bulgarian.
-                val exampleTextBg = translateText(wotdENExampleTV.text.toString(), "en", "bg")
-                wotdBGExampleTV.text = exampleTextBg
+                        // Create an object and add it to ArrayList.
+                        wordDefinitions.add(
+                            WordDefinition(wotdTranslation, definition, transliterationStr, key, exampleEN, exampleBG)
+                        )
+                    }
+
+                }
+
+                // Configure the RecyclerView to populate data from wordDefinitions ArrayList.
+                adapter = WordOfTheDayAdapter(wordDefinitions as ArrayList<WordDefinition>)
+                wotdRV.adapter = adapter
             }
 
         })
@@ -162,7 +198,7 @@ class WordOfTheDayFragment: Fragment() {
         en = en.replace("Ч".toRegex(), "CH")
         en = en.replace("Ш".toRegex(), "SH")
         en = en.replace("Щ".toRegex(), "SHT")
-        en = en.replace("Ъ".toRegex(), "A")
+        en = en.replace("Ъ".toRegex(), "A'")
         en = en.replace("Ь".toRegex(), "Y")
         en = en.replace("Ю".toRegex(), "YU")
         en = en.replace("Я".toRegex(), "YA")
@@ -175,12 +211,16 @@ class WordOfTheDayFragment: Fragment() {
         return LocalDate.now().format(formatter)
     }
 
-    private fun getWordDefinitions(word: String): Array<WordDefinition>? {
-        var definitions: Array<WordDefinition>? = null
-        Fuel.get("https://googledictionaryapi.eu-gb.mybluemix.net/?define=$word")
-            .responseObject(WordDefinition.Deserializer()) { _, _, result ->
-                definitions = result.component1()
-            }.join()
+    private fun getWordDefinitions(word: String): String? {
+        var definitions: String? = null
+        val (_, _, result) = Fuel.get("https://googledictionaryapi.eu-gb.mybluemix.net/?define=$word")
+            .responseString()
+
+        when (result) {
+            is Result.Failure -> Timber.tag("fuel").d(result.getException())
+            is Result.Success -> definitions = result.get()
+        }
+
         return definitions
     }
 

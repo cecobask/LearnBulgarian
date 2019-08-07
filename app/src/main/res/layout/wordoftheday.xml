@@ -9,7 +9,7 @@
         android:id="@+id/wotdDateTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp" />
+        android:layout_marginBottom="20dp" />
 
     <TextView
         android:id="@+id/wotdTV"
@@ -24,9 +24,9 @@
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/wotdPronounceFAB"
         style="@style/FABStyle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/wotdTV"
-        android:layout_width="wrap_content"
         android:layout_toEndOf="@id/wotdTV"
         android:src="@drawable/ic_speaker" />
 
@@ -37,64 +37,31 @@
         android:layout_below="@id/wotdTV"
         android:textSize="20sp" />
 
-    <TextView
-        android:id="@+id/wotdTypeTV"
-        android:layout_width="wrap_content"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/wotdRV"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/wotdTransliterationTV"
-        android:layout_marginBottom="25dp"
-        android:text="Noun"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        android:textStyle="italic" />
+        android:scrollbars="none"/>
 
-    <TextView
-        android:id="@+id/wotdDefinitionTV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/wotdTypeTV"
-        android:layout_marginBottom="25dp"
-        android:text="A small bear!"
-        android:textColor="@color/black"
-        android:textSize="20sp" />
+    <!--<com.google.android.material.floatingactionbutton.FloatingActionButton-->
+    <!--android:id="@+id/wotdLoveFAB"-->
+    <!--style="@style/FABStyle"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_alignParentBottom="true"-->
+    <!--android:layout_marginBottom="10dp"-->
+    <!--android:layout_toStartOf="@id/wotdShareFAB"-->
+    <!--android:src="@drawable/ic_heart" />-->
 
-    <TextView
-        android:id="@+id/wotdBGExampleTV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/wotdDefinitionTV"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        android:textStyle="italic" />
-
-    <TextView
-        android:id="@+id/wotdENExampleTV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/wotdBGExampleTV"
-        android:text="This is an example sentence in English."
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        android:textStyle="italic" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/wotdLoveFAB"
-        style="@style/FABStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="10dp"
-        android:layout_toStartOf="@id/wotdShareFAB"
-        android:src="@drawable/ic_heart" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/wotdShareFAB"
-        style="@style/FABStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="10dp"
-        android:src="@drawable/ic_share" />
+    <!--<com.google.android.material.floatingactionbutton.FloatingActionButton-->
+    <!--android:id="@+id/wotdShareFAB"-->
+    <!--style="@style/FABStyle"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_alignParentEnd="true"-->
+    <!--android:layout_alignParentBottom="true"-->
+    <!--android:layout_marginBottom="10dp"-->
+    <!--android:src="@drawable/ic_share" />-->
 
 </RelativeLayout>
