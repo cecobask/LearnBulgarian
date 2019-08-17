@@ -37,31 +37,61 @@
         android:layout_below="@id/wotdTV"
         android:textSize="20sp" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/wotdRV"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/wotdTypeTV"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/wotdTransliterationTV"
-        android:scrollbars="none"/>
+        android:layout_marginBottom="25dp"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="italic" />
 
-    <!--<com.google.android.material.floatingactionbutton.FloatingActionButton-->
-    <!--android:id="@+id/wotdLoveFAB"-->
-    <!--style="@style/FABStyle"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_alignParentBottom="true"-->
-    <!--android:layout_marginBottom="10dp"-->
-    <!--android:layout_toStartOf="@id/wotdShareFAB"-->
-    <!--android:src="@drawable/ic_heart" />-->
+    <TextView
+        android:id="@+id/wotdDefinitionTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/wotdTypeTV"
+        android:layout_marginBottom="25dp"
+        android:textColor="@color/black"
+        android:textSize="20sp" />
 
-    <!--<com.google.android.material.floatingactionbutton.FloatingActionButton-->
-    <!--android:id="@+id/wotdShareFAB"-->
-    <!--style="@style/FABStyle"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_alignParentEnd="true"-->
-    <!--android:layout_alignParentBottom="true"-->
-    <!--android:layout_marginBottom="10dp"-->
-    <!--android:src="@drawable/ic_share" />-->
+    <TextView
+        android:id="@+id/wotdBGExampleTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/wotdDefinitionTV"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/wotdENExampleTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/wotdBGExampleTV"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="italic" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/wotdShareFAB"
+        style="@style/FABStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/ic_share" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/wotdLoveFAB"
+        style="@style/FABStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:layout_toStartOf="@id/wotdShareFAB"
+        android:src="@drawable/ic_heart" />
 
 </RelativeLayout>
