@@ -1,5 +1,8 @@
 package bask.learnbulgarian.fragments
 
+import android.media.AudioAttributes
+import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import android.os.StrictMode
 import android.view.LayoutInflater
@@ -8,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import bask.learnbulgarian.R
+import bask.learnbulgarian.models.WordOfTheDay
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -21,6 +25,7 @@ import java.time.format.FormatStyle
 class WordOfTheDayFragment: Fragment() {
 
     private lateinit var database: FirebaseDatabase
+    private lateinit var mediaPlayer: MediaPlayer // For playing word pronunciation.
 
     companion object {
         fun newInstance(): WordOfTheDayFragment {
@@ -51,7 +56,7 @@ class WordOfTheDayFragment: Fragment() {
         val wotdLoveFAB = view.findViewById<FloatingActionButton>(R.id.wotdLoveFAB)
         val wotdShareFAB = view.findViewById<FloatingActionButton>(R.id.wotdShareFAB)
 
-        val currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-M-yyyy"))
+        val currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("d-M-yyyy"))
 
         database.reference.child("wordOfTheDay").child(currentDate).addValueEventListener(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
@@ -60,18 +65,27 @@ class WordOfTheDayFragment: Fragment() {
 
             override fun onDataChange(p0: DataSnapshot) {
                 // Current word of the day.
-                val currentWOTD = p0.value as HashMap<*,*>
+                val currentWOTD = p0.getValue(WordOfTheDay::class.java)
 
                 // Set values for all widgets.
                 wotdDateTV.text = LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
-                wotdTV.text = currentWOTD["word"].toString()
-                wotdTransliterationTV.text = currentWOTD["wordTransliteration"].toString()
-                wotdTypeTV.text = currentWOTD["wordType"].toString()
-                wotdDefinitionTV.text = currentWOTD["wordDefinition"].toString()
-                if (currentWOTD.containsKey("exampleSentenceEN")) {
-                    wotdENExampleTV.text = currentWOTD["exampleSentenceEN"].toString()
-                    wotdBGExampleTV.text = currentWOTD["exampleSentenceBG"].toString()
+                wotdTV.text = currentWOTD?.word
+                wotdTransliterationTV.text = currentWOTD?.wordTransliteration
+                wotdTypeTV.text = currentWOTD?.wordType
+                wotdDefinitionTV.text = currentWOTD?.wordDefinition
+                if (currentWOTD?.exampleSentenceEN != "") {
+                    wotdENExampleTV.text = currentWOTD?.exampleSentenceEN
+                    wotdBGExampleTV.text = currentWOTD?.exampleSentenceBG
                 }
+
+                // Create MediaPlayer instance that uses URL from Google Cloud Storage.
+                // to play word pronunciation
+                mediaPlayer = MediaPlayer.create(context, Uri.parse(currentWOTD?.pronunciationURL))
+                mediaPlayer.setAudioAttributes(AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()
+                )
+
+                // Play word pronunciation on click of FAB.
+                wotdPronounceFAB.setOnClickListener { mediaPlayer.start() }
             }
         })
 
