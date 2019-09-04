@@ -21,15 +21,6 @@
         android:textSize="40sp"
         android:textStyle="bold" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/wotdPronounceFAB"
-        style="@style/FABStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/wotdTV"
-        android:layout_toEndOf="@id/wotdTV"
-        android:src="@drawable/ic_speaker" />
-
     <TextView
         android:id="@+id/wotdTransliterationTV"
         android:layout_width="wrap_content"
@@ -82,7 +73,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="10dp"
-        android:src="@drawable/ic_share" />
+        android:src="@drawable/ic_share"
+        android:visibility="gone" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/wotdLoveFAB"
@@ -92,6 +84,25 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="10dp"
         android:layout_toStartOf="@id/wotdShareFAB"
-        android:src="@drawable/ic_heart" />
+        android:src="@drawable/ic_heart"
+        android:visibility="gone" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/wotdPronounceFAB"
+        style="@style/FABStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/wotdTV"
+        android:layout_toEndOf="@id/wotdTV"
+        android:src="@drawable/ic_speaker"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:minWidth="50dp"
+        android:minHeight="50dp" />
 
 </RelativeLayout>
