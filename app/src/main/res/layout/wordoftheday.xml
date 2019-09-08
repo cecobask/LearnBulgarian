@@ -66,14 +66,14 @@
         android:textStyle="italic" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/wotdShareFAB"
+        android:id="@+id/wotdListFAB"
         style="@style/FABStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="10dp"
-        android:src="@drawable/ic_share"
+        android:src="@drawable/ic_list"
         android:visibility="gone" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -83,7 +83,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="10dp"
-        android:layout_toStartOf="@id/wotdShareFAB"
+        android:layout_toStartOf="@id/wotdListFAB"
         android:src="@drawable/ic_heart"
         android:visibility="gone" />
 

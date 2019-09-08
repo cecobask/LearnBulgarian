@@ -15,5 +15,6 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="wotd">Word of the Day</string>
+    <string name="favWords">Favourite words</string>
 
 </resources>

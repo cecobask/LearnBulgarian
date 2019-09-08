@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import bask.learnbulgarian.R
@@ -46,6 +47,9 @@ class WordOfTheDayFragment: Fragment() {
         val policy: StrictMode.ThreadPolicy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
 
+        // Change toolbar title.
+        (activity as? AppCompatActivity)?.supportActionBar?.title = resources.getString(R.string.wotd)
+
         val wotdDateTV = view.findViewById<TextView>(R.id.wotdDateTV)
         val wotdTV = view.findViewById<TextView>(R.id.wotdTV)
         val wotdPronounceFAB = view.findViewById<FloatingActionButton>(R.id.wotdPronounceFAB)
@@ -55,7 +59,7 @@ class WordOfTheDayFragment: Fragment() {
         val wotdBGExampleTV = view.findViewById<TextView>(R.id.wotdBGExampleTV)
         val wotdENExampleTV = view.findViewById<TextView>(R.id.wotdENExampleTV)
         val wotdLoveFAB = view.findViewById<FloatingActionButton>(R.id.wotdLoveFAB)
-        val wotdShareFAB = view.findViewById<FloatingActionButton>(R.id.wotdShareFAB)
+        val wotdListFAB = view.findViewById<FloatingActionButton>(R.id.wotdListFAB)
         val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
         val currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("d-M-yyyy"))
 
@@ -120,9 +124,9 @@ class WordOfTheDayFragment: Fragment() {
                         // Hide progress bar.
                         progressBar.visibility = View.GONE
 
-                        // Show widgets.
+                        // Show buttons.
                         wotdLoveFAB.visibility = View.VISIBLE
-                        wotdShareFAB.visibility = View.VISIBLE
+                        wotdListFAB.visibility = View.VISIBLE
 
                         if (p0.exists()) {
                             // Word exists in user's collection.
@@ -161,6 +165,15 @@ class WordOfTheDayFragment: Fragment() {
                                             .getColor(resources, R.color.colorPrimary, null)
                                     )
                             }
+                        }
+
+                        // Open user's favourite words collection in a new Fragment.
+                        wotdListFAB.setOnClickListener {
+                            fragmentManager!!
+                                .beginTransaction()
+                                .replace(R.id.fragmentContainer, WordOfTheDayFavourites.newInstance())
+                                .addToBackStack(null)
+                                .commit()
                         }
                     }
 
