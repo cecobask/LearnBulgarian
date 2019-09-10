@@ -107,8 +107,10 @@ class WordOfTheDayFragment: Fragment() {
                 wotdPronounceFAB.setOnClickListener { mediaPlayer.start() }
 
                 // Reference to current user's collection of favourite words.
-                val favWordRef = databaseRef.child("users").child(currentUser!!.uid)
-                    .child("favWords").child(currentDate)
+                val favWordRef = databaseRef.child("users")
+                    .child(currentUser!!.uid)
+                    .child("favWords")
+                    .child(currentDate)
 
                 // Query user's favourite words collection
                 // to check if today's word of the day exists there.
@@ -171,7 +173,7 @@ class WordOfTheDayFragment: Fragment() {
                         wotdListFAB.setOnClickListener {
                             fragmentManager!!
                                 .beginTransaction()
-                                .replace(R.id.fragmentContainer, WordOfTheDayFavourites.newInstance())
+                                .replace(R.id.fragmentContainer, WordOfTheDayFavouritesFragment.newInstance())
                                 .addToBackStack(null)
                                 .commit()
                         }

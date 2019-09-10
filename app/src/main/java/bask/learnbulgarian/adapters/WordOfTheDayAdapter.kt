@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import bask.learnbulgarian.R
 import bask.learnbulgarian.models.WordOfTheDay
+import com.google.firebase.database.DatabaseReference
 import kotlinx.android.synthetic.main.wotd_item.view.*
 
 class WordOfTheDayAdapter(private val favouriteWords: ArrayList<WordOfTheDay>) :
@@ -18,6 +19,13 @@ class WordOfTheDayAdapter(private val favouriteWords: ArrayList<WordOfTheDay>) :
 
     override fun onBindViewHolder(holder: WordHolder, position: Int) =
         holder.bindItems(favouriteWords[position])
+
+    fun removeAt(position: Int, favWordsRef: DatabaseReference) {
+        // Remove word from Firebase db and from local ArrayList.
+        favWordsRef.child(favouriteWords[position].wordDate).removeValue()
+        favouriteWords.removeAt(position)
+        notifyItemRemoved(position)
+    }
 
     class WordHolder(v: View) : RecyclerView.ViewHolder(v) {
         private val view: View = v

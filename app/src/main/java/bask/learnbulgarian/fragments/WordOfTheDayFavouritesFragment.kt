@@ -7,11 +7,13 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import bask.learnbulgarian.R
 import bask.learnbulgarian.adapters.WordOfTheDayAdapter
 import bask.learnbulgarian.models.WordOfTheDay
+import bask.learnbulgarian.utils.SwipeToDeleteCallback
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -19,7 +21,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import timber.log.Timber
 
-class WordOfTheDayFavourites : Fragment() {
+class WordOfTheDayFavouritesFragment : Fragment() {
 
     private lateinit var database: FirebaseDatabase
     private lateinit var linearLayoutManager: LinearLayoutManager
@@ -27,8 +29,8 @@ class WordOfTheDayFavourites : Fragment() {
     private lateinit var firebaseAuth: FirebaseAuth
 
     companion object {
-        fun newInstance(): WordOfTheDayFavourites {
-            return WordOfTheDayFavourites()
+        fun newInstance(): WordOfTheDayFavouritesFragment {
+            return WordOfTheDayFavouritesFragment()
         }
     }
 
@@ -51,10 +53,12 @@ class WordOfTheDayFavourites : Fragment() {
         val wotdFavouritesRV = view.findViewById<RecyclerView>(R.id.wotdFavouritesRV)
 
         // Retrieve user's favourite words.
-        database.reference.child("users")
+        val favWordsRef = database.reference
+            .child("users")
             .child(firebaseAuth.currentUser!!.uid)
             .child("favWords")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
+
+        favWordsRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onCancelled(p0: DatabaseError) =
                     Timber.tag("favWords").d(p0.toException())
 
@@ -68,14 +72,32 @@ class WordOfTheDayFavourites : Fragment() {
                             favouriteWords.add(word)
                         }
 
-                        // Configure RecyclerView.
+                        // Sort the words in descending order (most recent dates on top).
+                        favouriteWords.sortDescending()
+
+                        // Add layoutManager to RV.
                         linearLayoutManager = LinearLayoutManager(context)
                         wotdFavouritesRV.layoutManager = linearLayoutManager
+
+                        // Add bottom border to each RV element.
                         wotdFavouritesRV.addItemDecoration(DividerItemDecoration(
                                 wotdFavouritesRV.context,
                                 linearLayoutManager.orientation))
+
+                        // Link RV and its adapter.
                         adapter = WordOfTheDayAdapter(favouriteWords as ArrayList<WordOfTheDay>)
                         wotdFavouritesRV.adapter = adapter
+
+                        // Callback for RV elements swiping.
+                        val swipeHandler = object : SwipeToDeleteCallback(context!!) {
+                            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                                // Pass position and db reference to adapter method.
+                                adapter.removeAt(viewHolder.adapterPosition, favWordsRef)
+                            }
+                        }
+
+                        // Attach swipe handler callback to RV.
+                        ItemTouchHelper(swipeHandler).attachToRecyclerView(wotdFavouritesRV)
                     }
                 }
 
