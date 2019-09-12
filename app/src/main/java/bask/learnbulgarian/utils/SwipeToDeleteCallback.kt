@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 /** @see (https://medium.com/@kitek/recyclerview-swipe-to-delete-easier-than-you-thought-cff67ff5e5f6) */
 abstract class SwipeToDeleteCallback(context: Context) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
-    private val deleteIcon = ContextCompat.getDrawable(context, android.R.drawable.ic_delete)!!
+    private val deleteIcon = ContextCompat.getDrawable(context, android.R.drawable.ic_menu_delete)!!
     private val intrinsicWidth = deleteIcon.intrinsicWidth
     private val intrinsicHeight = deleteIcon.intrinsicHeight
     private val background = ColorDrawable()
@@ -24,9 +24,7 @@ abstract class SwipeToDeleteCallback(context: Context) : ItemTouchHelper.SimpleC
     }
 
     override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
-                        target: RecyclerView.ViewHolder): Boolean {
-        return false
-    }
+                        target: RecyclerView.ViewHolder): Boolean = false
 
     override fun onChildDraw(
         c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
@@ -62,7 +60,7 @@ abstract class SwipeToDeleteCallback(context: Context) : ItemTouchHelper.SimpleC
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
     }
 
-    private fun clearCanvas(c: Canvas?, left: Float, top: Float, right: Float, bottom: Float) {
+    private fun clearCanvas(c: Canvas?, left: Float, top: Float, right: Float, bottom: Float) =
         c?.drawRect(left, top, right, bottom, clearPaint)
-    }
+
 }

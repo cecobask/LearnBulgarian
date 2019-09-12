@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingVertical="10dp"
-    android:background="?attr/selectableItemBackground">
+    android:background="@drawable/selected_item_rv">
 
     <TextView
         android:id="@+id/wordOfTheDayTV"
