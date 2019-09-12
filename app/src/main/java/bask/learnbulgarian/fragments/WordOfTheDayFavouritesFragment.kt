@@ -66,13 +66,13 @@ class WordOfTheDayFavouritesFragment : Fragment() {
             .child(firebaseAuth.currentUser!!.uid)
             .child("favWords")
 
-//        val word1 = WordOfTheDay("1-1-2011","котка")
-//        val word2 = WordOfTheDay("1-1-2013","мама")
-//        val word3 = WordOfTheDay("1-1-2009","тати")
-//
-//        favWordsRef.child("1-1-2011").setValue(word1)
-//        favWordsRef.child("1-1-2013").setValue(word2)
-//        favWordsRef.child("1-1-2009").setValue(word3)
+        val word1 = WordOfTheDay("1-1-2011","котка")
+        val word2 = WordOfTheDay("1-1-2013","мама")
+        val word3 = WordOfTheDay("1-1-2009","тати")
+
+        favWordsRef.child("1-1-2011").setValue(word1)
+        favWordsRef.child("1-1-2013").setValue(word2)
+        favWordsRef.child("1-1-2009").setValue(word3)
 
         favWordsRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onCancelled(p0: DatabaseError) =
@@ -102,7 +102,19 @@ class WordOfTheDayFavouritesFragment : Fragment() {
 
                         // Link RV and its adapter.
                         adapter = WordOfTheDayAdapter(favouriteWords as ArrayList<WordOfTheDay>)
-                        wotdFavouritesRV.adapter = adapter
+                        wotdFavouritesRV.swapAdapter(adapter, true)
+//                        wotdFavouritesRV.adapter = adapter
+
+                        // Callback for RV elements swiping.
+                        val swipeHandler = object : SwipeToDeleteCallback(context!!) {
+                            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                                // Pass position and db reference to adapter method.
+                                adapter.removeAt(viewHolder.adapterPosition, favWordsRef)
+                            }
+                        }
+
+                        // Attach swipe handler callback to RV.
+                        ItemTouchHelper(swipeHandler).attachToRecyclerView(wotdFavouritesRV)
 
                         // SelectionTracker that will allow multiple items to be selected.
                         tracker = SelectionTracker.Builder<Long>(
@@ -138,19 +150,6 @@ class WordOfTheDayFavouritesFragment : Fragment() {
                         })
                         // Attach SelectionTracker to the adapter.
                         adapter.tracker = tracker
-
-                        // Callback for RV elements swiping.
-                        val swipeHandler = object : SwipeToDeleteCallback(context!!) {
-                            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                                // Pass position and db reference to adapter method.
-                                val positions = ArrayList<Int>()
-                                positions.add(viewHolder.adapterPosition)
-                                adapter.removeItems(positions, favWordsRef)
-                            }
-                        }
-
-                        // Attach swipe handler callback to RV.
-                        ItemTouchHelper(swipeHandler).attachToRecyclerView(wotdFavouritesRV)
                     }
                 }
 

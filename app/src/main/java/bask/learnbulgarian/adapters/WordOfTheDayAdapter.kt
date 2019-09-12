@@ -16,10 +16,6 @@ class WordOfTheDayAdapter(private val favouriteWords: ArrayList<WordOfTheDay>) :
 
     var tracker: SelectionTracker<Long>? = null
 
-    init {
-        setHasStableIds(true)
-    }
-
     override fun getItemId(position: Int): Long = position.toLong()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WordHolder =
@@ -44,6 +40,13 @@ class WordOfTheDayAdapter(private val favouriteWords: ArrayList<WordOfTheDay>) :
             favouriteWords.remove(it)
             notifyDataSetChanged()
         }
+    }
+
+    fun removeAt(position: Int, favWordsRef: DatabaseReference) {
+        // Remove word from Firebase db and from local ArrayList.
+        favWordsRef.child(favouriteWords[position].wordDate).removeValue()
+        favouriteWords.removeAt(position)
+        notifyItemRemoved(position)
     }
 
     inner class WordHolder(v: View) : RecyclerView.ViewHolder(v) {
