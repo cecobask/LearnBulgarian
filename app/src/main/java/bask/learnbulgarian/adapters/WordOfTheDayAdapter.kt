@@ -14,9 +14,15 @@ import kotlinx.android.synthetic.main.wotd_item.view.*
 class WordOfTheDayAdapter(private val favouriteWords: ArrayList<WordOfTheDay>) :
     RecyclerView.Adapter<WordOfTheDayAdapter.WordHolder>() {
 
+    init {
+        setHasStableIds(true)
+    }
+
     var tracker: SelectionTracker<Long>? = null
 
-    override fun getItemId(position: Int): Long = position.toLong()
+    override fun getItemId(position: Int): Long = favouriteWords[position].wordDate
+        .replace("-", "")
+        .toLong()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WordHolder =
         WordHolder(LayoutInflater.from(parent.context).inflate(R.layout.wotd_item, parent, false))
@@ -26,14 +32,17 @@ class WordOfTheDayAdapter(private val favouriteWords: ArrayList<WordOfTheDay>) :
     override fun onBindViewHolder(holder: WordHolder, position: Int) {
         // Bind viewHolder items to the RecyclerView.
         tracker?.let {
-            holder.bindItems(favouriteWords[position], it.isSelected(position.toLong()))
+            holder.bindItems(favouriteWords[holder.adapterPosition], it.isSelected(getItemId(holder.adapterPosition)))
         }
     }
 
-    fun removeItems(positions: ArrayList<Int>, favWordsRef: DatabaseReference) {
-        // Store objects of the positions to be removed.
-        val wordsToRemove = arrayListOf<WordOfTheDay>()
-        positions.forEach { wordsToRemove.add(favouriteWords[it]) }
+    fun getSelectedItems(): List<WordOfTheDay> {
+        val selectedIds: List<String> = tracker!!.selection.map { it.toString() }
+        return favouriteWords.filter { word ->
+            selectedIds.contains(word.wordDate.replace("-","")) }
+    }
+
+    fun removeItems(wordsToRemove: List<WordOfTheDay>, favWordsRef: DatabaseReference) {
         wordsToRemove.forEach {
             // Remove from Firebase DB and RecyclerView.
             favWordsRef.child(it.wordDate).removeValue()

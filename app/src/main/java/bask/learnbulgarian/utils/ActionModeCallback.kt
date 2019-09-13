@@ -43,15 +43,13 @@ class ActionModeCallback : ActionMode.Callback {
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         // Delete button from the ActionMode menu clicked.
         if (item.itemId == R.id.deleteItems) {
-            // Store item positions as a List of Integers.
-            val itemPositions: List<Int> = tracker.selection.map { it.toInt() }
             val favWordsRef = FirebaseDatabase.getInstance().reference
                 .child("users")
                 .child(FirebaseAuth.getInstance().currentUser!!.uid)
                 .child("favWords")
 
-            // Remove the selected items from the RecyclerView and Firebase DB.
-            adapter?.removeItems(ArrayList(itemPositions), favWordsRef)
+            // Remove selected words from the DB and RecyclerView.
+            adapter?.removeItems(adapter?.getSelectedItems()!!, favWordsRef)
         }
         mode.finish()
         return true
