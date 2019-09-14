@@ -15,6 +15,7 @@ abstract class SwipeToDeleteCallback(context: Context) : ItemTouchHelper.SimpleC
     private val background = ColorDrawable()
     private val backgroundColor = Color.parseColor("#f44336")
     private val clearPaint = Paint().apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
+    private var isSwipeEnabled = true
 
     override fun getMovementFlags(
         recyclerView: RecyclerView,
@@ -75,6 +76,14 @@ abstract class SwipeToDeleteCallback(context: Context) : ItemTouchHelper.SimpleC
         deleteIcon.draw(c)
 
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+    }
+
+    override fun isItemViewSwipeEnabled(): Boolean {
+        return isSwipeEnabled
+    }
+
+    fun setSwipingStatus(status: Boolean) {
+        isSwipeEnabled = status
     }
 
     private fun clearCanvas(c: Canvas?, left: Float, top: Float, right: Float, bottom: Float) {

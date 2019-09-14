@@ -110,11 +110,10 @@ class WordOfTheDayFragment: Fragment() {
                 val favWordRef = databaseRef.child("users")
                     .child(currentUser!!.uid)
                     .child("favWords")
-                    .child(currentDate)
 
                 // Query user's favourite words collection
                 // to check if today's word of the day exists there.
-                favWordRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                favWordRef.addValueEventListener(object : ValueEventListener {
                     override fun onCancelled(p0: DatabaseError) {
                         Timber.tag("favWord").d(p0.toException())
                     }
@@ -130,7 +129,7 @@ class WordOfTheDayFragment: Fragment() {
                         wotdLoveFAB.visibility = View.VISIBLE
                         wotdListFAB.visibility = View.VISIBLE
 
-                        if (p0.exists()) {
+                        if (p0.hasChild(currentDate)) {
                             // Word exists in user's collection.
                             // Set action to remove the word from the db if the button is clicked.
                             // Set colour to red.
@@ -154,13 +153,13 @@ class WordOfTheDayFragment: Fragment() {
                                 loveFABAction = "hate"
                                 // Add the word to the db.
                                 // Set button colour to red.
-                                favWordRef.setValue(currentWOTD)
+                                favWordRef.child(currentDate).setValue(currentWOTD)
                                 wotdLoveFAB.backgroundTintList = ColorStateList.valueOf(Color.RED)
                             } else {
                                 loveFABAction = "love"
                                 // Remove the word from the db.
                                 // Reset button colour.
-                                favWordRef.removeValue()
+                                favWordRef.child(currentDate).removeValue()
                                 wotdLoveFAB.backgroundTintList =
                                     ColorStateList.valueOf(
                                         ResourcesCompat
@@ -173,10 +172,15 @@ class WordOfTheDayFragment: Fragment() {
                         wotdListFAB.setOnClickListener {
                             fragmentManager!!
                                 .beginTransaction()
-                                .replace(R.id.fragmentContainer, WordOfTheDayFavouritesFragment.newInstance())
+                                .replace(
+                                    R.id.fragmentContainer,
+                                    WordOfTheDayFavouritesFragment.newInstance()
+                                )
                                 .addToBackStack(null)
                                 .commit()
                         }
+
+                        wotdListFAB.isEnabled = p0.exists()
                     }
 
                 })

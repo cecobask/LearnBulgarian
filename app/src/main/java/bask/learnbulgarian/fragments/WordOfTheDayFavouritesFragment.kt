@@ -30,7 +30,6 @@ import timber.log.Timber
 class WordOfTheDayFavouritesFragment : Fragment() {
 
     private lateinit var database: FirebaseDatabase
-    private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var adapter: WordOfTheDayAdapter
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var tracker: SelectionTracker<Long>
@@ -92,7 +91,7 @@ class WordOfTheDayFavouritesFragment : Fragment() {
                         favouriteWords.sortDescending()
 
                         // Add layoutManager to RV.
-                        linearLayoutManager = LinearLayoutManager(context)
+                        val linearLayoutManager = LinearLayoutManager(context)
                         wotdFavouritesRV.layoutManager = linearLayoutManager
 
                         // Add bottom border to each RV element.
@@ -100,21 +99,23 @@ class WordOfTheDayFavouritesFragment : Fragment() {
                                 wotdFavouritesRV.context,
                                 linearLayoutManager.orientation))
 
-                        // Link RV and its adapter.
-                        adapter = WordOfTheDayAdapter(favouriteWords as ArrayList<WordOfTheDay>)
-                        wotdFavouritesRV.swapAdapter(adapter, true)
-//                        wotdFavouritesRV.adapter = adapter
+                        // Link RV to its adapter.
+                        adapter = WordOfTheDayAdapter(favouriteWords as ArrayList<WordOfTheDay>, wotdFavouritesRV)
+                        wotdFavouritesRV.adapter = adapter
 
-                        // Callback for RV elements swiping.
+                        // Callback for RecyclerView elements swiping.
                         val swipeHandler = object : SwipeToDeleteCallback(context!!) {
                             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                                // Pass position and db reference to adapter method.
-                                adapter.removeAt(viewHolder.adapterPosition, favWordsRef)
+                                // Get swiped element's id.
+                                val selectedIds: List<String> = listOf(viewHolder.itemId.toString())
+                                // Convert swiped id to WordOfTheDay object and delete it.
+                                adapter.removeItems(adapter.getSelectedItemsById(selectedIds), favWordsRef)
                             }
                         }
+                        val itemTouchHelper = ItemTouchHelper(swipeHandler)
 
-                        // Attach swipe handler callback to RV.
-                        ItemTouchHelper(swipeHandler).attachToRecyclerView(wotdFavouritesRV)
+                        // Attach swipe handler to RecyclerView.
+                        itemTouchHelper.attachToRecyclerView(wotdFavouritesRV)
 
                         // SelectionTracker that will allow multiple items to be selected.
                         tracker = SelectionTracker.Builder<Long>(
@@ -130,8 +131,10 @@ class WordOfTheDayFavouritesFragment : Fragment() {
                         tracker.addObserver(object : SelectionTracker.SelectionObserver<Long>() {
                             override fun onSelectionChanged() {
                                 super.onSelectionChanged()
-
                                 if (tracker.hasSelection() && actionModeCallback == null) {
+                                    // Disable swipe to delete in RecyclerView.
+                                    swipeHandler.setSwipingStatus(false)
+
                                     // Create callback for ActionMode and initialize it.
                                     actionModeCallback = ActionModeCallback()
                                     actionModeCallback?.startActionMode(
@@ -144,6 +147,9 @@ class WordOfTheDayFavouritesFragment : Fragment() {
                                     // Destroy ActionMode if there's no selection.
                                     actionModeCallback?.finishActionMode()
                                     actionModeCallback = null
+
+                                    // Enable swipe to delete in RecyclerView.
+                                    swipeHandler.setSwipingStatus(true)
                                 }
 
                             }
@@ -154,6 +160,19 @@ class WordOfTheDayFavouritesFragment : Fragment() {
                 }
 
             })
+
+        favWordsRef.addValueEventListener(object: ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+                if (!p0.exists()) {
+                    fragmentManager?.popBackStack()
+                }
+            }
+
+        })
     }
 
 }

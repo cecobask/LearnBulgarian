@@ -10,7 +10,6 @@ import bask.learnbulgarian.R
 import bask.learnbulgarian.adapters.WordOfTheDayAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import timber.log.Timber
 
 
 /**
@@ -49,7 +48,8 @@ class ActionModeCallback : ActionMode.Callback {
                 .child("favWords")
 
             // Remove selected words from the DB and RecyclerView.
-            adapter?.removeItems(adapter?.getSelectedItems()!!, favWordsRef)
+            val selectedIds: List<String> = tracker.selection.map { it.toString() }
+            adapter?.removeItems(adapter?.getSelectedItemsById(selectedIds)!!, favWordsRef)
         }
         mode.finish()
         return true

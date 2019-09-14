@@ -67,7 +67,7 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/wotdListFAB"
-        style="@style/FABStyle"
+        style="@style/FABStyleList"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"

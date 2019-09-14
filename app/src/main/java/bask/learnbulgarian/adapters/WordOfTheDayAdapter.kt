@@ -8,17 +8,20 @@ import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.RecyclerView
 import bask.learnbulgarian.R
 import bask.learnbulgarian.models.WordOfTheDay
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DatabaseReference
 import kotlinx.android.synthetic.main.wotd_item.view.*
 
-class WordOfTheDayAdapter(private val favouriteWords: ArrayList<WordOfTheDay>) :
+class WordOfTheDayAdapter(private val favouriteWords: ArrayList<WordOfTheDay>, recyclerView: RecyclerView) :
     RecyclerView.Adapter<WordOfTheDayAdapter.WordHolder>() {
+
+    private val rv = recyclerView
+//    private var deletedWords: ArrayList<WordOfTheDay>? = null
+    var tracker: SelectionTracker<Long>? = null
 
     init {
         setHasStableIds(true)
     }
-
-    var tracker: SelectionTracker<Long>? = null
 
     override fun getItemId(position: Int): Long = favouriteWords[position].wordDate
         .replace("-", "")
@@ -36,26 +39,30 @@ class WordOfTheDayAdapter(private val favouriteWords: ArrayList<WordOfTheDay>) :
         }
     }
 
-    fun getSelectedItems(): List<WordOfTheDay> {
-        val selectedIds: List<String> = tracker!!.selection.map { it.toString() }
+    fun getSelectedItemsById(selectedIds: List<String>): List<WordOfTheDay> {
+        // Returns a List of words that match the id (wordDate).
         return favouriteWords.filter { word ->
             selectedIds.contains(word.wordDate.replace("-","")) }
     }
 
     fun removeItems(wordsToRemove: List<WordOfTheDay>, favWordsRef: DatabaseReference) {
+        // Remove words from Firebase DB and RecyclerView.
         wordsToRemove.forEach {
-            // Remove from Firebase DB and RecyclerView.
             favWordsRef.child(it.wordDate).removeValue()
             favouriteWords.remove(it)
             notifyDataSetChanged()
         }
-    }
 
-    fun removeAt(position: Int, favWordsRef: DatabaseReference) {
-        // Remove word from Firebase db and from local ArrayList.
-        favWordsRef.child(favouriteWords[position].wordDate).removeValue()
-        favouriteWords.removeAt(position)
-        notifyItemRemoved(position)
+        // Offer the user to undo the deletion.
+        Snackbar.make(rv, "Successful deletion.", Snackbar.LENGTH_LONG)
+            .setAction("UNDO") {
+                wordsToRemove.forEach { word ->
+                    favWordsRef.child(word.wordDate).setValue(word)
+                    favouriteWords.add(word)
+                    notifyDataSetChanged()
+                }
+            }
+            .show()
     }
 
     inner class WordHolder(v: View) : RecyclerView.ViewHolder(v) {
