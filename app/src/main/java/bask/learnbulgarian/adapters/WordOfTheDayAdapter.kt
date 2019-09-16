@@ -11,12 +11,14 @@ import bask.learnbulgarian.models.WordOfTheDay
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DatabaseReference
 import kotlinx.android.synthetic.main.wotd_item.view.*
+import java.lang.StringBuilder
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class WordOfTheDayAdapter(private val favouriteWords: ArrayList<WordOfTheDay>, recyclerView: RecyclerView) :
     RecyclerView.Adapter<WordOfTheDayAdapter.WordHolder>() {
 
     private val rv = recyclerView
-//    private var deletedWords: ArrayList<WordOfTheDay>? = null
     var tracker: SelectionTracker<Long>? = null
 
     init {
@@ -72,8 +74,21 @@ class WordOfTheDayAdapter(private val favouriteWords: ArrayList<WordOfTheDay>, r
             wordOfTheDay: WordOfTheDay,
             isActivated: Boolean = false
         ) {
+            val date = LocalDate.parse(wordOfTheDay.wordDate, DateTimeFormatter.ofPattern("d-M-yyyy"))
+            var day = date.dayOfMonth.toString()
+            var month = date.monthValue.toString()
+            val year = date.year
+
+            if (date.dayOfMonth < 10) day = "0$day"
+            if (date.monthValue < 10) month = "0$month"
+
             view.wordOfTheDayTV.text = wordOfTheDay.word
-            view.wordOfTheDayDate.text = wordOfTheDay.wordDate
+            view.wordOfTheDayDate.text = StringBuilder()
+                .append(day)
+                .append("/")
+                .append(month)
+                .append("/")
+                .append(year)
             itemView.isActivated = isActivated
         }
 
