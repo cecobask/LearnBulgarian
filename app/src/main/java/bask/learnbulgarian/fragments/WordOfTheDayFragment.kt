@@ -1,7 +1,9 @@
 package bask.learnbulgarian.fragments
 
+import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Typeface
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
@@ -13,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import bask.learnbulgarian.R
@@ -20,6 +23,9 @@ import bask.learnbulgarian.models.WordOfTheDay
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.skydoves.balloon.ArrowOrientation
+import com.skydoves.balloon.BalloonAnimation
+import com.skydoves.balloon.createBalloon
 import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -30,6 +36,7 @@ class WordOfTheDayFragment: Fragment() {
     private lateinit var databaseRef: DatabaseReference
     private lateinit var mediaPlayer: MediaPlayer // For playing word pronunciation.
     private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var sharedPref: SharedPreferences
 
     companion object {
         fun newInstance(): WordOfTheDayFragment {
@@ -56,12 +63,42 @@ class WordOfTheDayFragment: Fragment() {
         val wotdTransliterationTV = view.findViewById<TextView>(R.id.wotdTransliterationTV)
         val wotdTypeTV = view.findViewById<TextView>(R.id.wotdTypeTV)
         val wotdDefinitionTV = view.findViewById<TextView>(R.id.wotdDefinitionTV)
-        val wotdBGExampleTV = view.findViewById<TextView>(R.id.wotdBGExampleTV)
-        val wotdENExampleTV = view.findViewById<TextView>(R.id.wotdENExampleTV)
+        val wotdExampleTV = view.findViewById<TextView>(R.id.wotdExampleTV)
         val wotdLoveFAB = view.findViewById<FloatingActionButton>(R.id.wotdLoveFAB)
         val wotdListFAB = view.findViewById<FloatingActionButton>(R.id.wotdListFAB)
         val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
         val currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("d-M-yyyy"))
+
+        // Create balloon tooltip for later use.
+        val balloon = createBalloon(context!!) {
+            setArrowOrientation(ArrowOrientation.LEFT)
+            setWidthRatio(0.6f)
+            setHeight(70)
+            setCornerRadius(10f)
+            setAlpha(1f)
+            setText("Tap for translation")
+            setTextSize(18f)
+            setTextTypeface(Typeface.BOLD)
+            setTextColorResource(R.color.white)
+            setBackgroundColorResource(R.color.colorPrimaryDark)
+            setBalloonAnimation(BalloonAnimation.CIRCULAR)
+            setDismissWhenTouchOutside(true)
+            setDismissWhenClicked(true)
+            setIconDrawable(ContextCompat.getDrawable(context!!, R.drawable.ic_tap))
+            setShowTime(1)
+        }
+
+        sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
+
+        val returningUser: Boolean =
+            if (!sharedPref.getBoolean("returningUser", false)) {
+                // The user is visiting the fragment for the first time.
+                sharedPref
+                    .edit()
+                    .putBoolean("returningUser", true)
+                    .apply()
+                false
+            } else true
 
         // Show progress bar until Firebase retrieves data from the database.
         progressBar.visibility = View.VISIBLE
@@ -88,10 +125,11 @@ class WordOfTheDayFragment: Fragment() {
                 wotdTypeTV.text = currentWOTD?.wordType
                 wotdDefinitionTV.text = currentWOTD?.wordDefinition
                 wotdPronounceFAB.visibility = View.VISIBLE
-                if (currentWOTD?.exampleSentenceEN != "") {
-                    wotdENExampleTV.text = currentWOTD?.exampleSentenceEN
-                    wotdBGExampleTV.text = currentWOTD?.exampleSentenceBG
-                }
+                wotdExampleTV.text = currentWOTD?.exampleSentenceBG
+
+                // Show balloon tooltip to attract attention to the switchable
+                // English/Bulgarian translation.
+                if (!returningUser) balloon.showAlignRight(wotdExampleTV)
 
                 // Create MediaPlayer instance that uses URL from Google Cloud Storage.
                 // to play word pronunciation.
@@ -105,6 +143,13 @@ class WordOfTheDayFragment: Fragment() {
 
                 // Play word pronunciation on click of pronounce FAB.
                 wotdPronounceFAB.setOnClickListener { mediaPlayer.start() }
+
+                // Switch between English and Bulgarian example sentences.
+                wotdExampleTV.setOnClickListener {
+                    if (wotdExampleTV.text == currentWOTD?.exampleSentenceBG) {
+                        wotdExampleTV.text = currentWOTD?.exampleSentenceEN
+                    } else wotdExampleTV.text = currentWOTD?.exampleSentenceBG
+                }
 
                 // Reference to current user's collection of favourite words.
                 val favWordRef = databaseRef.child("users")
@@ -188,5 +233,4 @@ class WordOfTheDayFragment: Fragment() {
         })
 
     }
-
 }

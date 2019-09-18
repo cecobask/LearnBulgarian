@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingHorizontal="40dp"
+    android:paddingHorizontal="30dp"
     android:paddingVertical="20dp">
 
     <TextView
@@ -48,19 +48,10 @@
         android:textSize="20sp" />
 
     <TextView
-        android:id="@+id/wotdBGExampleTV"
+        android:id="@+id/wotdExampleTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/wotdDefinitionTV"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        android:textStyle="italic" />
-
-    <TextView
-        android:id="@+id/wotdENExampleTV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/wotdBGExampleTV"
         android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="italic" />
