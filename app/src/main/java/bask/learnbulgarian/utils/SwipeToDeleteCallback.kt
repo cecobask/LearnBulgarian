@@ -6,30 +6,17 @@ import android.graphics.drawable.ColorDrawable
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import bask.learnbulgarian.R
 
 abstract class SwipeToDeleteCallback(context: Context) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
-    private val deleteIcon = ContextCompat.getDrawable(context, android.R.drawable.ic_menu_delete)!!
+    private val deleteIcon = ContextCompat.getDrawable(context, R.drawable.ic_delete)!!
     private val intrinsicWidth = deleteIcon.intrinsicWidth
     private val intrinsicHeight = deleteIcon.intrinsicHeight
     private val background = ColorDrawable()
-    private val backgroundColor = Color.parseColor("#f44336")
+    private val backgroundColor = context.resources.getColor(R.color.maroon, null)
     private val clearPaint = Paint().apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
     private var isSwipeEnabled = true
-
-    override fun getMovementFlags(
-        recyclerView: RecyclerView,
-        viewHolder: RecyclerView.ViewHolder
-    ): Int {
-        /**
-         * To disable "swipe" for specific item return 0 here.
-         * For example:
-         * if (viewHolder?.itemViewType == YourAdapter.SOME_TYPE) return 0
-         * if (viewHolder?.adapterPosition == 0) return 0
-         */
-        if (viewHolder.adapterPosition == 10) return 0
-        return super.getMovementFlags(recyclerView, viewHolder)
-    }
 
     override fun onMove(
         recyclerView: RecyclerView,
