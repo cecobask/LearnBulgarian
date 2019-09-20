@@ -19,7 +19,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import de.hdodenhof.circleimageview.CircleImageView
-import java.lang.Exception
 
 class HomeActivity : AppCompatActivity() {
 
@@ -102,21 +101,21 @@ class HomeActivity : AppCompatActivity() {
 
         try {
             currentFragment = fragmentClass?.newInstance() as Fragment?
-        } catch (e: Exception) {
+
+            // Insert the fragment by replacing any existing fragment.
+            val fragmentManager = supportFragmentManager
+            fragmentManager
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, currentFragment!!)
+                .addToBackStack(null)
+                .commit()
+
+            // Highlight the selected item.
+            menuItem.isChecked = true
+            mDrawer.closeDrawers()
+        } catch (e: KotlinNullPointerException) {
             e.printStackTrace()
         }
-
-        // Insert the fragment by replacing any existing fragment.
-        val fragmentManager = supportFragmentManager
-        fragmentManager
-            .beginTransaction()
-            .replace(R.id.fragmentContainer, currentFragment!!)
-            .addToBackStack(null)
-            .commit()
-
-        // Highlight the selected item.
-        menuItem.isChecked = true
-        mDrawer.closeDrawers()
 
     }
 

@@ -4,11 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.widget.Button
+import android.widget.ScrollView
+import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import bask.learnbulgarian.R
@@ -18,11 +20,23 @@ import com.androidadvance.topsnackbar.TSnackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import kotlinx.android.synthetic.main.register.*
 
 
-class RegisterFragment : Fragment() {
+class RegisterFragment : Fragment(), TextView.OnEditorActionListener {
+
+    private lateinit var usernameET: TextInputEditText
+    private lateinit var usernameLayout: TextInputLayout
+    private lateinit var emailET: TextInputEditText
+    private lateinit var emailLayout: TextInputLayout
+    private lateinit var passwordET: TextInputEditText
+    private lateinit var passwordLayout: TextInputLayout
+    private lateinit var confirmPasswordET: TextInputEditText
+    private lateinit var confirmPasswordLayout: TextInputLayout
+    private lateinit var scrollView: ScrollView
 
     companion object {
         fun newInstance(): RegisterFragment {
@@ -37,12 +51,15 @@ class RegisterFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Instantiate widgets.
-        val usernameET = view.findViewById<TextInputEditText>(R.id.usernameET)
-        val emailET = view.findViewById<TextInputEditText>(R.id.emailET)
-        val passwordET = view.findViewById<TextInputEditText>(R.id.passwordET)
-        val passwordLayout = view.findViewById<TextInputLayout>(R.id.passwordLayout)
-        val confirmPasswordET = view.findViewById<TextInputEditText>(R.id.confirmPasswordET)
-        val confirmPasswordLayout = view.findViewById<TextInputLayout>(R.id.confirmPasswordLayout)
+        usernameET = view.findViewById(R.id.usernameET)
+        usernameLayout = view.findViewById(R.id.usernameLayout)
+        emailET = view.findViewById(R.id.emailET)
+        emailLayout = view.findViewById(R.id.emailLayout)
+        passwordET = view.findViewById(R.id.passwordET)
+        passwordLayout = view.findViewById(R.id.passwordLayout)
+        confirmPasswordET = view.findViewById(R.id.confirmPasswordET)
+        confirmPasswordLayout = view.findViewById(R.id.confirmPasswordLayout)
+        scrollView = view.findViewById(R.id.scrollViewRegister)
         val registerBtn = view.findViewById<Button>(R.id.registerBtn)
 
         // Get user input from fields and attempt to call signUp() with provided params.
@@ -58,6 +75,7 @@ class RegisterFragment : Fragment() {
             } else {
                 passwordLayout.error = "Passwords must match!"
                 confirmPasswordLayout.error = "Passwords must match!"
+                emailLayout.error = null
             }
         }
 
@@ -81,16 +99,15 @@ class RegisterFragment : Fragment() {
         passwordET.addTextChangedListener(textWatcher)
         confirmPasswordET.addTextChangedListener(textWatcher)
 
-        // Listen for IME_ACTION_DONE when the user reaches the confirm password field
-        confirmPasswordET.setOnEditorActionListener { v, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE && v.text.isNotEmpty()) {
-                registerBtn.performClick()
-            }
-            false
-        }
+        // Listen for action clicks.
+        usernameET.setOnEditorActionListener(this)
+        emailET.setOnEditorActionListener(this)
+        passwordET.setOnEditorActionListener(this)
+        confirmPasswordET.setOnEditorActionListener(this)
     }
 
     // Register user and open HomeActivity if the signing up is a success.
+    @Throws(FirebaseAuthException::class)
     private fun signUp(view: View, username: String, email: String, password: String) {
         showMessage(view, "Creating your account...")
 
@@ -102,9 +119,38 @@ class RegisterFragment : Fragment() {
                 val usersDatabase: DatabaseReference = FirebaseDatabase.getInstance().getReference("users")
                 usersDatabase.child(newUser.userID).setValue(newUser)
 
+                // Start Home activity.
                 activity?.finish()
                 startActivity(Intent(context, HomeActivity::class.java))
-            } else showMessage(view, "Error: ${task.exception?.message}")
+            } else {
+                // Handle common exception scenarios.
+                when (val errorMessage = task.exception?.localizedMessage) {
+                    "The email address is badly formatted." -> {
+                        emailLayout.error = errorMessage
+                        emailLayout.requestFocus()
+                        passwordLayout.error = null
+                        confirmPasswordLayout.error = null
+                    }
+                    "The email address is already in use by another account." -> {
+                        emailLayout.error = errorMessage
+                        emailLayout.requestFocus()
+                        passwordLayout.error = null
+                        confirmPasswordLayout.error = null
+                    }
+                    "The given password is invalid. [ Password should be at least 6 characters ]" -> {
+                        passwordLayout.error = errorMessage
+                        confirmPasswordLayout.error = errorMessage
+                        passwordLayout.requestFocus()
+                        emailLayout.error = null
+                    }
+                    else -> {
+                        showMessage(view, errorMessage!!)
+                        passwordLayout.error = null
+                        confirmPasswordLayout.error = null
+                    }
+
+                }
+            }
         }
     }
 
@@ -112,5 +158,31 @@ class RegisterFragment : Fragment() {
     private fun showMessage(view: View, message: String) {
         TSnackbar.make(view, HtmlCompat.fromHtml("<font color=\"#ffffff\">$message</font>", HtmlCompat.FROM_HTML_MODE_LEGACY),
             TSnackbar.LENGTH_LONG).show()
+    }
+
+    override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
+        return when (v?.id) {
+            R.id.usernameET -> {
+                emailET.requestFocus()
+                true
+            }
+            R.id.emailET -> {
+                passwordET.requestFocus()
+                true
+            }
+            R.id.passwordET -> {
+                scrollView.post {
+                    scrollView.fullScroll(ScrollView.FOCUS_DOWN)
+                    confirmPasswordET.requestFocus()}
+                true
+            }
+            R.id.confirmPasswordET -> {
+                if (v.text.isNotEmpty()) registerBtn.performClick()
+                true
+            }
+            else -> {
+                false
+            }
+        }
     }
 }

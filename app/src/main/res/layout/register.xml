@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollViewRegister"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent">
@@ -30,11 +31,10 @@
             android:id="@+id/usernameLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:hint="@string/username"
             app:endIconMode="clear_text"
-            android:imeOptions="actionNext">
+            app:errorEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/usernameET"
@@ -44,7 +44,8 @@
                 android:drawableStart="@drawable/ic_user"
                 android:drawablePadding="5dp"
                 android:inputType="textVisiblePassword|textNoSuggestions"
-                android:maxLength="30" />
+                android:maxLength="30"
+                android:imeOptions="actionNext"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -52,10 +53,10 @@
             android:id="@+id/emailLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:hint="@string/email"
-            app:endIconMode="clear_text">
+            app:endIconMode="clear_text"
+            app:errorEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/emailET"
@@ -64,9 +65,9 @@
                 android:autofillHints="username"
                 android:drawableStart="@drawable/ic_email"
                 android:drawablePadding="5dp"
-                android:imeOptions="actionNext"
                 android:inputType="textEmailAddress|textNoSuggestions"
-                android:maxLength="30" />
+                android:maxLength="30"
+                android:imeOptions="actionNext"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -74,9 +75,9 @@
             android:id="@+id/passwordLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:hint="@string/password"
+            app:errorEnabled="true"
             app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -86,9 +87,9 @@
                 android:autofillHints="password"
                 android:drawableStart="@drawable/ic_pass"
                 android:drawablePadding="5dp"
-                android:imeOptions="actionNext"
                 android:inputType="textPassword"
-                android:maxLength="25" />
+                android:maxLength="25"
+                android:imeOptions="actionNext"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -99,6 +100,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="30dp"
             android:hint="@string/confirm_password"
+            app:errorEnabled="true"
             app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -108,9 +110,9 @@
                 android:autofillHints="password"
                 android:drawableStart="@drawable/ic_confirmpass"
                 android:drawablePadding="5dp"
-                android:imeOptions="actionDone"
                 android:inputType="textPassword"
-                android:maxLength="25" />
+                android:maxLength="25"
+                android:imeOptions="actionDone"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 

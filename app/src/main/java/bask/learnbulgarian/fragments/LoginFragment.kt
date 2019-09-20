@@ -26,8 +26,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.GoogleAuthProvider
 
 
@@ -38,6 +40,8 @@ class LoginFragment : Fragment() {
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var callbackManager: CallbackManager
     private lateinit var googleBtn: Button
+    private lateinit var emailLayout: TextInputLayout
+    private lateinit var passwordLayout: TextInputLayout
 
     companion object {
         fun newInstance(): LoginFragment {
@@ -63,6 +67,8 @@ class LoginFragment : Fragment() {
         val googleBtn = view.findViewById<Button>(R.id.googleBtnCustom)
         val facebookBtn = view.findViewById<LoginButton>(R.id.facebookBtn)
         val facebookBtnCustom = view.findViewById<Button>(R.id.facebookBtnCustom)
+        emailLayout = view.findViewById(R.id.emailLayout)
+        passwordLayout = view.findViewById(R.id.passwordLayout)
 
         // Workaround for implementing custom social media button
         facebookBtnCustom.setOnClickListener { facebookBtn.performClick() }
@@ -109,13 +115,39 @@ class LoginFragment : Fragment() {
     }
 
     // Sign in with Firebase.
+    @Throws(FirebaseAuthException::class)
     private fun signInWithEmail(view: View, email: String, password: String) {
         showMessage(view, "Authenticating...")
 
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 finishCurrentAndStartHomeActivity()
-            } else showMessage(view, "Error: ${task.exception?.message}")
+            } else {
+                // Handle common exception scenarios.
+                when (val errorMessage = task.exception?.localizedMessage) {
+                    "The email address is badly formatted." -> {
+                        emailLayout.error = errorMessage
+                        passwordLayout.error = null
+                        emailLayout.requestFocus()
+                    }
+                    "The password is invalid or the user does not have a password." -> {
+                        passwordLayout.error = errorMessage
+                        passwordLayout.requestFocus()
+                        emailLayout.error = null
+                    }
+                    "There is no user record corresponding to this identifier. The user may have been deleted." -> {
+                        emailLayout.error = errorMessage
+                        emailLayout.requestFocus()
+                        passwordLayout.error = null
+                    }
+                    else -> {
+                        showMessage(view, errorMessage!!)
+                        emailLayout.error = null
+                        passwordLayout.error = null
+                    }
+
+                }
+            }
         }
 
     }
