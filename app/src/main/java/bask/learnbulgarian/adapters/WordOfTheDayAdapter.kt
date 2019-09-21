@@ -3,22 +3,27 @@ package bask.learnbulgarian.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.RecyclerView
 import bask.learnbulgarian.R
+import bask.learnbulgarian.fragments.WordOfTheDayFragment
 import bask.learnbulgarian.models.WordOfTheDay
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DatabaseReference
 import kotlinx.android.synthetic.main.wotd_item.view.*
-import java.lang.StringBuilder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class WordOfTheDayAdapter(private val favouriteWords: ArrayList<WordOfTheDay>, recyclerView: RecyclerView) :
+class WordOfTheDayAdapter(
+    private val favouriteWords: ArrayList<WordOfTheDay>,
+    recyclerView: RecyclerView, fragmentManager: FragmentManager?
+) :
     RecyclerView.Adapter<WordOfTheDayAdapter.WordHolder>() {
 
     private val rv = recyclerView
+    private val fm = fragmentManager
     var tracker: SelectionTracker<Long>? = null
 
     init {
@@ -70,25 +75,25 @@ class WordOfTheDayAdapter(private val favouriteWords: ArrayList<WordOfTheDay>, r
     inner class WordHolder(v: View) : RecyclerView.ViewHolder(v) {
         private val view: View = v
 
+        init {
+            v.setOnClickListener {
+                val date = favouriteWords[adapterPosition].wordDate
+                fm!!.beginTransaction()
+                    .replace(R.id.fragmentContainer, WordOfTheDayFragment.newInstance(date))
+                    .addToBackStack(null)
+                    .commit()
+            }
+        }
+
         fun bindItems(
             wordOfTheDay: WordOfTheDay,
             isActivated: Boolean = false
         ) {
             val date = LocalDate.parse(wordOfTheDay.wordDate, DateTimeFormatter.ofPattern("d-M-yyyy"))
-            var day = date.dayOfMonth.toString()
-            var month = date.monthValue.toString()
-            val year = date.year
-
-            if (date.dayOfMonth < 10) day = "0$day"
-            if (date.monthValue < 10) month = "0$month"
+            val formattedDate = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
 
             view.wordOfTheDayTV.text = wordOfTheDay.word
-            view.wordOfTheDayDate.text = StringBuilder()
-                .append(day)
-                .append("/")
-                .append(month)
-                .append("/")
-                .append(year)
+            view.wordOfTheDayDate.text = formattedDate
             itemView.isActivated = isActivated
         }
 

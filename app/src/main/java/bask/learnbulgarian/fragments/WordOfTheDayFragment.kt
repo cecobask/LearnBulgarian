@@ -1,5 +1,6 @@
 package bask.learnbulgarian.fragments
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -37,11 +38,19 @@ class WordOfTheDayFragment: Fragment() {
     private lateinit var mediaPlayer: MediaPlayer // For playing word pronunciation.
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var sharedPref: SharedPreferences
+    private lateinit var date: String
 
     companion object {
-        fun newInstance(): WordOfTheDayFragment {
-            return WordOfTheDayFragment()
+        private const val argKey = "date"
+        fun newInstance(date: String): WordOfTheDayFragment {
+            val args = Bundle().apply { putString(argKey, date) }
+            return WordOfTheDayFragment().apply { arguments = args }
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        arguments?.getString("date").let { date = it!! }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -67,7 +76,6 @@ class WordOfTheDayFragment: Fragment() {
         val wotdLoveFAB = view.findViewById<FloatingActionButton>(R.id.wotdLoveFAB)
         val wotdListFAB = view.findViewById<FloatingActionButton>(R.id.wotdListFAB)
         val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
-        val currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("d-M-yyyy"))
 
         // Create balloon tooltip for later use.
         val balloon = createBalloon(context!!) {
@@ -90,6 +98,7 @@ class WordOfTheDayFragment: Fragment() {
 
         sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
 
+        // Check if the user had previously visited this fragment.
         val returningUser: Boolean =
             if (!sharedPref.getBoolean("returningUser", false)) {
                 // The user is visiting the fragment for the first time.
@@ -108,7 +117,7 @@ class WordOfTheDayFragment: Fragment() {
 
         // Query Firebase Database for current word of the day.
         databaseRef = FirebaseDatabase.getInstance().reference
-        databaseRef.child("wordOfTheDay").child(currentDate)
+        databaseRef.child("wordOfTheDay").child(date)
             .addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
                 Timber.tag("wordOfTheDay").d(p0.toException())
@@ -174,7 +183,7 @@ class WordOfTheDayFragment: Fragment() {
                         wotdLoveFAB.visibility = View.VISIBLE
                         wotdListFAB.visibility = View.VISIBLE
 
-                        if (p0.hasChild(currentDate)) {
+                        if (p0.hasChild(date)) {
                             // Word exists in user's collection.
                             // Set action to remove the word from the db if the button is clicked.
                             // Set colour to red.
@@ -185,7 +194,7 @@ class WordOfTheDayFragment: Fragment() {
                             // Set action to add the word to the db if the button is clicked.
                             // Set colour to default.
                             loveFABAction = "love"
-                            wotdLoveFAB.backgroundTintList =
+                            if (isAdded) wotdLoveFAB.backgroundTintList =
                                 ColorStateList.valueOf(
                                     ResourcesCompat
                                         .getColor(resources, R.color.colorPrimary, null)
@@ -198,13 +207,13 @@ class WordOfTheDayFragment: Fragment() {
                                 loveFABAction = "hate"
                                 // Add the word to the db.
                                 // Set button colour to red.
-                                favWordRef.child(currentDate).setValue(currentWOTD)
+                                favWordRef.child(date).setValue(currentWOTD)
                                 wotdLoveFAB.backgroundTintList = ColorStateList.valueOf(Color.RED)
                             } else {
                                 loveFABAction = "love"
                                 // Remove the word from the db.
                                 // Reset button colour.
-                                favWordRef.child(currentDate).removeValue()
+                                favWordRef.child(date).removeValue()
                                 wotdLoveFAB.backgroundTintList =
                                     ColorStateList.valueOf(
                                         ResourcesCompat
