@@ -61,7 +61,7 @@ class WordOfTheDayAdapter(
         }
 
         // Offer the user to undo the deletion.
-        Snackbar.make(rv, "Successful deletion.", Snackbar.LENGTH_LONG)
+        val snackBar = Snackbar.make(rv, "Successful deletion.", Snackbar.LENGTH_LONG)
             .setAction("UNDO") {
                 wordsToRemove.forEach { word ->
                     favWordsRef.child(word.wordDate).setValue(word)
@@ -69,7 +69,9 @@ class WordOfTheDayAdapter(
                     notifyDataSetChanged()
                 }
             }
-            .show()
+        snackBar.apply {
+            if (favouriteWords.isNotEmpty()) show()
+        }
     }
 
     inner class WordHolder(v: View) : RecyclerView.ViewHolder(v) {

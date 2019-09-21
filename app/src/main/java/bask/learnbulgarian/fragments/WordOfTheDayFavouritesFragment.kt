@@ -175,7 +175,6 @@ class WordOfTheDayFavouritesFragment : Fragment() {
 
         favWordsRef.addValueEventListener(object: ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
             }
 
             override fun onDataChange(p0: DataSnapshot) {

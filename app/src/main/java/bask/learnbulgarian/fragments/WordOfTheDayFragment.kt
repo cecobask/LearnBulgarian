@@ -143,12 +143,14 @@ class WordOfTheDayFragment: Fragment() {
                 // Create MediaPlayer instance that uses URL from Google Cloud Storage.
                 // to play word pronunciation.
                 mediaPlayer = MediaPlayer.create(context, Uri.parse(currentWOTD?.pronunciationURL))
-                mediaPlayer
-                    .setAudioAttributes(
-                        AudioAttributes.Builder()
-                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                            .build()
-                )
+                    .apply {
+                        setAudioAttributes(
+                            AudioAttributes.Builder()
+                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                                .build()
+                        )
+                    }
+
 
                 // Play word pronunciation on click of pronounce FAB.
                 wotdPronounceFAB.setOnClickListener { mediaPlayer.start() }
