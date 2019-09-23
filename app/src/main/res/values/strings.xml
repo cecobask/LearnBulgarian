@@ -17,5 +17,6 @@
     <string name="wotd">Word of the Day</string>
     <string name="favWords">Favourite words</string>
     <string name="action_bar_delete_button">Delete selected</string>
+    <string name="search_words">Search words</string>
 
 </resources>

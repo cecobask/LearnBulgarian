@@ -106,7 +106,7 @@ class HomeActivity : AppCompatActivity() {
                 val fragmentManager = supportFragmentManager
                 fragmentManager
                     .beginTransaction()
-                    .replace(R.id.fragmentContainer, currentFragment)
+                    .replace(R.id.fragmentContainer, currentFragment, currentFragment.javaClass.simpleName)
                     .addToBackStack(null)
                     .commit()
 

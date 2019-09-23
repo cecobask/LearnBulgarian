@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 /**
  * ItemKeyProvider class that uses Long as key.
  */
-class MyItemKeyProvider(private val recyclerView: RecyclerView) :
+class WordKeyProvider(private val recyclerView: RecyclerView) :
     ItemKeyProvider<Long>(SCOPE_MAPPED) {
 
     override fun getKey(position: Int): Long? {

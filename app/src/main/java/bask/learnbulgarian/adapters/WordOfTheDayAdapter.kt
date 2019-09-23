@@ -17,7 +17,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class WordOfTheDayAdapter(
-    private val favouriteWords: ArrayList<WordOfTheDay>,
+    var favouriteWords: ArrayList<WordOfTheDay>,
     recyclerView: RecyclerView, fragmentManager: FragmentManager?
 ) :
     RecyclerView.Adapter<WordOfTheDayAdapter.WordHolder>() {

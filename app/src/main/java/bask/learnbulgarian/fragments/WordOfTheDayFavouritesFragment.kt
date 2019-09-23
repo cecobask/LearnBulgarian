@@ -1,10 +1,12 @@
 package bask.learnbulgarian.fragments
 
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.selection.SelectionPredicates
 import androidx.recyclerview.selection.SelectionTracker
@@ -16,10 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import bask.learnbulgarian.R
 import bask.learnbulgarian.adapters.WordOfTheDayAdapter
 import bask.learnbulgarian.models.WordOfTheDay
-import bask.learnbulgarian.utils.ActionModeCallback
-import bask.learnbulgarian.utils.MyItemDetailsLookup
-import bask.learnbulgarian.utils.MyItemKeyProvider
-import bask.learnbulgarian.utils.SwipeToDeleteCallback
+import bask.learnbulgarian.utils.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -34,6 +33,7 @@ class WordOfTheDayFavouritesFragment : Fragment() {
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var tracker: SelectionTracker<Long>
     private var actionModeCallback: ActionModeCallback? = null
+    private lateinit var wordFilter: WordFilter
 
     companion object {
         fun newInstance(): WordOfTheDayFavouritesFragment {
@@ -45,10 +45,15 @@ class WordOfTheDayFavouritesFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.wordofthedayfavourites, container, false)
+    ): View? {
+        return inflater.inflate(R.layout.wordofthedayfavourites, container, false)
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        setHasOptionsMenu(true)
 
         // Change toolbar title.
         (activity as? AppCompatActivity)?.supportActionBar?.title =
@@ -133,8 +138,8 @@ class WordOfTheDayFavouritesFragment : Fragment() {
                         tracker = SelectionTracker.Builder<Long>(
                             "wordSelection",
                             wotdFavouritesRV,
-                            MyItemKeyProvider(wotdFavouritesRV),
-                            MyItemDetailsLookup(wotdFavouritesRV),
+                            WordKeyProvider(wotdFavouritesRV),
+                            WordDetailsLookup(wotdFavouritesRV),
                             StorageStrategy.createLongStorage()
                         ).withSelectionPredicate(
                             SelectionPredicates.createSelectAnything()
@@ -168,6 +173,9 @@ class WordOfTheDayFavouritesFragment : Fragment() {
                         })
                         // Attach SelectionTracker to the adapter.
                         adapter.tracker = tracker
+
+                        // Initialise WordOfTheDay filtering object for later use.
+                        wordFilter = WordFilter(adapter, favouriteWords)
                     }
                 }
 
@@ -184,6 +192,36 @@ class WordOfTheDayFavouritesFragment : Fragment() {
             }
 
         })
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_search, menu)
+
+        val searchItem = menu.findItem(R.id.action_search)
+
+        // Make SearchView take up the whole width of the ActionBar.
+        val searchView = searchItem?.actionView as SearchView
+        searchView.maxWidth = Int.MAX_VALUE
+
+        // Change the colour of clear input button of SearchView.
+        val searchClose: ImageView = searchView.findViewById(androidx.appcompat.R.id.search_close_btn)
+        searchClose.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP)
+
+        // Listen for user input into SearchView and filter based on the query.
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(query: String?): Boolean {
+                // Perform filtering based on word value.
+                wordFilter.filter(query)
+                return true
+            }
+
+        })
+
+        super.onCreateOptionsMenu(menu,inflater)
     }
 
 }

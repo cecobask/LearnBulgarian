@@ -1,21 +1,13 @@
 <resources>
 
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowTranslucentStatus">true</item>
-        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <item name="windowActionModeOverlay">true</item>
-        <item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
         <item name="actionModeCloseDrawable">@drawable/ic_cancel</item>
-        <item name="actionModeCloseButtonStyle">@style/actionModeCloseButtonStyle</item>
-    </style>
-
-    <style name="DrawerArrowStyle" parent="@style/Widget.AppCompat.DrawerArrowToggle">
-        <item name="spinBars">true</item>
-        <item name="color">@android:color/white</item>
+        <item name="android:fitsSystemWindows">false</item>
     </style>
 
     <style name="AuthTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -39,10 +31,13 @@
         <item name="borderWidth">0dp</item>
     </style>
 
-
-
-    <style name="actionModeCloseButtonStyle" parent="Widget.AppCompat.Light.ActionButton.CloseMode">
-        <item name="android:tint">@color/white</item>
+    <style name="CustomActionBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="searchViewStyle">@style/SearchViewStyle</item>
+        <item name="android:editTextColor">@color/black</item>
+    </style>
+    
+    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <item name="queryBackground">@drawable/searchview_shape</item>
     </style>
 
 </resources>

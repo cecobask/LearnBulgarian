@@ -20,7 +20,7 @@
             android:theme="@style/AuthTheme" />
         <activity
             android:name=".activities.HomeActivity"
-            android:windowSoftInputMode="stateAlwaysHidden">
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
