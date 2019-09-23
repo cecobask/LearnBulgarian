@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
 import android.view.*
+import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -202,10 +203,13 @@ class WordOfTheDayFavouritesFragment : Fragment() {
         // Make SearchView take up the whole width of the ActionBar.
         val searchView = searchItem?.actionView as SearchView
         searchView.maxWidth = Int.MAX_VALUE
+        searchView.queryHint = "Search for words..."
 
-        // Change the colour of clear input button of SearchView.
+        // Change the colour of clear input button and hint text colour of SearchView.
         val searchClose: ImageView = searchView.findViewById(androidx.appcompat.R.id.search_close_btn)
         searchClose.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP)
+        val searchEditText: EditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text)
+        searchEditText.setHintTextColor(Color.GRAY)
 
         // Listen for user input into SearchView and filter based on the query.
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {

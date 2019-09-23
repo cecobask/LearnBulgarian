@@ -38,6 +38,7 @@
     
     <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
         <item name="queryBackground">@drawable/searchview_shape</item>
+        <item name="searchHintIcon">@android:drawable/ic_search_category_default</item>
     </style>
 
 </resources>
