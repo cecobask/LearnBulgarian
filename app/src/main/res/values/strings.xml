@@ -15,8 +15,16 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="wotd">Word of the Day</string>
-    <string name="favWords">Favourite words</string>
+    <string name="favWordsTitle">Favourite words</string>
     <string name="action_bar_delete_button">Delete selected</string>
     <string name="search_words">Search words</string>
+    <string name="arrow_switch">switch languages</string>
+    <string name="englishLang">English</string>
+    <string name="bulgarianLang">Bulgarian</string>
+    <string name="translationHint">Text to translate</string>
+    <string name="translatorTitle">Translator</string>
+    <string name="cameraBtn">Camera</string>
+    <string name="voiceBtn">Voice</string>
+    <string name="translateBtn">Translate</string>
 
 </resources>

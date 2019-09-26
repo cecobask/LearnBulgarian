@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingHorizontal="30dp"
+    android:paddingVertical="20dp">
+
+    <LinearLayout
+        android:id="@+id/headerLL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/searchview_shape"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:orientation="horizontal"
+        android:paddingVertical="10dp">
+
+        <TextView
+            android:id="@+id/sourceLangTV"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.35"
+            android:text="@string/englishLang"
+            android:textAlignment="textEnd"
+            android:textColor="@color/white"
+            android:textSize="25sp" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/switchLangBtn"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.3"
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@drawable/ic_arrows"
+            android:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/targetLangTV"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.35"
+            android:text="@string/bulgarianLang"
+            android:textAlignment="textStart"
+            android:textColor="@color/white"
+            android:textSize="25sp" />
+
+    </LinearLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/userInputTIL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:hint="@string/translationHint"
+        app:endIconMode="clear_text">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/userInputTIET"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:maxLines="6"
+            android:minLines="3" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:id="@+id/translateButtonsLL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingVertical="5dp">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/cameraBtn"
+            style="@style/TranslateButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/ic_camera"
+            android:text="@string/cameraBtn" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/voiceBtn"
+            style="@style/TranslateButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/ic_mic"
+            android:text="@string/voiceBtn" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/translateBtn"
+            style="@style/TranslateButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/ic_translate"
+            android:enabled="false"
+            android:text="@string/translateBtn" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/searchview_shape"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/translationTV"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:lines="7"
+            android:scrollbars="vertical"
+            android:text="ТОВdasdsadsadsadsadsadsadasdsadsadsadsadsadsadsadsadddddddddddddddddddddddsadaddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+            android:textColor="@color/white"
+            android:textSize="17sp" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/pronounceBtn"
+            style="@style/TranslateImageButtonStyle"
+            android:layout_alignTop="@id/favBtn"
+            android:layout_toStartOf="@id/favBtn"
+            android:src="@drawable/ic_speaker" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/favBtn"
+            style="@style/TranslateImageButtonStyle"
+            android:layout_alignTop="@id/exportBtn"
+            android:layout_toStartOf="@id/exportBtn"
+            android:src="@drawable/ic_heart" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/exportBtn"
+            style="@style/TranslateImageButtonStyle"
+            android:layout_alignTop="@id/copyBtn"
+            android:layout_toStartOf="@id/copyBtn"
+            android:src="@drawable/ic_export" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/copyBtn"
+            style="@style/TranslateImageButtonStyle"
+            android:layout_below="@id/translationTV"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="0dp"
+            android:src="@drawable/ic_copy" />
+
+    </RelativeLayout>
+
+</LinearLayout>

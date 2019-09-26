@@ -46,10 +46,7 @@ class WordOfTheDayFavouritesFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.wordofthedayfavourites, container, false)
-    }
-
+    ): View? = inflater.inflate(R.layout.wordofthedayfavourites, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -58,7 +55,7 @@ class WordOfTheDayFavouritesFragment : Fragment() {
 
         // Change toolbar title.
         (activity as? AppCompatActivity)?.supportActionBar?.title =
-            resources.getString(R.string.favWords)
+            resources.getString(R.string.favWordsTitle)
 
         database = FirebaseDatabase.getInstance()
         firebaseAuth = FirebaseAuth.getInstance()
@@ -124,7 +121,7 @@ class WordOfTheDayFavouritesFragment : Fragment() {
                         // Callback for RecyclerView elements swiping.
                         val swipeHandler = object : SwipeToDeleteCallback(context!!) {
                             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                                // Get swiped element's id.
+                                // Get swiped elements ids.
                                 val selectedIds: List<String> = listOf(viewHolder.itemId.toString())
                                 // Convert swiped id to WordOfTheDay object and delete it.
                                 adapter.removeItems(adapter.getSelectedItemsById(selectedIds), favWordsRef)
@@ -169,7 +166,6 @@ class WordOfTheDayFavouritesFragment : Fragment() {
                                     // Enable swipe to delete in RecyclerView.
                                     swipeHandler.setSwipingStatus(true)
                                 }
-
                             }
                         })
                         // Attach SelectionTracker to the adapter.

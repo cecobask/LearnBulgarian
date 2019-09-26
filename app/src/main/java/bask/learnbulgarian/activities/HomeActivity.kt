@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import bask.learnbulgarian.R
+import bask.learnbulgarian.fragments.TranslatorFragment
 import bask.learnbulgarian.fragments.WordOfTheDayFragment
 import bask.learnbulgarian.main.App
 import com.bumptech.glide.Glide
@@ -98,6 +99,9 @@ class HomeActivity : AppCompatActivity() {
             R.id.navItemWOTD -> {
                 val currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("d-M-yyyy"))
                 currentFragment = WordOfTheDayFragment.newInstance(currentDate)
+            }
+            R.id.navItemTranslate -> {
+                currentFragment = TranslatorFragment.newInstance()
             }
         }
 

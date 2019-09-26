@@ -41,4 +41,18 @@
         <item name="searchHintIcon">@android:drawable/ic_search_category_default</item>
     </style>
 
+    <style name="TranslateButtonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:paddingVertical">5dp</item>
+    </style>
+
+    <style name="TranslateImageButtonStyle" parent="Widget.AppCompat.ImageButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:tint">@color/white</item>
+        <item name="android:layout_marginEnd">20dp</item>
+    </style>
+
 </resources>

@@ -6,6 +6,11 @@
             android:icon="@drawable/ic_wotd"
             android:title="@string/wotd" />
         <item
+            android:id="@+id/navItemTranslate"
+            android:icon="@drawable/ic_translate"
+            android:title="@string/translatorTitle"
+            />
+        <item
             android:id="@+id/navItemLogOut"
             android:icon="@drawable/ic_logout"
             android:title="@string/logout" />
