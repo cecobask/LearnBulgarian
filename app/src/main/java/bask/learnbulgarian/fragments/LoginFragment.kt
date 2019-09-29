@@ -97,7 +97,7 @@ class LoginFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val email: String = emailET.text.toString().trim()
                 val password: String = passwordET.text.toString().trim()
-                loginBtn.isEnabled = (email.isNotEmpty() && password.isNotEmpty())
+                loginBtn.isEnabled = (email.isNotBlank() && password.isNotBlank())
             }
         }
 

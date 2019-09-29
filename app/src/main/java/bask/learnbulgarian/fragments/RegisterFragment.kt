@@ -88,8 +88,8 @@ class RegisterFragment : Fragment(), TextView.OnEditorActionListener {
                 val email: String = emailET.text.toString().trim()
                 val password: String = passwordET.text.toString().trim()
                 val confirmPassword: String = confirmPasswordET.text.toString().trim()
-                registerBtn.isEnabled = (username.isNotEmpty() && email.isNotEmpty() &&
-                        password.isNotEmpty() && confirmPassword.isNotEmpty())
+                registerBtn.isEnabled = (username.isNotBlank() && email.isNotBlank() &&
+                        password.isNotBlank() && confirmPassword.isNotBlank())
             }
         }
 
