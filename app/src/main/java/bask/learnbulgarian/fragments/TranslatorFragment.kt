@@ -1,9 +1,13 @@
 package bask.learnbulgarian.fragments
 
+import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.media.MediaRecorder
 import android.os.Bundle
+import android.speech.RecognizerIntent
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
@@ -27,7 +31,10 @@ import com.google.firebase.ml.naturallanguage.FirebaseNaturalLanguage
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslateLanguage
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslator
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslatorOptions
+import kotlinx.android.synthetic.main.translator.*
 import timber.log.Timber
+import java.lang.Exception
+import java.util.*
 
 class TranslatorFragment : Fragment(), View.OnClickListener {
 
@@ -41,6 +48,8 @@ class TranslatorFragment : Fragment(), View.OnClickListener {
     private lateinit var clipboardManager: ClipboardManager
     private lateinit var userInputTIET: TextInputEditText
     private lateinit var translateOptions: FirebaseTranslatorOptions
+    private val REQUESTCODESPEECH = 10001
+    private lateinit var mediaRecorder: MediaRecorder
 
     companion object {
         fun newInstance(): TranslatorFragment {
@@ -127,6 +136,8 @@ class TranslatorFragment : Fragment(), View.OnClickListener {
         copyBtn.setOnClickListener(this)
         translateBtn.setOnClickListener(this)
         switchLangBtn.setOnClickListener(this)
+        voiceBtn.setOnClickListener(this)
+        mediaRecorder = MediaRecorder()
     }
 
     private fun translateText(text: String) {
@@ -183,6 +194,40 @@ class TranslatorFragment : Fragment(), View.OnClickListener {
                 // Translate user input.
                 progressBar.visibility = View.VISIBLE
                 translateText(userInputTIET.text.toString())
+            }
+            R.id.voiceBtn -> {
+                speak()
+            }
+        }
+    }
+
+    private fun speak() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intent.apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now, please...")
+        }
+
+        try {
+            startActivityForResult(intent, REQUESTCODESPEECH)
+        } catch (e: Exception) {
+            Timber.tag("speechh").d(e)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        when (requestCode) {
+            REQUESTCODESPEECH -> {
+                if (resultCode == Activity.RESULT_OK && null != data) {
+                    val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                    userInputTIET.setText(result[0])
+                    translateBtn.performClick()
+                    Timber.tag("speechh").d(result[0])
+                }
             }
         }
     }
