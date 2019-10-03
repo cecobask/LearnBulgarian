@@ -108,6 +108,7 @@
         android:layout_marginTop="20dp"
         android:background="@drawable/searchview_shape"
         android:backgroundTint="@color/colorPrimaryDark"
+        android:visibility="gone"
         android:padding="10dp">
 
         <TextView
@@ -117,7 +118,6 @@
             android:layout_marginBottom="10dp"
             android:lines="7"
             android:scrollbars="vertical"
-            android:text="ТОВdasdsadsadsadsadsadsadasdsadsadsadsadsadsadsadsadddddddddddddddddddddddsadaddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
             android:textColor="@color/white"
             android:textSize="17sp" />
 
@@ -151,5 +151,14 @@
             android:src="@drawable/ic_copy" />
 
     </RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:width="50dp"
+        android:height="50dp"
+        android:padding="10dp"
+        android:visibility="gone"/>
 
 </LinearLayout>

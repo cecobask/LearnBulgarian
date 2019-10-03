@@ -50,4 +50,6 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
     implementation 'androidx.recyclerview:recyclerview-selection:1.0.0'
     implementation "com.github.skydoves:balloon:1.0.5"
+    implementation 'com.google.firebase:firebase-ml-natural-language:21.0.3'
+    implementation 'com.google.firebase:firebase-ml-natural-language-translate-model:20.0.6'
 }
