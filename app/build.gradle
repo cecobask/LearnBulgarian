@@ -52,4 +52,7 @@ dependencies {
     implementation "com.github.skydoves:balloon:1.0.5"
     implementation 'com.google.firebase:firebase-ml-natural-language:21.0.3'
     implementation 'com.google.firebase:firebase-ml-natural-language-translate-model:20.0.6'
+    implementation 'com.google.firebase:firebase-ml-vision:23.0.0'
+    implementation 'com.mindorks:paracamera:0.2.2'
+    implementation 'pub.devrel:easypermissions:3.0.0'
 }

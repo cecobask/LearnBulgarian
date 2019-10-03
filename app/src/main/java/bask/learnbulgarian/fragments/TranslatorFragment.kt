@@ -22,6 +22,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageButton
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import bask.learnbulgarian.R
 import com.google.android.material.snackbar.Snackbar
@@ -31,15 +32,22 @@ import com.google.firebase.ml.naturallanguage.FirebaseNaturalLanguage
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslateLanguage
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslator
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslatorOptions
+import com.google.firebase.ml.vision.FirebaseVision
+import com.google.firebase.ml.vision.common.FirebaseVisionImage
+import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer
+import com.mindorks.paracamera.Camera
 import kotlinx.android.synthetic.main.translator.*
+import pub.devrel.easypermissions.EasyPermissions
 import timber.log.Timber
 import java.lang.Exception
 import java.util.*
+import java.util.jar.Manifest
 
-class TranslatorFragment : Fragment(), View.OnClickListener {
+class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.PermissionCallbacks {
 
     private lateinit var firebaseNaturalLanguage: FirebaseNaturalLanguage
     private lateinit var firebaseTranslator: FirebaseTranslator
+    private lateinit var textDetector: FirebaseVisionTextRecognizer
     private lateinit var translationRL: RelativeLayout
     private lateinit var translationTV: TextView
     private lateinit var progressBar: ProgressBar
@@ -48,8 +56,9 @@ class TranslatorFragment : Fragment(), View.OnClickListener {
     private lateinit var clipboardManager: ClipboardManager
     private lateinit var userInputTIET: TextInputEditText
     private lateinit var translateOptions: FirebaseTranslatorOptions
+    private lateinit var camera: Camera
     private val REQUESTCODESPEECH = 10001
-    private lateinit var mediaRecorder: MediaRecorder
+    private val REQUESTCODECAMERA = 10002
 
     companion object {
         fun newInstance(): TranslatorFragment {
@@ -95,6 +104,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener {
                 .setTargetLanguage(FirebaseTranslateLanguage.BG)
                 .build()
         )
+        textDetector = FirebaseVision.getInstance().onDeviceTextRecognizer
 
         // Make TextView vertically scrollable.
         translationTV.movementMethod = ScrollingMovementMethod()
@@ -137,28 +147,16 @@ class TranslatorFragment : Fragment(), View.OnClickListener {
         translateBtn.setOnClickListener(this)
         switchLangBtn.setOnClickListener(this)
         voiceBtn.setOnClickListener(this)
-        mediaRecorder = MediaRecorder()
-    }
+        cameraBtn.setOnClickListener(this)
 
-    private fun translateText(text: String) {
-        // Download language model for offline translations.
-        firebaseTranslator.downloadModelIfNeeded()
-            .addOnFailureListener {
-                // Log the error and hide progress bar.
-                Timber.tag("translateModel").d(it)
-                progressBar.visibility = View.GONE
-            }
-
-        firebaseTranslator.translate(text)
-            .addOnSuccessListener { translation ->
-                // Show translation layout and display the translation text.
-                translationRL.visibility = View.VISIBLE
-                translationTV.text = translation
-            }
-            // Log the error.
-            .addOnFailureListener { Timber.tag("translation").d(it) }
-            // Hide progress bar.
-            .addOnCompleteListener { progressBar.visibility = View.GONE }
+        camera = Camera.Builder()
+            .resetToCorrectOrientation(true)
+            .setTakePhotoRequestCode(REQUESTCODECAMERA)
+            .setDirectory("pics")
+            .setName("text_recognition_${System.currentTimeMillis()}")
+            .setImageFormat(Camera.IMAGE_JPEG)
+            .setCompression(75)//6
+            .build(this)
     }
 
     override fun onClick(v: View?) {
@@ -198,7 +196,36 @@ class TranslatorFragment : Fragment(), View.OnClickListener {
             R.id.voiceBtn -> {
                 speak()
             }
+            R.id.cameraBtn -> {
+                requestPermisssions()
+                try {
+                    camera.takePicture()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
+    }
+
+    private fun translateText(text: String) {
+        // Download language model for offline translations.
+        firebaseTranslator.downloadModelIfNeeded()
+            .addOnFailureListener {
+                // Log the error and hide progress bar.
+                Timber.tag("translateModel").d(it)
+                progressBar.visibility = View.GONE
+            }
+
+        firebaseTranslator.translate(text)
+            .addOnSuccessListener { translation ->
+                // Show translation layout and display the translation text.
+                translationRL.visibility = View.VISIBLE
+                translationTV.text = translation
+            }
+            // Log the error.
+            .addOnFailureListener { Timber.tag("translation").d(it) }
+            // Hide progress bar.
+            .addOnCompleteListener { progressBar.visibility = View.GONE }
     }
 
     private fun speak() {
@@ -217,6 +244,36 @@ class TranslatorFragment : Fragment(), View.OnClickListener {
         }
     }
 
+    private fun requestPermisssions() {
+        if (EasyPermissions.hasPermissions(context!!, android.Manifest.permission.CAMERA,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            Timber.tag("perms").d("ALL PERMISSIONS GRANTED!")
+        } else {
+            EasyPermissions.requestPermissions(this,
+                "Please, grant permission to use the camera and store the photos on the device.",
+                REQUESTCODECAMERA,
+                android.Manifest.permission.CAMERA,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+    }
+
+    override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
+        Timber.tag("permsDenied").d(perms.toString())
+    }
+
+    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
+        Timber.tag("permsGranted").d(perms.toString())
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -227,6 +284,15 @@ class TranslatorFragment : Fragment(), View.OnClickListener {
                     userInputTIET.setText(result[0])
                     translateBtn.performClick()
                     Timber.tag("speechh").d(result[0])
+                }
+            }
+            REQUESTCODECAMERA -> {
+                val bitmap = camera.cameraBitmap
+                if (resultCode == Activity.RESULT_OK && bitmap != null) {
+                    val image = FirebaseVisionImage.fromBitmap(bitmap)
+                    textDetector.processImage(image)
+                        .addOnSuccessListener { Timber.tag("textDetect").d(it.text) }
+                        .addOnFailureListener { Timber.tag("textDetect").d(it.localizedMessage) }
                 }
             }
         }
