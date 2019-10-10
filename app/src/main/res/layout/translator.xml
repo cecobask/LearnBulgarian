@@ -87,7 +87,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:drawableTop="@drawable/ic_mic"
-            android:text="@string/voiceBtn" />
+            android:text="@string/voiceBtn"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/translateBtn"

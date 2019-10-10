@@ -1,11 +1,11 @@
 package bask.learnbulgarian.fragments
 
+import android.Manifest
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.media.MediaRecorder
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.text.Editable
@@ -22,7 +22,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageButton
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import bask.learnbulgarian.R
 import com.google.android.material.snackbar.Snackbar
@@ -37,11 +36,11 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer
 import com.mindorks.paracamera.Camera
 import kotlinx.android.synthetic.main.translator.*
+import pub.devrel.easypermissions.AfterPermissionGranted
+import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 import timber.log.Timber
 import java.lang.Exception
-import java.util.*
-import java.util.jar.Manifest
 
 class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.PermissionCallbacks {
 
@@ -59,6 +58,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     private lateinit var camera: Camera
     private val REQUESTCODESPEECH = 10001
     private val REQUESTCODECAMERA = 10002
+    private val REQUESTCODESETTINGS = 10003
 
     companion object {
         fun newInstance(): TranslatorFragment {
@@ -104,6 +104,8 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                 .setTargetLanguage(FirebaseTranslateLanguage.BG)
                 .build()
         )
+
+        // Instantiate FirebaseVision API, used to recognise text in images.
         textDetector = FirebaseVision.getInstance().onDeviceTextRecognizer
 
         // Make TextView vertically scrollable.
@@ -168,15 +170,21 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                 sourceLangTV.text = tempStr
 
                 translateOptions =
-                    if (sourceLangTV.text == "English")
+                    if (sourceLangTV.text == "English") {
+                        // Speech to text supports only English.
+                        voiceBtn.isEnabled = true
                         FirebaseTranslatorOptions.Builder()
                             .setSourceLanguage(FirebaseTranslateLanguage.EN)
                             .setTargetLanguage(FirebaseTranslateLanguage.BG)
                             .build()
-                    else FirebaseTranslatorOptions.Builder()
-                        .setSourceLanguage(FirebaseTranslateLanguage.BG)
-                        .setTargetLanguage(FirebaseTranslateLanguage.EN)
-                        .build()
+                    } else {
+                        // Speech to text doesn't support Bulgarian
+                        voiceBtn.isEnabled = false
+                        FirebaseTranslatorOptions.Builder()
+                            .setSourceLanguage(FirebaseTranslateLanguage.BG)
+                            .setTargetLanguage(FirebaseTranslateLanguage.EN)
+                            .build()
+                    }
 
                 firebaseTranslator = firebaseNaturalLanguage.getTranslator(translateOptions)
             }
@@ -197,12 +205,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                 speak()
             }
             R.id.cameraBtn -> {
-                requestPermisssions()
-                try {
-                    camera.takePicture()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+                openCamera()
             }
         }
     }
@@ -229,10 +232,12 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     }
 
     private fun speak() {
+        // Start an intent that lets the user speak their query instead of inputting text.
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         intent.apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            // Works only with English.
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
             putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now, please...")
         }
@@ -244,21 +249,32 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
         }
     }
 
-    private fun requestPermisssions() {
-        if (EasyPermissions.hasPermissions(context!!, android.Manifest.permission.CAMERA,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            Timber.tag("perms").d("ALL PERMISSIONS GRANTED!")
-        } else {
-            EasyPermissions.requestPermissions(this,
-                "Please, grant permission to use the camera and store the photos on the device.",
+    @AfterPermissionGranted(10002)
+    private fun openCamera() {
+        // Check if the required permissions were granted.
+        val perms = arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        if (EasyPermissions.hasPermissions(context!!, *perms)) {
+            try {
+                // Bring up the camera and let the user capture an image for text recognition.
+                camera.takePicture()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        } else
+        // Request the required permissions.
+            EasyPermissions.requestPermissions(
+                this,
+                "CAMERA and WRITE_EXTERNAL_STORAGE permissions are required for this feature.",
                 REQUESTCODECAMERA,
-                android.Manifest.permission.CAMERA,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        }
+                *perms
+            )
     }
 
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
-        Timber.tag("permsDenied").d(perms.toString())
+        // User has ticked the "Don't ask again" checkbox when asked for permission.
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms))
+        // Redirect user to the App Settings menu.
+            AppSettingsDialog.Builder(this).setRequestCode(REQUESTCODESETTINGS)
     }
 
     override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
@@ -271,7 +287,9 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults)
+
+        // Let EasyPermissions handle the request result.
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -281,19 +299,34 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
             REQUESTCODESPEECH -> {
                 if (resultCode == Activity.RESULT_OK && null != data) {
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                    // Set userInputTIET's value to the text from speech recognition.
                     userInputTIET.setText(result[0])
+                    // Translate the text.
                     translateBtn.performClick()
-                    Timber.tag("speechh").d(result[0])
                 }
             }
             REQUESTCODECAMERA -> {
+                // Fetch the captured image.
                 val bitmap = camera.cameraBitmap
                 if (resultCode == Activity.RESULT_OK && bitmap != null) {
                     val image = FirebaseVisionImage.fromBitmap(bitmap)
                     textDetector.processImage(image)
-                        .addOnSuccessListener { Timber.tag("textDetect").d(it.text) }
-                        .addOnFailureListener { Timber.tag("textDetect").d(it.localizedMessage) }
+                        .addOnSuccessListener {
+                            // Translate recognised text from the image.
+                            userInputTIET.setText(it.text)
+                            translateBtn.performClick()
+                        }
+                        .addOnFailureListener { Timber.tag("textDetect").e(it.localizedMessage) }
                 }
+            }
+            REQUESTCODESETTINGS -> {
+                // Open the camera if all permissions were granted.
+                if (EasyPermissions.hasPermissions(
+                        context!!,
+                        Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    )
+                )
+                    openCamera()
             }
         }
     }
