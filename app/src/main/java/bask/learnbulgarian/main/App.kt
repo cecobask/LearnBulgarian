@@ -3,16 +3,19 @@ package bask.learnbulgarian.main
 import android.app.Application
 import android.content.Context
 import bask.learnbulgarian.BuildConfig
+import bask.learnbulgarian.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import timber.log.Timber
 
 class App : Application() {
 
     companion object {
         fun getGoogleClient(context: Context, clientId: String): GoogleSignInClient {
-            val mGoogleSignInOptions: GoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            val mGoogleSignInOptions: GoogleSignInOptions =
+                GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(clientId)
                 .requestEmail()
                 .build()
@@ -23,9 +26,21 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // Initialize Timber logger
+        // Initialize Timber logger.
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
+
+        // Fetch values from FirebaseRemoteConfig.
+        FirebaseRemoteConfig.getInstance().apply {
+            setDefaultsAsync(R.xml.remote_config_defaults)
+            fetch(3600)
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        this.activate()
+                    }
+                }
+        }
+
     }
 }

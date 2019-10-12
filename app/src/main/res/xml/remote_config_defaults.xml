@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaultsMap>
+    <entry>
+        <key>SPEECH_SERVICE_API_KEY</key>
+        <value>none</value>
+    </entry>
+    <entry>
+        <key>SPEECH_SERVICE_REGION</key>
+        <value>none</value>
+    </entry>
+</defaultsMap>
