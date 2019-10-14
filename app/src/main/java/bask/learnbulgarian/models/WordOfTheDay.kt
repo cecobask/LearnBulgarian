@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter
 data class WordOfTheDay (
     val wordDate: String = "",
     val word: String = "",
+    val wordEng: String = "",
     val wordTransliteration: String = "",
     val wordType: String = "",
     val wordDefinition: String = "",
@@ -18,6 +19,8 @@ data class WordOfTheDay (
         val dateTimeStrToLocalDateTime: (String) -> LocalDate = {
             LocalDate.parse(it, DateTimeFormatter.ofPattern("d-M-yyyy"))
         }
+
+        // Compare object based on LocalDate value.
         return wordDate.let(dateTimeStrToLocalDateTime)
             .compareTo(other.wordDate.let(dateTimeStrToLocalDateTime))
     }

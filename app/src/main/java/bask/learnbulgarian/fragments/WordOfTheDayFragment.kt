@@ -18,6 +18,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import bask.learnbulgarian.R
 import bask.learnbulgarian.models.WordOfTheDay
@@ -125,16 +126,16 @@ class WordOfTheDayFragment: Fragment() {
 
             override fun onDataChange(p0: DataSnapshot) {
                 // Current word of the day.
-                val currentWOTD = p0.getValue(WordOfTheDay::class.java)
+                val currentWOTD = p0.getValue(WordOfTheDay::class.java)!!
 
                 // Set values for all widgets.
                 wotdDateTV.text = LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
-                wotdTV.text = currentWOTD?.word
-                wotdTransliterationTV.text = currentWOTD?.wordTransliteration
-                wotdTypeTV.text = currentWOTD?.wordType
-                wotdDefinitionTV.text = currentWOTD?.wordDefinition
+                wotdTV.text = currentWOTD.word
+                wotdTransliterationTV.text = currentWOTD.wordTransliteration
+                wotdTypeTV.text = currentWOTD.wordType
+                wotdDefinitionTV.text = currentWOTD.wordDefinition
                 wotdPronounceFAB.visibility = View.VISIBLE
-                wotdExampleTV.text = currentWOTD?.exampleSentenceBG
+                highlightWord(currentWOTD.exampleSentenceBG, currentWOTD.word, wotdExampleTV)
 
                 // Show balloon tooltip to attract attention to the switchable
                 // English/Bulgarian translation.
@@ -142,7 +143,7 @@ class WordOfTheDayFragment: Fragment() {
 
                 // Create MediaPlayer instance that uses URL from Google Cloud Storage.
                 // to play word pronunciation.
-                mediaPlayer = MediaPlayer.create(context, Uri.parse(currentWOTD?.pronunciationURL))
+                mediaPlayer = MediaPlayer.create(context, Uri.parse(currentWOTD.pronunciationURL))
                     .apply {
                         setAudioAttributes(
                             AudioAttributes.Builder()
@@ -157,9 +158,19 @@ class WordOfTheDayFragment: Fragment() {
 
                 // Switch between English and Bulgarian example sentences.
                 wotdExampleTV.setOnClickListener {
-                    if (wotdExampleTV.text == currentWOTD?.exampleSentenceBG) {
-                        wotdExampleTV.text = currentWOTD?.exampleSentenceEN
-                    } else wotdExampleTV.text = currentWOTD?.exampleSentenceBG
+                    if (wotdExampleTV.text.toString() == currentWOTD.exampleSentenceBG) {
+                        highlightWord(
+                            currentWOTD.exampleSentenceEN,
+                            currentWOTD.wordEng,
+                            wotdExampleTV
+                        )
+                    } else {
+                        highlightWord(
+                            currentWOTD.exampleSentenceBG,
+                            currentWOTD.word,
+                            wotdExampleTV
+                        )
+                    }
                 }
 
                 // Reference to current user's collection of favourite words.
@@ -243,5 +254,12 @@ class WordOfTheDayFragment: Fragment() {
             }
         })
 
+    }
+
+    // Highlights every occurrence of a word in text.
+    private fun highlightWord(text: String, word: String, textView: TextView) {
+        val replaceWordWith = "<font color='red'>$word</font>"
+        val modifiedText = text.replace(word, replaceWordWith, true)
+        textView.text = HtmlCompat.fromHtml(modifiedText, HtmlCompat.FROM_HTML_MODE_LEGACY)
     }
 }

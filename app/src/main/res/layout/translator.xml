@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingHorizontal="30dp"
+    android:paddingHorizontal="20dp"
     android:paddingVertical="20dp">
 
     <LinearLayout
@@ -20,26 +20,44 @@
             android:id="@+id/sourceLangTV"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.4"
+            android:layout_weight="0.3"
             android:text="@string/englishLang"
             android:textAlignment="center"
             android:textColor="@color/white"
             android:textSize="25sp" />
 
+        <ImageView
+            android:id="@+id/sourceLangIV"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.15"
+            android:src="@drawable/ic_english"
+            android:padding="1dp"
+            android:contentDescription="@string/translatorTitle" />
+
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/switchLangBtn"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.2"
+            android:layout_weight="0.1"
             android:background="?android:attr/selectableItemBackground"
             android:src="@drawable/ic_arrows"
             android:tint="@color/white" />
+
+        <ImageView
+            android:id="@+id/targetLangIV"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.15"
+            android:src="@drawable/ic_bulgarian"
+            android:padding="1dp"
+            android:contentDescription="@string/translatorTitle" />
 
         <TextView
             android:id="@+id/targetLangTV"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.4"
+            android:layout_weight="0.3"
             android:text="@string/bulgarianLang"
             android:textAlignment="center"
             android:textColor="@color/white"

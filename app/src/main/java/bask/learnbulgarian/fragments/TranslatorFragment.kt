@@ -19,6 +19,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -63,6 +64,8 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     private lateinit var sourceLangTV: TextView
     private lateinit var clipboardManager: ClipboardManager
     private lateinit var userInputTIET: TextInputEditText
+    private lateinit var sourceLangIV: ImageView
+    private lateinit var targetLangIV: ImageView
     private lateinit var translateOptions: FirebaseTranslatorOptions
     private lateinit var camera: Camera
     private lateinit var remoteConfig: FirebaseRemoteConfig
@@ -93,7 +96,9 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
             resources.getString(R.string.translatorTitle)
 
         sourceLangTV = view.findViewById(R.id.sourceLangTV)
+        sourceLangIV = view.findViewById(R.id.sourceLangIV)
         targetLangTV = view.findViewById(R.id.targetLangTV)
+        targetLangIV = view.findViewById(R.id.targetLangIV)
         val switchLangBtn: AppCompatImageButton = view.findViewById(R.id.switchLangBtn)
         val userInputTIL: TextInputLayout = view.findViewById(R.id.userInputTIL)
         userInputTIET = view.findViewById(R.id.userInputTIET)
@@ -196,6 +201,10 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
 
                 translateOptions =
                     if (sourceLangTV.text == "English") {
+                        // Display appropriate flag in the ImageViews.
+                        sourceLangIV.setImageResource(R.drawable.ic_english)
+                        targetLangIV.setImageResource(R.drawable.ic_bulgarian)
+
                         // Speech to text supports only English.
                         voiceBtn.isEnabled = true
                         FirebaseTranslatorOptions.Builder()
@@ -203,7 +212,11 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                             .setTargetLanguage(FirebaseTranslateLanguage.BG)
                             .build()
                     } else {
-                        // Speech to text doesn't support Bulgarian
+                        // Display appropriate flag in the ImageViews.
+                        sourceLangIV.setImageResource(R.drawable.ic_bulgarian)
+                        targetLangIV.setImageResource(R.drawable.ic_english)
+
+                        // Speech to text doesn't support Bulgarian.
                         voiceBtn.isEnabled = false
                         FirebaseTranslatorOptions.Builder()
                             .setSourceLanguage(FirebaseTranslateLanguage.BG)
