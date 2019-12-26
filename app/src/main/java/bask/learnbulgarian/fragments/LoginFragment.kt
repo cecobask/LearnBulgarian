@@ -64,7 +64,7 @@ class LoginFragment : Fragment() {
         val emailET = view.findViewById<TextInputEditText>(R.id.emailET)
         val passwordET = view.findViewById<TextInputEditText>(R.id.passwordET)
         val loginBtn = view.findViewById<Button>(R.id.loginBtn)
-        val googleBtn = view.findViewById<Button>(R.id.googleBtnCustom)
+        googleBtn = view.findViewById(R.id.googleBtnCustom)
         val facebookBtn = view.findViewById<LoginButton>(R.id.facebookBtn)
         val facebookBtnCustom = view.findViewById<Button>(R.id.facebookBtnCustom)
         emailLayout = view.findViewById(R.id.emailLayout)

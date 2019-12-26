@@ -1,42 +1,34 @@
 {
   "project_info": {
-    "project_number": "270442265431",
-    "firebase_url": "https://learnbulgarian-8e7ea.firebaseio.com",
-    "project_id": "learnbulgarian-8e7ea",
-    "storage_bucket": "learnbulgarian-8e7ea.appspot.com"
+    "project_number": "810255866924",
+    "firebase_url": "https://lingvino.firebaseio.com",
+    "project_id": "lingvino",
+    "storage_bucket": "lingvino.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:270442265431:android:9013a48fe2451e99",
+        "mobilesdk_app_id": "1:810255866924:android:09c507b0fe9d2038eec589",
         "android_client_info": {
           "package_name": "bask.learnbulgarian"
         }
       },
       "oauth_client": [
         {
-          "client_id": "270442265431-q86c9bpjqde9ofgunl715rqs9jhqb21t.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "bask.learnbulgarian",
-            "certificate_hash": "6f9b5bb2af7f64fdd6d91703ec15f8b85f4b60a7"
-          }
-        },
-        {
-          "client_id": "270442265431-g4ev29fu2nmuslkn1qv26nhpho81aer7.apps.googleusercontent.com",
+          "client_id": "810255866924-1hulg9fegub491f6369ui2pk2794uhi2.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyArN-vl9at-RyPMs2HGIdKsg0oeiR-y4bM"
+          "current_key": "AIzaSyAK49DWW3SXmBrWi52RukvzorkKr_8ncQE"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "270442265431-g4ev29fu2nmuslkn1qv26nhpho81aer7.apps.googleusercontent.com",
+              "client_id": "810255866924-1hulg9fegub491f6369ui2pk2794uhi2.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
