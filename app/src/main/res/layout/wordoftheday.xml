@@ -88,6 +88,16 @@
         android:src="@drawable/ic_speaker"
         android:visibility="gone" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/wotdRandomFAB"
+        style="@style/FABStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/wotdPronounceFAB"
+        android:layout_toEndOf="@id/wotdPronounceFAB"
+        android:src="@drawable/ic_shuffle"
+        android:visibility="gone" />
+
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
