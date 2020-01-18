@@ -1,4 +1,4 @@
-package bask.learnbulgarian.models
+package bask.lingvino.models
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

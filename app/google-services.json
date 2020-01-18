@@ -8,12 +8,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:810255866924:android:09c507b0fe9d2038eec589",
+        "mobilesdk_app_id": "1:810255866924:android:0cda7702494147a1eec589",
         "android_client_info": {
-          "package_name": "bask.learnbulgarian"
+          "package_name": "bask.lingvino"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "810255866924-2n25emqvv5juianqr401dvlssrtl715r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "bask.lingvino",
+            "certificate_hash": "6f9b5bb2af7f64fdd6d91703ec15f8b85f4b60a7"
+          }
+        },
         {
           "client_id": "810255866924-1hulg9fegub491f6369ui2pk2794uhi2.apps.googleusercontent.com",
           "client_type": 3

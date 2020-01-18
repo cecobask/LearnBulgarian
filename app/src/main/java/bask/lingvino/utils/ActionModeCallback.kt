@@ -1,4 +1,4 @@
-package bask.learnbulgarian.utils
+package bask.lingvino.utils
 
 import android.view.ActionMode
 import android.view.Menu
@@ -6,8 +6,8 @@ import android.view.MenuItem
 import android.view.View
 import androidx.annotation.MenuRes
 import androidx.recyclerview.selection.SelectionTracker
-import bask.learnbulgarian.R
-import bask.learnbulgarian.adapters.WordOfTheDayAdapter
+import bask.lingvino.R
+import bask.lingvino.adapters.WordOfTheDayAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 

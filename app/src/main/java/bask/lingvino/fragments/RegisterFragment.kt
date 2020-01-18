@@ -1,4 +1,4 @@
-package bask.learnbulgarian.fragments
+package bask.lingvino.fragments
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,9 +13,9 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
-import bask.learnbulgarian.R
-import bask.learnbulgarian.activities.HomeActivity
-import bask.learnbulgarian.models.User
+import bask.lingvino.R
+import bask.lingvino.activities.HomeActivity
+import bask.lingvino.models.User
 import com.androidadvance.topsnackbar.TSnackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout

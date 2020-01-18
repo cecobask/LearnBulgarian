@@ -1,4 +1,4 @@
-package bask.learnbulgarian.activities
+package bask.lingvino.activities
 
 import android.content.Context
 import android.graphics.Rect
@@ -12,9 +12,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
-import bask.learnbulgarian.R
-import bask.learnbulgarian.fragments.LoginFragment
-import bask.learnbulgarian.fragments.RegisterFragment
+import bask.lingvino.R
+import bask.lingvino.fragments.LoginFragment
+import bask.lingvino.fragments.RegisterFragment
 import com.google.android.material.tabs.TabLayout
 
 

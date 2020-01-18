@@ -1,4 +1,4 @@
-package bask.learnbulgarian.fragments
+package bask.lingvino.fragments
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -20,8 +20,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
-import bask.learnbulgarian.R
-import bask.learnbulgarian.models.WordOfTheDay
+import bask.lingvino.R
+import bask.lingvino.models.WordOfTheDay
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*

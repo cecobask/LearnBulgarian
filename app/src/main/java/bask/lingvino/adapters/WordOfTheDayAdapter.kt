@@ -1,4 +1,4 @@
-package bask.learnbulgarian.adapters
+package bask.lingvino.adapters
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,9 +7,9 @@ import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.RecyclerView
-import bask.learnbulgarian.R
-import bask.learnbulgarian.fragments.WordOfTheDayFragment
-import bask.learnbulgarian.models.WordOfTheDay
+import bask.lingvino.R
+import bask.lingvino.fragments.WordOfTheDayFragment
+import bask.lingvino.models.WordOfTheDay
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DatabaseReference
 import kotlinx.android.synthetic.main.wotd_item.view.*

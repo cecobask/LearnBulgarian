@@ -1,9 +1,9 @@
-package bask.learnbulgarian.main
+package bask.lingvino.main
 
 import android.app.Application
 import android.content.Context
-import bask.learnbulgarian.BuildConfig
-import bask.learnbulgarian.R
+import bask.lingvino.BuildConfig
+import bask.lingvino.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions

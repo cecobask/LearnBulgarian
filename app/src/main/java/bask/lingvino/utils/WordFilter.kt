@@ -1,8 +1,8 @@
-package bask.learnbulgarian.utils
+package bask.lingvino.utils
 
 import android.widget.Filter
-import bask.learnbulgarian.adapters.WordOfTheDayAdapter
-import bask.learnbulgarian.models.WordOfTheDay
+import bask.lingvino.adapters.WordOfTheDayAdapter
+import bask.lingvino.models.WordOfTheDay
 
 
 class WordFilter(private val adapter: WordOfTheDayAdapter,

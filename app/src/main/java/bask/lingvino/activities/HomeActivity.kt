@@ -1,4 +1,4 @@
-package bask.learnbulgarian.activities
+package bask.lingvino.activities
 
 import android.content.Context
 import android.content.Intent
@@ -15,10 +15,10 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import bask.learnbulgarian.R
-import bask.learnbulgarian.fragments.TranslatorFragment
-import bask.learnbulgarian.fragments.WordOfTheDayFragment
-import bask.learnbulgarian.main.App
+import bask.lingvino.R
+import bask.lingvino.fragments.TranslatorFragment
+import bask.lingvino.fragments.WordOfTheDayFragment
+import bask.lingvino.main.App
 import com.bumptech.glide.Glide
 import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignInClient

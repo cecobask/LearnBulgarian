@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="bask.learnbulgarian">
+    package="bask.lingvino">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
-        android:name=".main.App"
+        android:name="bask.lingvino.main.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -18,11 +18,11 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <activity
-            android:name=".activities.AuthActivity"
+            android:name="bask.lingvino.activities.AuthActivity"
             android:windowSoftInputMode="stateAlwaysHidden"
             android:theme="@style/AuthTheme" />
         <activity
-            android:name=".activities.HomeActivity"
+            android:name="bask.lingvino.activities.HomeActivity"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

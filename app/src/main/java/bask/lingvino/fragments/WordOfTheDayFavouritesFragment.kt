@@ -1,4 +1,4 @@
-package bask.learnbulgarian.fragments
+package bask.lingvino.fragments
 
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -16,10 +16,10 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import bask.learnbulgarian.R
-import bask.learnbulgarian.adapters.WordOfTheDayAdapter
-import bask.learnbulgarian.models.WordOfTheDay
-import bask.learnbulgarian.utils.*
+import bask.lingvino.R
+import bask.lingvino.adapters.WordOfTheDayAdapter
+import bask.lingvino.models.WordOfTheDay
+import bask.lingvino.utils.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError

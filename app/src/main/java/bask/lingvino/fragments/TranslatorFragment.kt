@@ -1,4 +1,4 @@
-package bask.learnbulgarian.fragments
+package bask.lingvino.fragments
 
 import android.Manifest
 import android.app.Activity
@@ -27,7 +27,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.fragment.app.Fragment
-import bask.learnbulgarian.R
+import bask.lingvino.R
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout

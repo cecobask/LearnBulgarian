@@ -1,9 +1,9 @@
-package bask.learnbulgarian.utils
+package bask.lingvino.utils
 
 import android.view.MotionEvent
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.widget.RecyclerView
-import bask.learnbulgarian.adapters.WordOfTheDayAdapter
+import bask.lingvino.adapters.WordOfTheDayAdapter
 
 class WordDetailsLookup(private val recyclerView: RecyclerView) :
     ItemDetailsLookup<Long>() {

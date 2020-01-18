@@ -1,4 +1,4 @@
-package bask.learnbulgarian
+package bask.lingvino
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
