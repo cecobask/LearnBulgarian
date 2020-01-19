@@ -18,7 +18,6 @@
     <string name="favWordsTitle">Favourite words</string>
     <string name="action_bar_delete_button">Delete selected</string>
     <string name="search_words">Search words</string>
-    <string name="arrow_switch">switch languages</string>
     <string name="englishLang">English</string>
     <string name="bulgarianLang">Bulgarian</string>
     <string name="translationHint">Text to translate</string>
@@ -26,5 +25,4 @@
     <string name="cameraBtn">Camera</string>
     <string name="voiceBtn">Voice</string>
     <string name="translateBtn">Translate</string>
-
 </resources>

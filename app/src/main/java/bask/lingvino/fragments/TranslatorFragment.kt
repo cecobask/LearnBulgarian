@@ -337,17 +337,18 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                 Timber.tag("translateModel").d(it)
                 progressBar.visibility = View.GONE
             }
-
-        firebaseTranslator.translate(text)
-            .addOnSuccessListener { translation ->
-                // Show translation layout and display the translation text.
-                translationRL.visibility = View.VISIBLE
-                translationTV.text = translation
+            .addOnSuccessListener {
+                firebaseTranslator.translate(text)
+                    .addOnSuccessListener { translation ->
+                        // Show translation layout and display the translation text.
+                        translationRL.visibility = View.VISIBLE
+                        translationTV.text = translation
+                    }
+                    // Log the error.
+                    .addOnFailureListener { Timber.tag("translation").d(it) }
+                    // Hide progress bar.
+                    .addOnCompleteListener { progressBar.visibility = View.GONE }
             }
-            // Log the error.
-            .addOnFailureListener { Timber.tag("translation").d(it) }
-            // Hide progress bar.
-            .addOnCompleteListener { progressBar.visibility = View.GONE }
     }
 
     private fun speak() {
