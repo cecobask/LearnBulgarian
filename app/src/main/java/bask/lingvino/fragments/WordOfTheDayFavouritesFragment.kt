@@ -46,7 +46,7 @@ class WordOfTheDayFavouritesFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.wordofthedayfavourites, container, false)
+    ): View? = inflater.inflate(R.layout.wordoftheday_favs, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

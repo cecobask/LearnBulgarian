@@ -14,5 +14,9 @@
             android:id="@+id/navItemLogOut"
             android:icon="@drawable/ic_logout"
             android:title="@string/logout" />
+        <item
+            android:id="@+id/navItemTest"
+            android:icon="@drawable/ic_export"
+            android:title="Language Picker" />
     </group>
 </menu>

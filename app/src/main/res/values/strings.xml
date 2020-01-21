@@ -25,4 +25,6 @@
     <string name="cameraBtn">Camera</string>
     <string name="voiceBtn">Voice</string>
     <string name="translateBtn">Translate</string>
+    <string name="spokenLangTV">I speak</string>
+    <string name="targetLangTV">I want to learn</string>
 </resources>

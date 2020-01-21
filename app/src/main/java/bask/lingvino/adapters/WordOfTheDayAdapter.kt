@@ -12,7 +12,7 @@ import bask.lingvino.fragments.WordOfTheDayFragment
 import bask.lingvino.models.WordOfTheDay
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DatabaseReference
-import kotlinx.android.synthetic.main.wotd_item.view.*
+import kotlinx.android.synthetic.main.wordoftheday_item.view.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -35,7 +35,7 @@ class WordOfTheDayAdapter(
         .toLong()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WordHolder =
-        WordHolder(LayoutInflater.from(parent.context).inflate(R.layout.wotd_item, parent, false))
+        WordHolder(LayoutInflater.from(parent.context).inflate(R.layout.wordoftheday_item, parent, false))
 
     override fun getItemCount(): Int = favouriteWords.size
 
