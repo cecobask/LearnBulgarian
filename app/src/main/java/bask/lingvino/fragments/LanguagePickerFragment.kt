@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.Spinner
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
 import bask.lingvino.adapters.LanguageAdapter
@@ -19,7 +18,8 @@ class LanguagePickerFragment : Fragment() {
     private lateinit var targetLangTV: TextView
     private lateinit var spokenLangSpinner: Spinner
     private lateinit var targetLangSpinner: Spinner
-    private lateinit var languageAdapter: LanguageAdapter
+    private lateinit var spokenLangAdapter: LanguageAdapter
+    private lateinit var targetLangAdapter: LanguageAdapter
 
     companion object {
         fun newInstance(): LanguagePickerFragment {
@@ -36,43 +36,58 @@ class LanguagePickerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Bind widgets.
         spokenLangTV = view.findViewById(R.id.spokenLangTV)
         targetLangTV = view.findViewById(R.id.targetLangTV)
         spokenLangSpinner = view.findViewById(R.id.spokenLangSpinner)
         targetLangSpinner = view.findViewById(R.id.targetLangSpinner)
 
-        // Prepare adapter with a list of languages to select from.
-        languageAdapter = LanguageAdapter(context!!, initLanguagesList())
+        // Prepare Adapters with a list of languages to select from.
+        // Set the default selection for "spoken" to Bulgarian and exclude it from from "target".
+        spokenLangAdapter = LanguageAdapter(context!!, initLanguagesList())
+        targetLangAdapter = LanguageAdapter(context!!, initLanguagesList("Bulgarian"))
 
-        spokenLangSpinner.adapter = languageAdapter
-        targetLangSpinner.adapter = languageAdapter
+        spokenLangSpinner.apply {
+            // Set an adapter.
+            adapter = spokenLangAdapter
 
-        spokenLangSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                TODO("not implemented")
+            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    TODO("not implemented")
+                }
+
+                override fun onItemSelected(
+                    parent: AdapterView<*>?, view: View?, position: Int, id: Long
+                ) {
+                    // When the user picks a language from the "spoken" Spinner, automatically
+                    // update the contents of "target" Spinner to exclude that language.
+                    targetLangAdapter.updateData(
+                        initLanguagesList(parent?.getItemAtPosition(position).toString())
+                    )
+                }
             }
+        }
 
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                Toast.makeText(
-                    context,
-                    parent?.getItemAtPosition(position).toString(),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
+        targetLangSpinner.apply {
+            // Set an adapter.
+            adapter = targetLangAdapter
         }
     }
 
-    private fun initLanguagesList(): MutableList<LanguageItem> {
+    private fun initLanguagesList(exclusion: String = "none"): MutableList<LanguageItem> {
         val bg = LanguageItem("Bulgarian", R.drawable.ic_bulgarian)
         val en = LanguageItem("English", R.drawable.ic_english)
-        val rand = LanguageItem("Other", R.drawable.ic_export)
+        val es = LanguageItem("Spanish", R.drawable.ic_spanish)
+        val ru = LanguageItem("Russian", R.drawable.ic_russian)
 
-        return mutableListOf(bg, en, rand)
+        // Returns the whole list if the function is called with default value of "none".
+        // Otherwise, it will return the list excluding the specified element.
+        return if (exclusion === "none") {
+            mutableListOf(bg, en, es, ru)
+        } else {
+            mutableListOf(bg, en, es, ru)
+                .filter { lang -> lang.languageName !== exclusion }
+                    as MutableList<LanguageItem>
+        }
     }
 }

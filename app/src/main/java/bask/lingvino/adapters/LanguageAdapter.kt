@@ -9,7 +9,7 @@ import bask.lingvino.R
 import bask.lingvino.models.LanguageItem
 import kotlinx.android.synthetic.main.language_spinner_item.view.*
 
-class LanguageAdapter(context: Context, items: MutableList<LanguageItem>) :
+class LanguageAdapter(context: Context, var items: MutableList<LanguageItem>) :
     ArrayAdapter<LanguageItem>(context, 0, items) {
 
     private val mInflater: LayoutInflater = LayoutInflater.from(context)
@@ -37,6 +37,12 @@ class LanguageAdapter(context: Context, items: MutableList<LanguageItem>) :
         vh.bindItems(getItem(position)!!)
 
         return view
+    }
+
+    fun updateData(data: List<LanguageItem>) {
+        items.clear()
+        items.addAll(data)
+        notifyDataSetChanged()
     }
 
     private inner class LanguageViewHolder(v: View) {
