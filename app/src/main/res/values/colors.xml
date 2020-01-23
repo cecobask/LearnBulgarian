@@ -8,4 +8,5 @@
     <color name="gray">#707070</color>
     <color name="maroon">#C9BB0000</color>
     <color name="selectedItem">#2D008577</color>
+    <color name="spinnerBackground">#324CB5A6</color>
 </resources>

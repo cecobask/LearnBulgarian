@@ -22,6 +22,9 @@
             android:windowSoftInputMode="stateAlwaysHidden"
             android:theme="@style/AuthTheme" />
         <activity
+            android:name="bask.lingvino.activities.LanguageSelectionActivity"
+            android:theme="@style/AuthTheme" />
+        <activity
             android:name="bask.lingvino.activities.HomeActivity"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>

@@ -1,6 +1,7 @@
 package bask.lingvino.fragments
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -13,6 +14,7 @@ import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
 import bask.lingvino.activities.HomeActivity
+import bask.lingvino.activities.LanguageSelectionActivity
 import bask.lingvino.main.App
 import com.androidadvance.topsnackbar.TSnackbar
 import com.facebook.CallbackManager
@@ -42,6 +44,7 @@ class LoginFragment : Fragment() {
     private lateinit var googleBtn: Button
     private lateinit var emailLayout: TextInputLayout
     private lateinit var passwordLayout: TextInputLayout
+    private lateinit var sharedPref: SharedPreferences
 
     companion object {
         fun newInstance(): LoginFragment {
@@ -59,6 +62,8 @@ class LoginFragment : Fragment() {
         firebaseAuth = FirebaseAuth.getInstance()
         googleSignInClient = App.getGoogleClient(context!!, getString(R.string.default_web_client_id))
         callbackManager = CallbackManager.Factory.create()
+
+        sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
 
         // Instantiate widgets.
         val emailET = view.findViewById<TextInputEditText>(R.id.emailET)
@@ -121,7 +126,12 @@ class LoginFragment : Fragment() {
 
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                finishCurrentAndStartHomeActivity()
+                // Check if user has picked spoken and target language for the app.
+                if (!hasUserPickedLanguages()) {
+                    finishActivityAndStartLanguageSelection()
+                } else {
+                    finishActivityAndStartHome()
+                }
             } else {
                 // Handle common exception scenarios.
                 when (val errorMessage = task.exception?.localizedMessage) {
@@ -157,7 +167,12 @@ class LoginFragment : Fragment() {
         val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                finishCurrentAndStartHomeActivity()
+                // Check if user has picked spoken and target language for the app.
+                if (!hasUserPickedLanguages()) {
+                    finishActivityAndStartLanguageSelection()
+                } else {
+                    finishActivityAndStartHome()
+                }
             } else {
                 showMessage(googleBtn, "Error: $task.exception")
             }
@@ -175,16 +190,19 @@ class LoginFragment : Fragment() {
                 firebaseAuth.signInWithCredential(credential)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            finishCurrentAndStartHomeActivity()
+                            // Check if user has picked spoken and target language for the app.
+                            if (!hasUserPickedLanguages()) {
+                                finishActivityAndStartLanguageSelection()
+                            } else {
+                                finishActivityAndStartHome()
+                            }
                         } else {
                             showMessage(view, "Error: ${task.exception.toString()}")
                         }
                     }
             }
 
-            override fun onCancel() {
-
-            }
+            override fun onCancel() {}
 
             override fun onError(exception: FacebookException) {
                 showMessage(view, "Error: $exception")
@@ -198,9 +216,18 @@ class LoginFragment : Fragment() {
             TSnackbar.LENGTH_LONG).show()
     }
 
-    private fun finishCurrentAndStartHomeActivity() {
-        activity?.finish()
+    private fun finishActivityAndStartHome() {
+        activity?.finishAffinity()
         startActivity(Intent(context, HomeActivity::class.java))
+    }
+
+    private fun finishActivityAndStartLanguageSelection() {
+        activity?.finishAffinity()
+        startActivity(Intent(context, LanguageSelectionActivity::class.java))
+    }
+
+    private fun hasUserPickedLanguages(): Boolean {
+        return sharedPref.contains("SPOKEN_LANG")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

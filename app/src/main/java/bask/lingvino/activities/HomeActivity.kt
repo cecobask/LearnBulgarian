@@ -2,6 +2,7 @@ package bask.lingvino.activities
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.Rect
 import android.os.Bundle
@@ -16,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
-import bask.lingvino.fragments.LanguagePickerFragment
 import bask.lingvino.fragments.TranslatorFragment
 import bask.lingvino.fragments.WordOfTheDayFragment
 import bask.lingvino.main.App
@@ -38,6 +38,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var headerView: View
     private lateinit var drawerToggle: ActionBarDrawerToggle
+    private lateinit var sharedPref: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +58,8 @@ class HomeActivity : AppCompatActivity() {
         drawerToggle = ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.drawer_open, R.string.drawer_close)
         mDrawer.addDrawerListener(drawerToggle)
 
+        sharedPref = getSharedPreferences("learnBulgarian", 0)
+
         // Authentication providers.
         firebaseAuth = FirebaseAuth.getInstance()
         googleSignInClient = App.getGoogleClient(this, getString(R.string.default_web_client_id))
@@ -65,7 +68,8 @@ class HomeActivity : AppCompatActivity() {
         // The AuthStateListener decides whether user is brought to the AuthActivity.
         firebaseAuth.addAuthStateListener {
             val currentUser = firebaseAuth.currentUser
-            if (currentUser == null) {
+
+            if (currentUser == null || !hasUserPickedLanguages()) {
                 finish()
                 startActivity(Intent(this, AuthActivity::class.java))
             } else {
@@ -109,9 +113,6 @@ class HomeActivity : AppCompatActivity() {
             R.id.navItemTranslate -> {
                 currentFragment = TranslatorFragment.newInstance()
             }
-            R.id.navItemTest -> {
-                currentFragment = LanguagePickerFragment.newInstance()
-            }
         }
 
             if (currentFragment !== null) {
@@ -128,6 +129,10 @@ class HomeActivity : AppCompatActivity() {
                 mDrawer.closeDrawers()
             }
 
+    }
+
+    private fun hasUserPickedLanguages(): Boolean {
+        return sharedPref.contains("SPOKEN_LANG")
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {

@@ -27,4 +27,6 @@
     <string name="translateBtn">Translate</string>
     <string name="spokenLangTV">I speak</string>
     <string name="targetLangTV">I want to learn</string>
+    <string name="continueBtn">Continue</string>
+    <string name="and">and</string>
 </resources>

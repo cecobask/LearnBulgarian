@@ -68,26 +68,6 @@ class WordOfTheDayFavouritesFragment : Fragment() {
             .child(firebaseAuth.currentUser!!.uid)
             .child("favWords")
 
-        val word1 = WordOfTheDay("20-9-2019","кокошка", "kokoshka",
-            "noun", "A female bird, especially the adult female chicken.",
-            "The term hen-cocks is, in consequence, often applied to them; but although the sickle feathers are thus modified, no bird possesses higher courage, or a more gallant carriage.",
-            "Вследствие на това терминът кокошки петли често се прилага към тях; но въпреки че сърповите пера са модифицирани по този начин, никоя птица не притежава по-голяма смелост или по-галантна карета.",
-            "https://storage.googleapis.com/learnbulgarian-8e7ea.appspot.com/20-9-2019.mpeg")
-        val word2 = WordOfTheDay("19-9-2019","видра","vidra","noun",
-            "Any of various aquatic or semiaquatic carnivorous mammals of the mustelid subfamily Lutrinae, having webbed feet and dense, dark brown fur.",
-            "The terminally cute sea otter is a marine weasel into rough sex.",
-            "Крайната сладка морска вид е морска невестулка в груб секс.",
-            "https://storage.googleapis.com/learnbulgarian-8e7ea.appspot.com/19-9-2019.mpeg")
-        val word3 = WordOfTheDay("18-9-2019","щраус", "shtraus", "noun",
-            "Either of two large, swift-running flightless birds (Struthio camelus or S. molybdophanes) of Africa, characterized by a long bare neck, small head, and two-toed feet. Ostriches are the largest living birds.",
-            "Then he began to lose his birds by accident, by the destructive propensities of the goblin and a vicious old hen or two; and lastly, some kind of epidemic, which they dubbed ostrich chicken-pox, carried the young birds off wholesale.",
-            "Тогава той започна да губи птиците си случайно, от разрушителните склонности на таласъма и порочна стара кокошка или две; и накрая, някаква епидемия, която те нарекоха щраусова шарка, отнесе младите птици на едро.",
-            "https://storage.googleapis.com/learnbulgarian-8e7ea.appspot.com/18-9-2019.mpeg")
-
-        favWordsRef.child("20-9-2019").setValue(word1)
-        favWordsRef.child("19-9-2019").setValue(word2)
-        favWordsRef.child("18-9-2019").setValue(word3)
-
         favWordsRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onCancelled(p0: DatabaseError) =
                     Timber.tag("favWords").d(p0.toException())

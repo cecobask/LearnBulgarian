@@ -1,14 +1,18 @@
 package bask.lingvino.fragments
 
+import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
+import bask.lingvino.activities.HomeActivity
 import bask.lingvino.adapters.LanguageAdapter
 import bask.lingvino.models.LanguageItem
 
@@ -20,6 +24,8 @@ class LanguagePickerFragment : Fragment() {
     private lateinit var targetLangSpinner: Spinner
     private lateinit var spokenLangAdapter: LanguageAdapter
     private lateinit var targetLangAdapter: LanguageAdapter
+    private lateinit var continueBtn: Button
+    private lateinit var sharedPref: SharedPreferences
 
     companion object {
         fun newInstance(): LanguagePickerFragment {
@@ -41,6 +47,7 @@ class LanguagePickerFragment : Fragment() {
         targetLangTV = view.findViewById(R.id.targetLangTV)
         spokenLangSpinner = view.findViewById(R.id.spokenLangSpinner)
         targetLangSpinner = view.findViewById(R.id.targetLangSpinner)
+        continueBtn = view.findViewById(R.id.continueBtn)
 
         // Prepare Adapters with a list of languages to select from.
         // Set the default selection for "spoken" to Bulgarian and exclude it from from "target".
@@ -72,6 +79,18 @@ class LanguagePickerFragment : Fragment() {
             // Set an adapter.
             adapter = targetLangAdapter
         }
+
+        sharedPref = context!!.getSharedPreferences("learnBulgarian", 0)
+        continueBtn.setOnClickListener {
+            sharedPref.edit()
+                .apply {
+                    putString("SPOKEN_LANG", spokenLangSpinner.selectedItem.toString())
+                    putString("TARGET_LANG", targetLangSpinner.selectedItem.toString())
+                    apply()
+                }
+
+            finishCurrentAndStartHomeActivity()
+        }
     }
 
     private fun initLanguagesList(exclusion: String = "none"): MutableList<LanguageItem> {
@@ -89,5 +108,10 @@ class LanguagePickerFragment : Fragment() {
                 .filter { lang -> lang.languageName !== exclusion }
                     as MutableList<LanguageItem>
         }
+    }
+
+    private fun finishCurrentAndStartHomeActivity() {
+        activity?.finish()
+        startActivity(Intent(context, HomeActivity::class.java))
     }
 }
