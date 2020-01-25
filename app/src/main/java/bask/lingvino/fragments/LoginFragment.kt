@@ -227,7 +227,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun hasUserPickedLanguages(): Boolean {
-        return sharedPref.contains("SPOKEN_LANG")
+        return sharedPref.contains("SPOKEN_LANG_NAME")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

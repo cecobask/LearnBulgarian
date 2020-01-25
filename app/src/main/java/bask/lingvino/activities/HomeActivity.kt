@@ -132,7 +132,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun hasUserPickedLanguages(): Boolean {
-        return sharedPref.contains("SPOKEN_LANG")
+        return sharedPref.contains("SPOKEN_LANG_NAME")
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {

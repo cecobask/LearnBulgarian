@@ -2,10 +2,7 @@ package bask.lingvino.fragments
 
 import android.Manifest
 import android.app.Activity
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
@@ -66,7 +63,6 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     private lateinit var userInputTIET: TextInputEditText
     private lateinit var sourceLangIV: ImageView
     private lateinit var targetLangIV: ImageView
-    private lateinit var translateOptions: FirebaseTranslatorOptions
     private lateinit var camera: Camera
     private lateinit var remoteConfig: FirebaseRemoteConfig
     private lateinit var httpClient: OkHttpClient
@@ -75,6 +71,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     private val REQUESTCODESPEECH = 10001
     private val REQUESTCODECAMERA = 10002
     private val REQUESTCODESETTINGS = 10003
+    private lateinit var sharedPref: SharedPreferences
 
     companion object {
         fun newInstance(): TranslatorFragment {
@@ -124,13 +121,21 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
         getSpeechAccessToken(remoteConfig.getString("SPEECH_SERVICE_API_KEY"))
         { token -> accessToken = token!! }
 
-        // Set the default source to English & target to Bulgarian.
+        sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
+
+        val spokenLangName = sharedPref.getString("SPOKEN_LANG_NAME", "English")
+        val spokenLangFlag = sharedPref.getInt("SPOKEN_LANG_FLAG", R.drawable.ic_english)
+        val targetLangName = sharedPref.getString("TARGET_LANG_NAME", "Bulgarian")
+        val targetLangFlag = sharedPref.getInt("TARGET_LANG_FLAG", R.drawable.ic_bulgarian)
+
         firebaseNaturalLanguage = FirebaseNaturalLanguage.getInstance()
         firebaseTranslator = firebaseNaturalLanguage.getTranslator(
-            FirebaseTranslatorOptions.Builder()
-                .setSourceLanguage(FirebaseTranslateLanguage.EN)
-                .setTargetLanguage(FirebaseTranslateLanguage.BG)
-                .build()
+            setTranslateOptions(
+                spokenLangName!!,
+                spokenLangFlag,
+                targetLangName!!,
+                targetLangFlag
+            )
         )
 
         // Instantiate FirebaseVision API, used to recognise text in images.
@@ -194,37 +199,27 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.switchLangBtn -> {
-                // Swap source and target languages.
+                // Swap source and target languages and icons.
                 val tempStr = targetLangTV.text
+                val tempInt = targetLangIV.tag
                 targetLangTV.text = sourceLangTV.text
                 sourceLangTV.text = tempStr
+                targetLangIV.setImageResource(sourceLangIV.tag as Int)
+                sourceLangIV.setImageResource(tempInt as Int)
 
-                translateOptions =
-                    if (sourceLangTV.text == "English") {
-                        // Display appropriate flag in the ImageViews.
-                        sourceLangIV.setImageResource(R.drawable.ic_english)
-                        targetLangIV.setImageResource(R.drawable.ic_bulgarian)
+                // Swap ImageView tags.
+                targetLangIV.tag = sourceLangIV.tag
+                sourceLangIV.tag = tempInt
 
-                        // Speech to text supports only English.
-                        voiceBtn.isEnabled = true
-                        FirebaseTranslatorOptions.Builder()
-                            .setSourceLanguage(FirebaseTranslateLanguage.EN)
-                            .setTargetLanguage(FirebaseTranslateLanguage.BG)
-                            .build()
-                    } else {
-                        // Display appropriate flag in the ImageViews.
-                        sourceLangIV.setImageResource(R.drawable.ic_bulgarian)
-                        targetLangIV.setImageResource(R.drawable.ic_english)
+                // Update Translator options.
+                firebaseTranslator = firebaseNaturalLanguage.getTranslator(
+                    setTranslateOptions(
+                        sourceLangTV.text as String, sourceLangIV.tag as Int,
+                        targetLangTV.text as String, targetLangIV.tag as Int
+                    )
+                )
 
-                        // Speech to text doesn't support Bulgarian.
-                        voiceBtn.isEnabled = false
-                        FirebaseTranslatorOptions.Builder()
-                            .setSourceLanguage(FirebaseTranslateLanguage.BG)
-                            .setTargetLanguage(FirebaseTranslateLanguage.EN)
-                            .build()
-                    }
-
-                firebaseTranslator = firebaseNaturalLanguage.getTranslator(translateOptions)
+                voiceBtn.isEnabled = sourceLangTV.text != "Bulgarian"
             }
             R.id.copyBtn -> {
                 // Copy translation to clipboard.
@@ -251,6 +246,36 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
         }
     }
 
+    private fun setTranslateOptions(spokenLangName: String = "English",
+                                    spokenLangFlag: Int = R.drawable.ic_english,
+                                    targetLangName: String = "Bulgarian",
+                                    targetLangFlag: Int = R.drawable.ic_bulgarian
+    ): FirebaseTranslatorOptions {
+        return FirebaseTranslatorOptions.Builder().apply {
+            when (spokenLangName) {
+                "English" -> setSourceLanguage(FirebaseTranslateLanguage.EN)
+                "Bulgarian" -> setSourceLanguage(FirebaseTranslateLanguage.BG)
+                "Spanish" -> setSourceLanguage(FirebaseTranslateLanguage.ES)
+                "Russian" -> setSourceLanguage(FirebaseTranslateLanguage.RU)
+            }
+
+            when (targetLangName) {
+                "English" -> setTargetLanguage(FirebaseTranslateLanguage.EN)
+                "Bulgarian" -> setTargetLanguage(FirebaseTranslateLanguage.BG)
+                "Spanish" -> setTargetLanguage(FirebaseTranslateLanguage.ES)
+                "Russian" -> setTargetLanguage(FirebaseTranslateLanguage.RU)
+            }
+
+            sourceLangTV.text = spokenLangName
+            sourceLangIV.setImageResource(spokenLangFlag)
+            sourceLangIV.tag = spokenLangFlag
+
+            targetLangTV.text = targetLangName
+            targetLangIV.setImageResource(targetLangFlag)
+            targetLangIV.tag = targetLangFlag
+        }.build()
+    }
+
     // Retrieve access token for Speech API.
     private fun getSpeechAccessToken(key: String, callback: (String?) -> Unit) {
         val request = Request.Builder()
@@ -275,15 +300,39 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
 
     // Takes text and synthesizes it into speech.
     private fun pronounceText(text: String) {
+        // Default values.
+        var name = "en-GB-George-Apollo"
+        var lang = "en-GB"
+
+        // Determine what language and which speaker to use for pronunciations.
+        when (targetLangTV.text) {
+            "English" -> {
+                name = "en-GB-George-Apollo"
+                lang = "en-GB"
+            }
+            "Bulgarian" -> {
+                name = "bg-BG-Ivan"
+                lang = "bg-BG"
+            }
+            "Spanish" -> {
+                name = "es-ES-Pablo-Apollo"
+                lang = "es-ES"
+            }
+            "Russian" -> {
+                name = "ru-RU-Pavel-Apollo"
+                lang = "ru-RU"
+            }
+        }
+
         // Construct XML body for the HTTP request.
         val body = xml("speak") {
             version = XmlVersion.V10
             attribute("version", "1.0")
-            attribute("xml:lang", "bg-BG")
+            attribute("xml:lang", lang)
             "voice" {
-                attribute("name", "bg-BG-Ivan")
+                attribute("name", name)
                 attribute("xml:gender", "Male")
-                attribute("xml:lang", "bg-BG")
+                attribute("xml:lang", lang)
                 -text
             }
         }.toString()
