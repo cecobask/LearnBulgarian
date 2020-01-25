@@ -5,14 +5,24 @@ import java.time.format.DateTimeFormatter
 
 data class WordOfTheDay (
     val wordDate: String = "",
-    val word: String = "",
-    val wordEng: String = "",
+    val wordBG: String = "",
+    val wordEN: String = "",
+    val wordRU: String = "",
+    val wordES: String = "",
     val wordTransliteration: String = "",
     val wordType: String = "",
-    val wordDefinition: String = "",
+    val wordDefinitionBG: String = "",
+    val wordDefinitionEN: String = "",
+    val wordDefinitionRU: String = "",
+    val wordDefinitionES: String = "",
     val exampleSentenceEN: String = "",
     val exampleSentenceBG: String = "",
-    val pronunciationURL: String = ""): Comparable<WordOfTheDay> {
+    val exampleSentenceRU: String = "",
+    val exampleSentenceES: String = "",
+    val pronunciationURL_BG: String = "",
+    val pronunciationURL_EN: String = "",
+    val pronunciationURL_RU: String = "",
+    val pronunciationURL_ES: String = ""): Comparable<WordOfTheDay> {
 
     override fun compareTo(other: WordOfTheDay): Int {
         // Create a convert function, String -> LocalDate

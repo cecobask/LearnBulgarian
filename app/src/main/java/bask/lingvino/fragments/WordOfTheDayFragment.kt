@@ -55,6 +55,8 @@ class WordOfTheDayFragment : Fragment() {
     private lateinit var wotdListFAB: FloatingActionButton
     private lateinit var progressBar: ProgressBar
     private lateinit var balloon: Balloon
+    private lateinit var sourceLang: String
+    private lateinit var targetLang: String
 
     companion object {
         private const val argKey = "date"
@@ -86,6 +88,10 @@ class WordOfTheDayFragment : Fragment() {
         // Change toolbar title.
         (activity as? AppCompatActivity)?.supportActionBar?.title =
             resources.getString(R.string.wotd)
+
+        sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
+        sourceLang = sharedPref.getString("SPOKEN_LANG_NAME", "English")!!
+        targetLang = sharedPref.getString("TARGET_LANG_NAME", "Bulgarian")!!
 
         wotdDateTV = view.findViewById(R.id.wotdDateTV)
         wotdTV = view.findViewById(R.id.wotdTV)
@@ -124,7 +130,6 @@ class WordOfTheDayFragment : Fragment() {
         firebaseAuth = FirebaseAuth.getInstance()
         databaseRef = FirebaseDatabase.getInstance().reference
         WOTDDB = databaseRef.child("wordOfTheDay").child("past")
-
 
         // Query Firebase Database for word of the day.
         getWord(date)
@@ -165,8 +170,6 @@ class WordOfTheDayFragment : Fragment() {
     }
 
     private fun getWord(date: String) {
-        sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
-
         // Check if the user had previously visited this fragment.
         val returningUser: Boolean =
             if (!sharedPref.getBoolean("returningUser", false)) {
@@ -189,25 +192,69 @@ class WordOfTheDayFragment : Fragment() {
                 // Selected word of the day.
                 val currentWOTD = p0.getValue(WordOfTheDay::class.java)!!
 
+                lateinit var wordTgt: String
+                lateinit var wordSrc: String
+                lateinit var definition: String
+                lateinit var exampleSrc: String
+                lateinit var exampleTgt: String
+                lateinit var pronunciation: String
+
+                when (targetLang) {
+                    "Bulgarian" -> {
+                        wordTgt = currentWOTD.wordBG
+                        pronunciation = currentWOTD.pronunciationURL_BG
+                        exampleTgt = currentWOTD.exampleSentenceBG
+                    }
+                    "English" -> {
+                        wordTgt = currentWOTD.wordEN
+                        pronunciation = currentWOTD.pronunciationURL_EN
+                        exampleTgt = currentWOTD.exampleSentenceEN
+                    }
+                    "Spanish" -> {
+                        wordTgt = currentWOTD.wordES
+                        pronunciation = currentWOTD.pronunciationURL_ES
+                        exampleTgt = currentWOTD.exampleSentenceES
+                    }
+                    "Russian" -> {
+                        wordTgt = currentWOTD.wordRU
+                        pronunciation = currentWOTD.pronunciationURL_RU
+                        exampleTgt = currentWOTD.exampleSentenceRU
+                    }
+                }
+
+                when (sourceLang) {
+                    "Bulgarian" -> {
+                        definition = currentWOTD.wordDefinitionBG
+                        exampleSrc = currentWOTD.exampleSentenceBG
+                        wordSrc = currentWOTD.wordBG
+                    }
+                    "English" -> {
+                        definition = currentWOTD.wordDefinitionEN
+                        exampleSrc = currentWOTD.exampleSentenceEN
+                        wordSrc = currentWOTD.wordEN
+                    }
+                    "Spanish" -> {
+                        definition = currentWOTD.wordDefinitionES
+                        exampleSrc = currentWOTD.exampleSentenceES
+                        wordSrc = currentWOTD.wordES
+                    }
+                    "Russian" -> {
+                        definition = currentWOTD.wordDefinitionRU
+                        exampleSrc = currentWOTD.exampleSentenceRU
+                        wordSrc = currentWOTD.wordRU
+                    }
+                }
+
                 // Set values for all widgets.
                 wotdDateTV.text = LocalDate.now()
                     .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
-                wotdTV.text = currentWOTD.word
-                wotdTransliterationTV.text = currentWOTD.wordTransliteration
-                wotdTypeTV.text = currentWOTD.wordType
-                wotdDefinitionTV.text = currentWOTD.wordDefinition
-                wotdPronounceFAB.visibility = View.VISIBLE
-                wotdRandomFAB.visibility = View.VISIBLE
-                highlightWord(currentWOTD.exampleSentenceBG, currentWOTD.word, wotdExampleTV)
-
-                // Show balloon tooltip to attract attention to the switchable
-                // English/Bulgarian translation.
-                if (!returningUser) balloon.showAlignRight(wotdExampleTV)
-
+                wotdTV.text = wordTgt
+                wotdDefinitionTV.text = definition
+                highlightWord(exampleTgt, wordTgt, wotdExampleTV)
                 // Create MediaPlayer instance that uses URL from Google Cloud Storage.
                 // to play word pronunciation.
                 mediaPlayer =
-                    MediaPlayer.create(context, Uri.parse(currentWOTD.pronunciationURL))
+                    MediaPlayer.create(context, Uri.parse(pronunciation))
                         .apply {
                             setAudioAttributes(
                                 AudioAttributes.Builder()
@@ -215,23 +262,30 @@ class WordOfTheDayFragment : Fragment() {
                                     .build()
                             )
                         }
+                wotdTransliterationTV.text = currentWOTD.wordTransliteration
+                wotdTypeTV.text = currentWOTD.wordType
+                wotdPronounceFAB.visibility = View.VISIBLE
+                wotdRandomFAB.visibility = View.VISIBLE
 
+                // Show balloon tooltip to attract attention to the switchable
+                // English/Bulgarian translation.
+                if (!returningUser) balloon.showAlignRight(wotdExampleTV)
 
                 // Play word pronunciation on click of pronounce FAB.
                 wotdPronounceFAB.setOnClickListener { mediaPlayer.start() }
 
                 // Switch between English and Bulgarian example sentences.
                 wotdExampleTV.setOnClickListener {
-                    if (wotdExampleTV.text.toString() == currentWOTD.exampleSentenceBG) {
+                    if (wotdExampleTV.text.toString() == exampleTgt) {
                         highlightWord(
-                            currentWOTD.exampleSentenceEN,
-                            currentWOTD.wordEng,
+                            exampleSrc,
+                            wordSrc,
                             wotdExampleTV
                         )
                     } else {
                         highlightWord(
-                            currentWOTD.exampleSentenceBG,
-                            currentWOTD.word,
+                            exampleTgt,
+                            wordTgt,
                             wotdExampleTV
                         )
                     }

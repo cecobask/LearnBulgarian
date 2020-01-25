@@ -3,6 +3,7 @@ package bask.lingvino.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.SelectionTracker
@@ -18,7 +19,9 @@ import java.time.format.DateTimeFormatter
 
 class WordOfTheDayAdapter(
     var favouriteWords: ArrayList<WordOfTheDay>,
-    recyclerView: RecyclerView, fragmentManager: FragmentManager?
+    recyclerView: RecyclerView,
+    fragmentManager: FragmentManager?,
+    val activity: FragmentActivity?
 ) :
     RecyclerView.Adapter<WordOfTheDayAdapter.WordHolder>() {
 
@@ -40,9 +43,11 @@ class WordOfTheDayAdapter(
     override fun getItemCount(): Int = favouriteWords.size
 
     override fun onBindViewHolder(holder: WordHolder, position: Int) {
+        val sharedPref = activity?.getSharedPreferences("learnBulgarian", 0)
+        val targetLang = sharedPref?.getString("TARGET_LANG_NAME", "Bulgarian")
         // Bind viewHolder items to the RecyclerView.
         tracker?.let {
-            holder.bindItems(favouriteWords[holder.adapterPosition], it.isSelected(getItemId(holder.adapterPosition)))
+            holder.bindItems(favouriteWords[holder.adapterPosition], it.isSelected(getItemId(holder.adapterPosition)), targetLang)
         }
     }
 
@@ -89,12 +94,18 @@ class WordOfTheDayAdapter(
 
         fun bindItems(
             wordOfTheDay: WordOfTheDay,
-            isActivated: Boolean = false
+            isActivated: Boolean = false,
+            targetLang: String?
         ) {
             val date = LocalDate.parse(wordOfTheDay.wordDate, DateTimeFormatter.ofPattern("d-M-yyyy"))
             val formattedDate = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
 
-            view.wordOfTheDayTV.text = wordOfTheDay.word
+            when (targetLang) {
+                "Bulgarian" -> view.wordOfTheDayTV.text = wordOfTheDay.wordBG
+                "English" -> view.wordOfTheDayTV.text = wordOfTheDay.wordEN
+                "Spanish" -> view.wordOfTheDayTV.text = wordOfTheDay.wordES
+                "Russian" -> view.wordOfTheDayTV.text = wordOfTheDay.wordRU
+            }
             view.wordOfTheDayDate.text = formattedDate
             itemView.isActivated = isActivated
         }

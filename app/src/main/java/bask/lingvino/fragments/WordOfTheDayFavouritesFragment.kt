@@ -95,7 +95,7 @@ class WordOfTheDayFavouritesFragment : Fragment() {
                                 linearLayoutManager.orientation))
 
                         // Link RV to its adapter.
-                        adapter = WordOfTheDayAdapter(favouriteWords as ArrayList<WordOfTheDay>, wotdFavouritesRV, fragmentManager)
+                        adapter = WordOfTheDayAdapter(favouriteWords as ArrayList<WordOfTheDay>, wotdFavouritesRV, fragmentManager, activity)
                         wotdFavouritesRV.adapter = adapter
 
                         // Callback for RecyclerView elements swiping.
@@ -152,7 +152,7 @@ class WordOfTheDayFavouritesFragment : Fragment() {
                         adapter.tracker = tracker
 
                         // Initialise WordOfTheDay filtering object for later use.
-                        wordFilter = WordFilter(adapter, favouriteWords)
+                        wordFilter = WordFilter(adapter, favouriteWords, activity)
                     }
                 }
 

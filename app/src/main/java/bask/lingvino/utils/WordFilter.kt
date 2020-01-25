@@ -1,16 +1,21 @@
 package bask.lingvino.utils
 
 import android.widget.Filter
+import androidx.fragment.app.FragmentActivity
 import bask.lingvino.adapters.WordOfTheDayAdapter
 import bask.lingvino.models.WordOfTheDay
 
 
 class WordFilter(private val adapter: WordOfTheDayAdapter,
-                 private val originalWords: ArrayList<WordOfTheDay>) : Filter() {
+                 private val originalWords: ArrayList<WordOfTheDay>,
+                 private val activity: FragmentActivity?
+) : Filter() {
 
     override fun performFiltering(prefix: CharSequence?): FilterResults {
         // Initialise an object that holds the query results.
         val results = FilterResults()
+        val sharedPref = activity?.getSharedPreferences("learnBulgarian", 0)
+        val targetLang = sharedPref?.getString("TARGET_LANG_NAME", "Bulgarian")
 
         if (prefix.isNullOrEmpty()) {
             // Returns the original list as the prefix is empty.
@@ -20,7 +25,13 @@ class WordFilter(private val adapter: WordOfTheDayAdapter,
             // List of objects that match the criteria.
             val filteredWords = originalWords.filter {
                 // Compare word values, ignoring case.
-                it.word.contains(prefix.toString(), true)
+                when (targetLang) {
+                    "Bulgarian" -> it.wordBG.contains(prefix.toString(), true)
+                    "English" -> it.wordEN.contains(prefix.toString(), true)
+                    "Spanish" -> it.wordES.contains(prefix.toString(), true)
+                    "Russian" -> it.wordRU.contains(prefix.toString(), true)
+                    else -> it.wordBG.contains(prefix.toString(), true)
+                }
             }
             results.values = filteredWords
             results.count = filteredWords.size
