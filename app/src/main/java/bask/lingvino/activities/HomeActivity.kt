@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
+import bask.lingvino.fragments.LanguagePickerFragment
 import bask.lingvino.fragments.TranslatorFragment
 import bask.lingvino.fragments.WordOfTheDayFragment
 import bask.lingvino.main.App
@@ -112,6 +113,9 @@ class HomeActivity : AppCompatActivity() {
             }
             R.id.navItemTranslate -> {
                 currentFragment = TranslatorFragment.newInstance()
+            }
+            R.id.navItemLang -> {
+                currentFragment = LanguagePickerFragment.newInstance()
             }
         }
 

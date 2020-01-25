@@ -8,8 +8,11 @@
         <item
             android:id="@+id/navItemTranslate"
             android:icon="@drawable/ic_translate"
-            android:title="@string/translatorTitle"
-            />
+            android:title="@string/translatorTitle" />
+        <item
+            android:id="@+id/navItemLang"
+            android:icon="@drawable/ic_languages"
+            android:title="@string/language_options" />
         <item
             android:id="@+id/navItemLogOut"
             android:icon="@drawable/ic_logout"
