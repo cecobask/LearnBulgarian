@@ -15,6 +15,7 @@ import bask.lingvino.R
 import bask.lingvino.activities.HomeActivity
 import bask.lingvino.adapters.LanguageAdapter
 import bask.lingvino.models.LanguageItem
+import timber.log.Timber
 
 class LanguagePickerFragment : Fragment() {
 
@@ -49,10 +50,14 @@ class LanguagePickerFragment : Fragment() {
         targetLangSpinner = view.findViewById(R.id.targetLangSpinner)
         continueBtn = view.findViewById(R.id.continueBtn)
 
+        sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
+        val spokenLang = sharedPref.getString("SPOKEN_LANG_NAME", "English")!!
+        val targetLang = sharedPref.getString("TARGET_LANG_NAME", "Bulgarian")!!
+
         // Prepare Adapters with a list of languages to select from.
         // Set the default selection for "spoken" to Bulgarian and exclude it from from "target".
-        spokenLangAdapter = LanguageAdapter(context!!, initLanguagesList())
-        targetLangAdapter = LanguageAdapter(context!!, initLanguagesList("Bulgarian"))
+        spokenLangAdapter = LanguageAdapter(context!!, initLanguagesList(selectedLang = spokenLang))
+        targetLangAdapter = LanguageAdapter(context!!, initLanguagesList(spokenLang, targetLang))
 
         spokenLangSpinner.apply {
             // Set an adapter.
@@ -69,7 +74,9 @@ class LanguagePickerFragment : Fragment() {
                     // When the user picks a language from the "spoken" Spinner, automatically
                     // update the contents of "target" Spinner to exclude that language.
                     targetLangAdapter.updateData(
-                        initLanguagesList(parent?.getItemAtPosition(position).toString())
+                        initLanguagesList(
+                            parent?.getItemAtPosition(position).toString(), targetLang
+                        )
                     )
                 }
             }
@@ -97,21 +104,27 @@ class LanguagePickerFragment : Fragment() {
         }
     }
 
-    private fun initLanguagesList(exclusion: String = "none"): MutableList<LanguageItem> {
+    private fun initLanguagesList(exclusion: String = "none", selectedLang: String = "none"):
+            MutableList<LanguageItem> {
         val bg = LanguageItem("Bulgarian", R.drawable.ic_bulgarian)
         val en = LanguageItem("English", R.drawable.ic_english)
         val es = LanguageItem("Spanish", R.drawable.ic_spanish)
         val ru = LanguageItem("Russian", R.drawable.ic_russian)
 
+        // Order list, making sure the 'selectLang' is the first index.
+        val list = when (selectedLang) {
+            "Bulgarian" -> mutableListOf(bg, en, es, ru)
+            "English" -> mutableListOf(en, bg, es, ru)
+            "Spanish" -> mutableListOf(es, bg, en, ru)
+            "Russian" -> mutableListOf(ru, bg, en, es)
+            else -> mutableListOf(bg, en, es, ru)
+        }
+
         // Returns the whole list if the function is called with default value of "none".
         // Otherwise, it will return the list excluding the specified element.
-        return if (exclusion === "none") {
-            mutableListOf(bg, en, es, ru)
-        } else {
-            mutableListOf(bg, en, es, ru)
-                .filter { lang -> lang.languageName !== exclusion }
-                    as MutableList<LanguageItem>
-        }
+        return if (exclusion === "none") list
+        else list.filter { lang -> lang.languageName !== exclusion } as MutableList<LanguageItem>
+
     }
 
     private fun finishCurrentAndStartHomeActivity() {
