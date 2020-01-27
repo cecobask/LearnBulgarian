@@ -194,6 +194,7 @@ class WordOfTheDayFragment : Fragment() {
 
                 lateinit var wordTgt: String
                 lateinit var wordSrc: String
+                lateinit var transliteration: String
                 lateinit var definition: String
                 lateinit var exampleSrc: String
                 lateinit var exampleTgt: String
@@ -204,21 +205,25 @@ class WordOfTheDayFragment : Fragment() {
                         wordTgt = currentWOTD.wordBG
                         pronunciation = currentWOTD.pronunciationURL_BG
                         exampleTgt = currentWOTD.exampleSentenceBG
+                        transliteration = currentWOTD.wordTransliterationBG
                     }
                     "English" -> {
                         wordTgt = currentWOTD.wordEN
                         pronunciation = currentWOTD.pronunciationURL_EN
                         exampleTgt = currentWOTD.exampleSentenceEN
+                        transliteration = currentWOTD.wordTransliterationEN
                     }
                     "Spanish" -> {
                         wordTgt = currentWOTD.wordES
                         pronunciation = currentWOTD.pronunciationURL_ES
                         exampleTgt = currentWOTD.exampleSentenceES
+                        transliteration = currentWOTD.wordTransliterationES
                     }
                     "Russian" -> {
                         wordTgt = currentWOTD.wordRU
                         pronunciation = currentWOTD.pronunciationURL_RU
                         exampleTgt = currentWOTD.exampleSentenceRU
+                        transliteration = currentWOTD.wordTransliterationRU
                     }
                 }
 
@@ -262,7 +267,7 @@ class WordOfTheDayFragment : Fragment() {
                                     .build()
                             )
                         }
-                wotdTransliterationTV.text = currentWOTD.wordTransliteration
+                wotdTransliterationTV.text = transliteration
                 wotdTypeTV.text = currentWOTD.wordType
                 wotdPronounceFAB.visibility = View.VISIBLE
                 wotdRandomFAB.visibility = View.VISIBLE

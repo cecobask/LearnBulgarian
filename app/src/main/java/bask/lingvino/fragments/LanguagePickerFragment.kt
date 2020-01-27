@@ -84,12 +84,12 @@ class LanguagePickerFragment : Fragment() {
         continueBtn.setOnClickListener {
             sharedPref.edit()
                 .apply {
-                    val spokenLang = spokenLangSpinner.selectedItem as LanguageItem
-                    val targetLang = targetLangSpinner.selectedItem as LanguageItem
-                    putString("SPOKEN_LANG_NAME", spokenLang.languageName)
-                    putInt("SPOKEN_LANG_FLAG", spokenLang.flag)
-                    putString("TARGET_LANG_NAME", targetLang.languageName)
-                    putInt("TARGET_LANG_FLAG", targetLang.flag)
+                    val spoken = spokenLangSpinner.selectedItem as LanguageItem
+                    val target = targetLangSpinner.selectedItem as LanguageItem
+                    putString("SPOKEN_LANG_NAME", spoken.languageName)
+                    putInt("SPOKEN_LANG_FLAG", spoken.flag)
+                    putString("TARGET_LANG_NAME", target.languageName)
+                    putInt("TARGET_LANG_FLAG", target.flag)
                     apply()
                 }
 
