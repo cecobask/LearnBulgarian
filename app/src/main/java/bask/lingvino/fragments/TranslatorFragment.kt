@@ -16,15 +16,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.list.listItemsMultiChoice
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -194,6 +193,8 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
             .setImageFormat(Camera.IMAGE_JPEG)
             .setCompression(75)//6
             .build(this)
+
+        showSaveToCollectionDialog()
     }
 
     override fun onClick(v: View?) {
@@ -242,6 +243,28 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
             }
             R.id.pronounceBtn -> {
                 pronounceText(translationTV.text.toString())
+            }
+        }
+    }
+
+    private fun showSaveToCollectionDialog() {
+        val testArray = listOf("topka", "kuchka", "layno")
+        MaterialDialog(context!!).show {
+            val selectedCollections = mutableListOf<CharSequence>()
+            title(text = "Save to collection/s:")
+            positiveButton(text = "Done") {
+                Toast.makeText(activity, selectedCollections.toString(), Toast.LENGTH_SHORT).show() }
+            negativeButton(text = "Cancel") {
+                Toast.makeText(activity, "Negative button pressed", Toast.LENGTH_SHORT).show()
+            }
+            @Suppress("DEPRECATION")
+            neutralButton(text = "Create collection") {
+                Toast.makeText(activity, "Neutral button pressed", Toast.LENGTH_SHORT).show()
+            }
+            listItemsMultiChoice(items = testArray) { _, _, items ->
+                // Invoked when the user selects an item.
+                selectedCollections.addAll(items)
+                Toast.makeText(activity, items.toString(), Toast.LENGTH_SHORT).show()
             }
         }
     }

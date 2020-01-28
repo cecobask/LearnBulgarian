@@ -251,8 +251,9 @@ class WordOfTheDayFragment : Fragment() {
                 }
 
                 // Set values for all widgets.
-                wotdDateTV.text = LocalDate.now()
-                    .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+                wotdDateTV.text = LocalDate.parse(
+                    currentWOTD.wordDate, DateTimeFormatter.ofPattern("d-M-yyyy")
+                ).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
                 wotdTV.text = wordTgt
                 wotdDefinitionTV.text = definition
                 highlightWord(exampleTgt, wordTgt, wotdExampleTV)
