@@ -8,6 +8,7 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeCloseDrawable">@drawable/ic_cancel</item>
         <item name="android:fitsSystemWindows">false</item>
+        <item name="md_corner_radius">16dp</item>
     </style>
 
     <style name="AuthTheme" parent="Theme.MaterialComponents.Light.NoActionBar">

@@ -22,11 +22,15 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
+import bask.lingvino.models.Translation
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.listItemsMultiChoice
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 import com.google.firebase.ml.naturallanguage.FirebaseNaturalLanguage
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslateLanguage
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslator
@@ -67,10 +71,10 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     private lateinit var httpClient: OkHttpClient
     private lateinit var accessToken: String
     private lateinit var mediaPlayer: MediaPlayer // For playing text pronunciations.
+    private lateinit var sharedPref: SharedPreferences
     private val REQUESTCODESPEECH = 10001
     private val REQUESTCODECAMERA = 10002
     private val REQUESTCODESETTINGS = 10003
-    private lateinit var sharedPref: SharedPreferences
 
     companion object {
         fun newInstance(): TranslatorFragment {
@@ -183,6 +187,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
         voiceBtn.setOnClickListener(this)
         cameraBtn.setOnClickListener(this)
         pronounceBtn.setOnClickListener(this)
+        favBtn.setOnClickListener(this)
 
         // Set up the camera settings.
         camera = Camera.Builder()
@@ -193,8 +198,6 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
             .setImageFormat(Camera.IMAGE_JPEG)
             .setCompression(75)//6
             .build(this)
-
-        showSaveToCollectionDialog()
     }
 
     override fun onClick(v: View?) {
@@ -244,27 +247,84 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
             R.id.pronounceBtn -> {
                 pronounceText(translationTV.text.toString())
             }
+            R.id.favBtn -> {
+                showSaveToCollectionDialog(
+                    input = userInputTIET.text.toString(),
+                    translation = translationTV.text.toString()
+                )
+            }
         }
     }
 
-    private fun showSaveToCollectionDialog() {
-        val testArray = listOf("topka", "kuchka", "layno")
+    // Gets existing user collections and enables the creation of new collections.
+    // Afterwards the user is prompted to select which collection/s to add a translation to.
+    private fun showSaveToCollectionDialog(createdCollection: String = "none",
+                                           input: String = "",
+                                           translation: String = ""
+    ) {
+        val databaseRef: DatabaseReference = FirebaseDatabase.getInstance().reference
+        val fbUser = FirebaseAuth.getInstance().currentUser!!
+        val translatorCollections = databaseRef.child("users")
+            .child(fbUser.uid)
+            .child("translatorCollections")
+
+        // Retrieves existing collections.
+        translatorCollections.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                Timber.tag("translatorCollections").e(p0.toException())
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+                val collectionNames = mutableListOf<String>()
+                p0.children.forEach { collectionNames.add(it.key!!) }
+
+                // Check if "createdCollection" parameter holds a default value.
+                // If the value is not "none", the function is called after the user has created a new collection.
+                if (createdCollection !== "none")
+                    collectionNames.add(createdCollection)
+
+                // Show a dialog with checkboxes that match user's collection names.
+                MaterialDialog(context!!).show {
+                    title(text = "Save to collection/s:")
+                    positiveButton(text = "Done")
+                    negativeButton(text = "Cancel")
+                    @Suppress("DEPRECATION")
+                    neutralButton(text = "Create collection") {
+                        this.cancel()
+                        showInputDialog()
+                    }
+
+                    // Triggers this callback when the user clicks on "Done" button.
+                    listItemsMultiChoice(items = collectionNames) { _, _, items ->
+                        val translationObj = Translation(input, translation, "null")
+
+                        // Push the Translation object to selected collections.
+                        items.forEach { item ->
+                            translatorCollections.child(item.toString()).push()
+                                .setValue(translationObj)
+                        }
+                    }
+                }
+            }
+
+        })
+    }
+
+    // Prompts the user to input collection name.
+    private fun showInputDialog() {
         MaterialDialog(context!!).show {
-            val selectedCollections = mutableListOf<CharSequence>()
-            title(text = "Save to collection/s:")
-            positiveButton(text = "Done") {
-                Toast.makeText(activity, selectedCollections.toString(), Toast.LENGTH_SHORT).show() }
-            negativeButton(text = "Cancel") {
-                Toast.makeText(activity, "Negative button pressed", Toast.LENGTH_SHORT).show()
-            }
-            @Suppress("DEPRECATION")
-            neutralButton(text = "Create collection") {
-                Toast.makeText(activity, "Neutral button pressed", Toast.LENGTH_SHORT).show()
-            }
-            listItemsMultiChoice(items = testArray) { _, _, items ->
-                // Invoked when the user selects an item.
-                selectedCollections.addAll(items)
-                Toast.makeText(activity, items.toString(), Toast.LENGTH_SHORT).show()
+            positiveButton(text = "Create")
+            negativeButton(text = "Cancel")
+
+            // Receives user input in this callback.
+            input(
+                hint = "Enter collection name",
+                inputType = InputType.TYPE_CLASS_TEXT,
+                maxLength = 25
+            ) { _, text ->
+                this.cancel()
+                // Display the checkbox dialog again, but this time including the newly added collection name.
+                showSaveToCollectionDialog(text.toString())
             }
         }
     }
