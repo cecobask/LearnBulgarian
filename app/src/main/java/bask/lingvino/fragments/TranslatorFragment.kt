@@ -41,6 +41,7 @@ import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.mindorks.paracamera.Camera
 import kotlinx.android.synthetic.main.translator.*
+import kotlinx.android.synthetic.main.translator.view.*
 import okhttp3.*
 import org.redundent.kotlin.xml.XmlVersion
 import org.redundent.kotlin.xml.xml
@@ -72,6 +73,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     private lateinit var accessToken: String
     private lateinit var mediaPlayer: MediaPlayer // For playing text pronunciations.
     private lateinit var sharedPref: SharedPreferences
+    private lateinit var mView: View
     private val REQUESTCODESPEECH = 10001
     private val REQUESTCODECAMERA = 10002
     private val REQUESTCODESETTINGS = 10003
@@ -86,7 +88,10 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View?  = inflater.inflate(R.layout.translator, container, false)
+    ): View? {
+        mView = inflater.inflate(R.layout.translator, container, false)
+        return mView
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -150,7 +155,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
         userInputTIL.apply {
             setEndIconOnClickListener {
                 // Hide translation layout and clear text from the EditText.
-                translationRL.visibility = View.GONE
+                mView.translationRL.visibility = View.GONE
                 userInputTIET.text?.clear()
             }
         }
@@ -259,19 +264,26 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     // Gets existing user collections and enables the creation of new collections.
     // Afterwards the user is prompted to select which collection/s to add a translation to.
     private fun showSaveToCollectionDialog(createdCollection: String = "none",
-                                           input: String = "",
-                                           translation: String = ""
+                                           input: String,
+                                           translation: String
     ) {
+        // Show progress bar.
+        mView.progressBar.visibility = View.VISIBLE
+        mView.translationRL.visibility = View.GONE
+
         val databaseRef: DatabaseReference = FirebaseDatabase.getInstance().reference
         val fbUser = FirebaseAuth.getInstance().currentUser!!
         val translatorCollections = databaseRef.child("users")
             .child(fbUser.uid)
             .child("translatorCollections")
+        val translationObj = Translation(input, translation, "null")
 
         // Retrieves existing collections.
         translatorCollections.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
-                Timber.tag("translatorCollections").e(p0.toException())
+                Timber.tag("translatorCollections").e(p0.message)
+                mView.progressBar.visibility = View.GONE
+                mView.translationRL.visibility = View.VISIBLE
             }
 
             override fun onDataChange(p0: DataSnapshot) {
@@ -294,10 +306,12 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                         showInputDialog()
                     }
 
+                    // Hide progress bar.
+                    mView.progressBar.visibility = View.GONE
+                    mView.translationRL.visibility = View.VISIBLE
+
                     // Triggers this callback when the user clicks on "Done" button.
                     listItemsMultiChoice(items = collectionNames) { _, _, items ->
-                        val translationObj = Translation(input, translation, "null")
-
                         // Push the Translation object to selected collections.
                         items.forEach { item ->
                             translatorCollections.child(item.toString()).push()
@@ -321,10 +335,14 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                 hint = "Enter collection name",
                 inputType = InputType.TYPE_CLASS_TEXT,
                 maxLength = 25
-            ) { _, text ->
-                this.cancel()
+            ) { dialog, text ->
+                dialog.cancel()
                 // Display the checkbox dialog again, but this time including the newly added collection name.
-                showSaveToCollectionDialog(text.toString())
+                showSaveToCollectionDialog(
+                    text.toString(),
+                    mView.userInputTIET.text.toString(),
+                    mView.translationTV.text.toString()
+                )
             }
         }
     }

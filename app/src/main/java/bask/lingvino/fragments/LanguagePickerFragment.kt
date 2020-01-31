@@ -15,7 +15,6 @@ import bask.lingvino.R
 import bask.lingvino.activities.HomeActivity
 import bask.lingvino.adapters.LanguageAdapter
 import bask.lingvino.models.LanguageItem
-import timber.log.Timber
 
 class LanguagePickerFragment : Fragment() {
 
