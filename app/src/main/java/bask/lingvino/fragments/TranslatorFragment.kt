@@ -23,6 +23,9 @@ import bask.lingvino.R
 import bask.lingvino.models.Translation
 import bask.lingvino.utils.LoadFirebaseDataCallback
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.WhichButton
+import com.afollestad.materialdialogs.actions.setActionButtonEnabled
+import com.afollestad.materialdialogs.input.getInputField
 import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.isItemChecked
 import com.afollestad.materialdialogs.list.listItemsMultiChoice
@@ -300,6 +303,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                                            translation: String
     ) {
         val translationObj = Translation(input, "null", translation)
+        translationObj.expanded = null // Trick to not push value for expanded to DB.
 
         // Load collection names from Firebase.
         getCollectionNames(object : LoadFirebaseDataCallback {
@@ -368,22 +372,28 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     // Prompts the user to input collection name.
     private fun showInputDialog() {
         MaterialDialog(context!!).show {
-            positiveButton(text = "Create")
-            negativeButton(text = "Cancel")
-
-            // Receives user input in this callback.
-            input(
-                hint = "Enter collection name",
-                inputType = InputType.TYPE_CLASS_TEXT,
-                maxLength = 25
-            ) { dialog, text ->
-                dialog.cancel()
+            positiveButton(text = "Create") {
+                it.cancel()
                 // Display the checkbox dialog again, but this time including the newly added collection name.
                 showSaveToCollectionDialog(
-                    text.toString(),
+                    it.getInputField().text.toString(),
                     mView.userInputTIET.text.toString(),
                     mView.translationTV.text.toString()
                 )
+            }
+            negativeButton(text = "Cancel")
+
+            // Validate user input.
+            input(
+                hint = "Enter collection name",
+                inputType = InputType.TYPE_CLASS_TEXT,
+                maxLength = 25,
+                waitForPositiveButton = false
+            ) { dialog, text ->
+                val inputField = dialog.getInputField()
+                val error = arrayOf(".", "#", "$", "[", "]").any { it in text }
+                inputField.error = if (error) "Names must not contain . # $ [ ]" else null
+                dialog.setActionButtonEnabled(WhichButton.POSITIVE, !error)
             }
         }
     }
@@ -411,8 +421,10 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                     if (it.isItemChecked(i))
                         translatorCollections.child(collections[i]).removeValue()
                 }
-
             }
+
+            // Disable 'Remove' button if there are no collections.
+            this.setActionButtonEnabled(WhichButton.NEUTRAL, collections.isNotEmpty())
 
         }
     }

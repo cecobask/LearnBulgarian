@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -14,7 +14,10 @@
         android:background="@drawable/searchview_shape"
         android:backgroundTint="@color/colorPrimaryDark"
         android:orientation="horizontal"
-        android:paddingVertical="10dp">
+        android:paddingVertical="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/sourceLangTV"
@@ -31,9 +34,9 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.15"
-            android:src="@drawable/ic_english"
+            android:contentDescription="@string/translatorTitle"
             android:padding="1dp"
-            android:contentDescription="@string/translatorTitle" />
+            android:src="@drawable/ic_english" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/switchLangBtn"
@@ -49,9 +52,9 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.15"
-            android:src="@drawable/ic_bulgarian"
+            android:contentDescription="@string/translatorTitle"
             android:padding="1dp"
-            android:contentDescription="@string/translatorTitle" />
+            android:src="@drawable/ic_bulgarian" />
 
         <TextView
             android:id="@+id/targetLangTV"
@@ -71,7 +74,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:hint="@string/translationHint"
-        app:endIconMode="clear_text">
+        app:endIconMode="clear_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/headerLL">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/userInputTIET"
@@ -87,7 +93,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingVertical="5dp">
+        android:paddingVertical="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/userInputTIL">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/cameraBtn"
@@ -105,7 +114,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:drawableTop="@drawable/ic_mic"
-            android:text="@string/voiceBtn"/>
+            android:text="@string/voiceBtn" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/translateBtn"
@@ -126,8 +135,11 @@
         android:layout_marginTop="20dp"
         android:background="@drawable/searchview_shape"
         android:backgroundTint="@color/colorPrimaryDark"
+        android:padding="10dp"
         android:visibility="gone"
-        android:padding="10dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/translateButtonsLL">
 
         <TextView
             android:id="@+id/translationTV"
@@ -174,9 +186,14 @@
         android:id="@+id/progressBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="240dp"
         android:width="50dp"
         android:height="50dp"
         android:padding="10dp"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

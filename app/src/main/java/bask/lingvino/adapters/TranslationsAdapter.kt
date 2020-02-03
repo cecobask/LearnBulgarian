@@ -3,6 +3,10 @@ package bask.lingvino.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.LinearInterpolator
+import android.view.animation.RotateAnimation
+import android.widget.ImageView
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.SelectionTracker
@@ -16,7 +20,7 @@ import kotlinx.android.synthetic.main.translation_item.view.*
 class TranslationsAdapter(var translations: ArrayList<Translation>,
                           recyclerView: RecyclerView,
                           val activity: FragmentActivity?
-) : RecyclerView.Adapter<TranslationsAdapter.CollectionHolder>() {
+) : RecyclerView.Adapter<TranslationsAdapter.TranslationHolder>() {
 
     private val rv = recyclerView
     var tracker: SelectionTracker<String>? = null
@@ -34,8 +38,8 @@ class TranslationsAdapter(var translations: ArrayList<Translation>,
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CollectionHolder =
-        CollectionHolder(
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TranslationHolder =
+        TranslationHolder(
             LayoutInflater.from(parent.context).inflate(
                 R.layout.translation_item,
                 parent,
@@ -45,7 +49,7 @@ class TranslationsAdapter(var translations: ArrayList<Translation>,
 
     override fun getItemCount(): Int = translations.size
 
-    override fun onBindViewHolder(holder: CollectionHolder, position: Int) {
+    override fun onBindViewHolder(holder: TranslationHolder, position: Int) {
         val sharedPref = activity?.getSharedPreferences("learnBulgarian", 0)
         val targetLang = sharedPref?.getString("TARGET_LANG_NAME", "Bulgarian")
         val translation = translations[holder.adapterPosition]
@@ -58,13 +62,19 @@ class TranslationsAdapter(var translations: ArrayList<Translation>,
                 targetLang
             )
         }
+    }
 
-        // Swap expand value with the opposite.
-        holder.itemView.setOnClickListener {
-            val expanded: Boolean = translation.expanded
-            translation.expanded = !expanded
-            notifyItemChanged(position)
-        }
+    // Rotates the arrow by 180 degrees.
+    private fun rotateView(imageView: ImageView, from: Float, to: Float) {
+        val rotate = RotateAnimation(from, to, Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF, 0.5f)
+            .apply {
+                duration = 350
+                interpolator = LinearInterpolator()
+                isFillEnabled = true
+                fillAfter = true
+            }
+        imageView.startAnimation(rotate)
     }
 
     fun removeItems(translationsToRemove: List<Translation>,
@@ -91,8 +101,18 @@ class TranslationsAdapter(var translations: ArrayList<Translation>,
             }
     }
 
-    inner class CollectionHolder(v: View) : RecyclerView.ViewHolder(v) {
+    inner class TranslationHolder(v: View) : RecyclerView.ViewHolder(v) {
         private val view: View = v
+
+        init {
+            // Expand / collapse view.
+            v.setOnClickListener {
+                val translation = translations[adapterPosition]
+                val expanded: Boolean = translation.expanded
+                translation.expanded = !expanded
+                notifyItemChanged(adapterPosition)
+            }
+        }
 
         fun bindItems(
             translation: Translation,
@@ -103,8 +123,13 @@ class TranslationsAdapter(var translations: ArrayList<Translation>,
             view.phraseTV.text = translation.input
             view.sourceTV.text = translation.input
             view.targetTV.text = translation.translation
-            view.translationLL.visibility = if (translation.expanded) View.VISIBLE else View.GONE
-
+            if (translation.expanded) {
+                view.translationLL.visibility = View.VISIBLE
+                rotateView(view.findViewById(R.id.arrow), 0f, 180f)
+            } else {
+                view.translationLL.visibility = View.GONE
+                rotateView(view.findViewById(R.id.arrow), 180f, 0f)
+            }
 
 //            when (targetLang) {
 //                "Bulgarian" -> view.targetText.text = collection.translations
