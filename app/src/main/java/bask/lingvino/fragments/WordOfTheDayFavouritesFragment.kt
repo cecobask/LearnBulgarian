@@ -50,12 +50,7 @@ class WordOfTheDayFavouritesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setHasOptionsMenu(true)
-
-        // Change toolbar title.
-        (activity as? AppCompatActivity)?.supportActionBar?.title =
-            resources.getString(R.string.favWordsTitle)
 
         database = FirebaseDatabase.getInstance()
         firebaseAuth = FirebaseAuth.getInstance()
@@ -131,7 +126,7 @@ class WordOfTheDayFavouritesFragment : Fragment() {
                                     swipeHandler.setSwipingStatus(false)
 
                                     // Create callback for ActionMode and initialize it.
-                                    actionModeCallback = ActionModeCallback()
+                                    actionModeCallback = ActionModeCallback("")
                                     actionModeCallback?.startActionMode(
                                         view,
                                         R.menu.action_items,
@@ -202,6 +197,13 @@ class WordOfTheDayFavouritesFragment : Fragment() {
         })
 
         super.onCreateOptionsMenu(menu,inflater)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Change toolbar title.
+        (activity as? AppCompatActivity)?.supportActionBar?.title =
+            resources.getString(R.string.favWordsTitle)
     }
 
 }

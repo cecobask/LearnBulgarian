@@ -85,10 +85,6 @@ class WordOfTheDayFragment : Fragment() {
         val policy: StrictMode.ThreadPolicy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
 
-        // Change toolbar title.
-        (activity as? AppCompatActivity)?.supportActionBar?.title =
-            resources.getString(R.string.wotd)
-
         sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
         sourceLang = sharedPref.getString("SPOKEN_LANG_NAME", "English")!!
         targetLang = sharedPref.getString("TARGET_LANG_NAME", "Bulgarian")!!
@@ -385,5 +381,12 @@ class WordOfTheDayFragment : Fragment() {
         val replaceWordWith = "<font color='red'>$word</font>"
         val modifiedText = text.replace(word, replaceWordWith, true)
         textView.text = HtmlCompat.fromHtml(modifiedText, HtmlCompat.FROM_HTML_MODE_LEGACY)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Change toolbar title.
+        (activity as? AppCompatActivity)?.supportActionBar?.title =
+            resources.getString(R.string.wotd)
     }
 }

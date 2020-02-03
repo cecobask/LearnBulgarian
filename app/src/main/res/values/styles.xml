@@ -9,6 +9,7 @@
         <item name="actionModeCloseDrawable">@drawable/ic_cancel</item>
         <item name="android:fitsSystemWindows">false</item>
         <item name="md_corner_radius">16dp</item>
+        <item name="android:itemTextAppearance">@style/CustomMenuTextAppearance</item>
     </style>
 
     <style name="AuthTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -65,6 +66,10 @@
         <item name="android:textColor">@color/black</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="CustomMenuTextAppearance" parent="@android:style/TextAppearance.Widget.IconMenu.Item">
+        <item name="android:textColor">@android:color/primary_text_light</item>
     </style>
 
 </resources>

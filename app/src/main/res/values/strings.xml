@@ -30,4 +30,6 @@
     <string name="continueBtn">Continue</string>
     <string name="and">and</string>
     <string name="language_options">Language Options</string>
+    <string name="saved_translations">Saved translations</string>
+    <string name="translatorFavsTitle">Saved translations</string>
 </resources>

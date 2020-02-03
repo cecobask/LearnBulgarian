@@ -176,4 +176,11 @@ class HomeActivity : AppCompatActivity() {
         }
         return super.dispatchTouchEvent(ev)
     }
+
+    override fun onResume() {
+        super.onResume()
+        // Change toolbar title.
+        supportActionBar?.title =
+            resources.getString(R.string.app_name)
+    }
 }

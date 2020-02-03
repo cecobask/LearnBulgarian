@@ -12,9 +12,7 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.text.method.ScrollingMovementMethod
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -23,13 +21,17 @@ import androidx.appcompat.widget.AppCompatImageButton
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
 import bask.lingvino.models.Translation
+import bask.lingvino.utils.LoadFirebaseDataCallback
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
+import com.afollestad.materialdialogs.list.isItemChecked
 import com.afollestad.materialdialogs.list.listItemsMultiChoice
+import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import com.google.firebase.ml.naturallanguage.FirebaseNaturalLanguage
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslateLanguage
@@ -74,6 +76,9 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     private lateinit var mediaPlayer: MediaPlayer // For playing text pronunciations.
     private lateinit var sharedPref: SharedPreferences
     private lateinit var mView: View
+    private lateinit var translatorCollections: DatabaseReference
+    private lateinit var databaseRef: DatabaseReference
+    private lateinit var fbUser: FirebaseUser
     private val REQUESTCODESPEECH = 10001
     private val REQUESTCODECAMERA = 10002
     private val REQUESTCODESETTINGS = 10003
@@ -81,6 +86,31 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     companion object {
         fun newInstance(): TranslatorFragment {
             return TranslatorFragment()
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_translator, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_saved_translations -> {
+                getCollectionNames(object : LoadFirebaseDataCallback {
+                    override fun onCallback(collections: MutableList<String>) {
+                        // Open up a dialog with selection of all user's collections.
+                        showChooseCollectionDialog(collections)
+                    }
+                })
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -95,10 +125,6 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // Change toolbar title.
-        (activity as? AppCompatActivity)?.supportActionBar?.title =
-            resources.getString(R.string.translatorTitle)
 
         sourceLangTV = view.findViewById(R.id.sourceLangTV)
         sourceLangIV = view.findViewById(R.id.sourceLangIV)
@@ -203,6 +229,12 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
             .setImageFormat(Camera.IMAGE_JPEG)
             .setCompression(75)//6
             .build(this)
+
+        databaseRef = FirebaseDatabase.getInstance().reference
+        fbUser = FirebaseAuth.getInstance().currentUser!!
+        translatorCollections = databaseRef.child("users")
+            .child(fbUser.uid)
+            .child("translatorCollections")
     }
 
     override fun onClick(v: View?) {
@@ -267,16 +299,44 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                                            input: String,
                                            translation: String
     ) {
+        val translationObj = Translation(input, "null", translation)
+
+        // Load collection names from Firebase.
+        getCollectionNames(object : LoadFirebaseDataCallback {
+            override fun onCallback(collections: MutableList<String>) {
+                // Show a dialog with checkboxes that match user's collection names.
+                MaterialDialog(context!!).show {
+                    title(text = "Save to collection/s:")
+                    positiveButton(text = "Done")
+                    negativeButton(text = "Cancel")
+                    @Suppress("DEPRECATION")
+                    neutralButton(text = "Create collection") {
+                        this.cancel()
+                        showInputDialog()
+                    }
+
+                    // Hide progress bar.
+                    mView.progressBar.visibility = View.GONE
+                    mView.translationRL.visibility = View.VISIBLE
+
+                    // Triggers this callback when the user clicks on "Done" button.
+                    listItemsMultiChoice(items = collections) { _, _, items ->
+                        // Push the Translation object to selected collections.
+                        items.forEach { item ->
+                            translatorCollections.child(item.toString()).push()
+                                .setValue(translationObj)
+                        }
+                    }
+                }
+            }
+        }, createdCollection)
+    }
+
+    private fun getCollectionNames(callback: LoadFirebaseDataCallback,
+                                   createdCollection: String = "none"
+    ) {
         // Show progress bar.
         mView.progressBar.visibility = View.VISIBLE
-        mView.translationRL.visibility = View.GONE
-
-        val databaseRef: DatabaseReference = FirebaseDatabase.getInstance().reference
-        val fbUser = FirebaseAuth.getInstance().currentUser!!
-        val translatorCollections = databaseRef.child("users")
-            .child(fbUser.uid)
-            .child("translatorCollections")
-        val translationObj = Translation(input, translation, "null")
 
         // Retrieves existing collections.
         translatorCollections.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -295,30 +355,11 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                 if (createdCollection !== "none")
                     collectionNames.add(createdCollection)
 
-                // Show a dialog with checkboxes that match user's collection names.
-                MaterialDialog(context!!).show {
-                    title(text = "Save to collection/s:")
-                    positiveButton(text = "Done")
-                    negativeButton(text = "Cancel")
-                    @Suppress("DEPRECATION")
-                    neutralButton(text = "Create collection") {
-                        this.cancel()
-                        showInputDialog()
-                    }
+                // Trigger callback to make collection names accessible outside this scope.
+                callback.onCallback(collectionNames)
 
-                    // Hide progress bar.
-                    mView.progressBar.visibility = View.GONE
-                    mView.translationRL.visibility = View.VISIBLE
-
-                    // Triggers this callback when the user clicks on "Done" button.
-                    listItemsMultiChoice(items = collectionNames) { _, _, items ->
-                        // Push the Translation object to selected collections.
-                        items.forEach { item ->
-                            translatorCollections.child(item.toString()).push()
-                                .setValue(translationObj)
-                        }
-                    }
-                }
+                // Hide progress bar.
+                mView.progressBar.visibility = View.GONE
             }
 
         })
@@ -344,6 +385,35 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                     mView.translationTV.text.toString()
                 )
             }
+        }
+    }
+
+    private fun showChooseCollectionDialog(collections: List<String>) {
+        MaterialDialog(context!!).show {
+            title(text = "Choose collection:")
+            listItemsSingleChoice(items = collections) { _, _, collection ->
+                // Open selected collection in a new Fragment.
+                fragmentManager!!
+                    .beginTransaction()
+                    .replace(
+                        R.id.fragmentContainer,
+                        TranslatorFavouritesFragment.newInstance(collection.toString())
+                    )
+                    .addToBackStack(null)
+                    .commit()
+            }
+            positiveButton(text = "Go")
+            negativeButton(text = "Cancel")
+            @Suppress("DEPRECATION")
+            neutralButton(text = "Remove") {
+                // Determine which collection was selected and remove it.
+                for (i in collections.indices) {
+                    if (it.isItemChecked(i))
+                        translatorCollections.child(collections[i]).removeValue()
+                }
+
+            }
+
         }
     }
 
@@ -599,5 +669,12 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                     openCamera()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Change toolbar title.
+        (activity as? AppCompatActivity)?.supportActionBar?.title =
+            resources.getString(R.string.translatorTitle)
     }
 }
