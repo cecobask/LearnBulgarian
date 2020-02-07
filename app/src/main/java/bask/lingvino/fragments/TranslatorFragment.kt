@@ -298,10 +298,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
 
     // Gets existing user collections and enables the creation of new collections.
     // Afterwards the user is prompted to select which collection/s to add a translation to.
-    private fun showSaveToCollectionDialog(createdCollection: String = "none",
-                                           input: String,
-                                           translation: String
-    ) {
+    private fun showSaveToCollectionDialog(input: String, translation: String) {
         val translationObj = Translation(input, "null", translation)
         translationObj.expanded = null // Trick to not push value for expanded to DB.
 
@@ -327,17 +324,17 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                     listItemsMultiChoice(items = collections) { _, _, items ->
                         // Push the Translation object to selected collections.
                         items.forEach { item ->
-                            translatorCollections.child(item.toString()).push()
+                            val collection = item.toString().substringBeforeLast(" (")
+                            translatorCollections.child(collection).push()
                                 .setValue(translationObj)
                         }
                     }
                 }
             }
-        }, createdCollection)
+        })
     }
 
-    private fun getCollectionNames(callback: LoadFirebaseDataCallback,
-                                   createdCollection: String = "none"
+    private fun getCollectionNames(callback: LoadFirebaseDataCallback
     ) {
         // Show progress bar.
         mView.progressBar.visibility = View.VISIBLE
@@ -352,12 +349,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
 
             override fun onDataChange(p0: DataSnapshot) {
                 val collectionNames = mutableListOf<String>()
-                p0.children.forEach { collectionNames.add(it.key!!) }
-
-                // Check if "createdCollection" parameter holds a default value.
-                // If the value is not "none", the function is called after the user has created a new collection.
-                if (createdCollection !== "none")
-                    collectionNames.add(createdCollection)
+                p0.children.forEach { collectionNames.add("${it.key!!} (${it.childrenCount} items)") }
 
                 // Trigger callback to make collection names accessible outside this scope.
                 callback.onCallback(collectionNames)
@@ -374,9 +366,11 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
         MaterialDialog(context!!).show {
             positiveButton(text = "Create") {
                 it.cancel()
-                // Display the checkbox dialog again, but this time including the newly added collection name.
+                // Create empty collection.
+                val input = it.getInputField().text.toString()
+                translatorCollections.child(input).setValue("null")
+                // Display the checkbox dialog again, but this time including the newly added collection.
                 showSaveToCollectionDialog(
-                    it.getInputField().text.toString(),
                     mView.userInputTIET.text.toString(),
                     mView.translationTV.text.toString()
                 )
