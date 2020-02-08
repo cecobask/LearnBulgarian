@@ -8,14 +8,19 @@ public class Translation {
     private String translation;
     private Boolean expanded;
     private String id;
+    private String sourceLang;
+    private String targetLang;
 
     public Translation() {}
 
-    public Translation(String input, String pronunciationURL, String translation) {
+    public Translation(String input, String pronunciationURL, String translation, String sourceLang,
+                       String targetLang) {
         this.input = input;
         this.pronunciationURL = pronunciationURL;
         this.translation = translation;
         this.expanded = false;
+        this.sourceLang = sourceLang;
+        this.targetLang = targetLang;
     }
 
     public String getInput() {
@@ -40,6 +45,22 @@ public class Translation {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getSourceLang() {
+        return sourceLang;
+    }
+
+    public void setSourceLang(String sourceLang) {
+        this.sourceLang = sourceLang;
+    }
+
+    public String getTargetLang() {
+        return targetLang;
+    }
+
+    public void setTargetLang(String targetLang) {
+        this.targetLang = targetLang;
     }
 
     @NonNull

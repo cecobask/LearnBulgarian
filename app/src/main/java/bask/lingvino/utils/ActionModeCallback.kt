@@ -34,6 +34,10 @@ class ActionModeCallback(private val collectionName: String) : ActionMode.Callba
     }
 
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+        if (::trackerStr.isInitialized) {
+            val item = menu.findItem(R.id.pronounceItem)
+            item.isVisible = trackerStr.selection.size() == 1
+        }
         return false
     }
 
@@ -50,6 +54,7 @@ class ActionModeCallback(private val collectionName: String) : ActionMode.Callba
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         // Clicked on delete button.
         if (item.itemId == R.id.deleteItems) {
+            // ActionMode is being used by WordOfTheDayFavouritesFragment.
             if (::tracker.isInitialized) {
                 val favWordsRef = FirebaseDatabase.getInstance().reference
                     .child("users")
@@ -59,7 +64,10 @@ class ActionModeCallback(private val collectionName: String) : ActionMode.Callba
                 // Remove selected words from the DB and RecyclerView.
                 val selectedIds: List<String> = tracker.selection.map { it.toString() }
                 adapter?.removeItems(adapter?.getSelectedItemsById(selectedIds)!!, favWordsRef)
-            } else {
+                mode.finish()
+            }
+            // ActionMode is being used by TranslatorFavouritesFragment.
+            else {
                 val collectionRef = FirebaseDatabase.getInstance().reference
                     .child("users")
                     .child(FirebaseAuth.getInstance().currentUser!!.uid)
@@ -69,9 +77,9 @@ class ActionModeCallback(private val collectionName: String) : ActionMode.Callba
                 // Remove selected collections from the DB and RecyclerView.
                 val selectedIds: List<String> = trackerStr.selection.map { it }
                 adapterStr?.removeItems(adapterStr?.getSelectedItemsById(selectedIds)!!, collectionRef)
+                mode.finish()
             }
         }
-        mode.finish()
         return true
     }
 
@@ -99,6 +107,10 @@ class ActionModeCallback(private val collectionName: String) : ActionMode.Callba
         this.trackerStr = tracker
         this.adapterStr = adapter
         view.startActionMode(this)
+    }
+
+    fun invalidateActionMode() {
+        mode?.invalidate()
     }
 
     fun finishActionMode() {

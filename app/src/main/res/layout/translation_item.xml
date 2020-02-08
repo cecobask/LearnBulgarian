@@ -6,6 +6,24 @@
     android:background="@drawable/selected_item_rv"
     android:orientation="vertical">
 
+    <ImageView
+        android:id="@+id/srcLangIV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/translatorTitle"
+        android:layout_alignParentStart="true"
+        android:layout_marginEnd="3dp"
+        android:layout_marginTop="7dp"/>
+
+    <ImageView
+        android:id="@+id/tgtLangIV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/translatorTitle"
+        android:layout_toEndOf="@+id/srcLangIV"
+        android:layout_marginEnd="3dp"
+        android:layout_marginTop="7dp"/>
+
     <TextView
         android:id="@+id/phraseTV"
         android:layout_width="wrap_content"
@@ -16,7 +34,7 @@
         android:padding="5dp"
         android:layout_alignParentTop="true"
         android:layout_toStartOf="@+id/arrow"
-        android:layout_alignParentStart="true"/>
+        android:layout_toEndOf="@+id/tgtLangIV"/>
 
     <ImageView
         android:id="@+id/arrow"

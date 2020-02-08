@@ -82,6 +82,8 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     private lateinit var translatorCollections: DatabaseReference
     private lateinit var databaseRef: DatabaseReference
     private lateinit var fbUser: FirebaseUser
+    private lateinit var spokenLangName: String
+    private lateinit var targetLangName: String
     private val REQUESTCODESPEECH = 10001
     private val REQUESTCODECAMERA = 10002
     private val REQUESTCODESETTINGS = 10003
@@ -160,17 +162,17 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
 
         sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
 
-        val spokenLangName = sharedPref.getString("SPOKEN_LANG_NAME", "English")
+        spokenLangName = sharedPref.getString("SPOKEN_LANG_NAME", "English")!!
         val spokenLangFlag = sharedPref.getInt("SPOKEN_LANG_FLAG", R.drawable.ic_english)
-        val targetLangName = sharedPref.getString("TARGET_LANG_NAME", "Bulgarian")
+        targetLangName = sharedPref.getString("TARGET_LANG_NAME", "Bulgarian")!!
         val targetLangFlag = sharedPref.getInt("TARGET_LANG_FLAG", R.drawable.ic_bulgarian)
 
         firebaseNaturalLanguage = FirebaseNaturalLanguage.getInstance()
         firebaseTranslator = firebaseNaturalLanguage.getTranslator(
             setTranslateOptions(
-                spokenLangName!!,
+                spokenLangName,
                 spokenLangFlag,
-                targetLangName!!,
+                targetLangName,
                 targetLangFlag
             )
         )
@@ -299,9 +301,6 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     // Gets existing user collections and enables the creation of new collections.
     // Afterwards the user is prompted to select which collection/s to add a translation to.
     private fun showSaveToCollectionDialog(input: String, translation: String) {
-        val translationObj = Translation(input, "null", translation)
-        translationObj.expanded = null // Trick to not push value for expanded to DB.
-
         // Load collection names from Firebase.
         getCollectionNames(object : LoadFirebaseDataCallback {
             override fun onCallback(collections: MutableList<String>) {
@@ -322,6 +321,10 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
 
                     // Triggers this callback when the user clicks on "Done" button.
                     listItemsMultiChoice(items = collections) { _, _, items ->
+                        val translationObj = Translation(input, "null", translation, spokenLangName,
+                            targetLangName)
+                        translationObj.expanded = null // Trick to not push value for expanded to DB.
+
                         // Push the Translation object to selected collections.
                         items.forEach { item ->
                             val collection = item.toString().substringBeforeLast(" (")
@@ -401,7 +404,9 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                     .beginTransaction()
                     .replace(
                         R.id.fragmentContainer,
-                        TranslatorFavouritesFragment.newInstance(collection.toString())
+                        TranslatorFavouritesFragment.newInstance(
+                            collection.toString().substringBeforeLast(" (")
+                        )
                     )
                     .addToBackStack(null)
                     .commit()
@@ -551,7 +556,6 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                 // Play the pronunciation of the translated text.
                 mediaPlayer.start()
             }
-
         })
     }
 

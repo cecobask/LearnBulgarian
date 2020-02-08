@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/pronounceItem"
+        android:icon="@drawable/ic_speaker"
+        android:iconTint="@color/white"
+        android:title="@string/action_bar_pronounce_button"
+        android:visible="false" />
+    <item
         android:id="@+id/deleteItems"
         android:title="@string/action_bar_delete_button"
         android:icon="@drawable/ic_delete"
-        android:iconTint="@color/white"
-        />
+        android:iconTint="@color/white" />
 </menu>

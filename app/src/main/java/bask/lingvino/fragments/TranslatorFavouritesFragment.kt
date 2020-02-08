@@ -129,6 +129,9 @@ class TranslatorFavouritesFragment : Fragment() {
                                         tracker,
                                         adapter
                                     )
+                                } else if (tracker.hasSelection() && actionModeCallback != null) {
+                                    // Update ActionMode menu entries.
+                                    actionModeCallback?.invalidateActionMode()
                                 } else if (!tracker.hasSelection() && actionModeCallback != null) {
                                     // Destroy ActionMode if there's no selection.
                                     actionModeCallback?.finishActionMode()
@@ -162,7 +165,6 @@ class TranslatorFavouritesFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         // Change toolbar title.
-        (activity as? AppCompatActivity)?.supportActionBar?.title =
-            resources.getString(R.string.translatorFavsTitle)
+        (activity as? AppCompatActivity)?.supportActionBar?.title = collectionName
     }
 }

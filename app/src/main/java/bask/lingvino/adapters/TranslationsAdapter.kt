@@ -16,6 +16,7 @@ import bask.lingvino.models.Translation
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DatabaseReference
 import kotlinx.android.synthetic.main.translation_item.view.*
+import kotlinx.android.synthetic.main.translator.view.*
 
 class TranslationsAdapter(var translations: ArrayList<Translation>,
                           recyclerView: RecyclerView,
@@ -50,16 +51,12 @@ class TranslationsAdapter(var translations: ArrayList<Translation>,
     override fun getItemCount(): Int = translations.size
 
     override fun onBindViewHolder(holder: TranslationHolder, position: Int) {
-        val sharedPref = activity?.getSharedPreferences("learnBulgarian", 0)
-        val targetLang = sharedPref?.getString("TARGET_LANG_NAME", "Bulgarian")
         val translation = translations[holder.adapterPosition]
-
         // Bind viewHolder items to the RecyclerView.
         tracker?.let {
             holder.bindItems(
                 translation,
-                it.isSelected(getItemID(holder.adapterPosition)),
-                targetLang
+                it.isSelected(getItemID(holder.adapterPosition))
             )
         }
     }
@@ -116,8 +113,7 @@ class TranslationsAdapter(var translations: ArrayList<Translation>,
 
         fun bindItems(
             translation: Translation,
-            isActivated: Boolean = false,
-            targetLang: String?
+            isActivated: Boolean = false
         ) {
             // Populate values to widgets.
             view.phraseTV.text = translation.input
@@ -131,12 +127,19 @@ class TranslationsAdapter(var translations: ArrayList<Translation>,
                 rotateView(view.findViewById(R.id.arrow), 180f, 0f)
             }
 
-//            when (targetLang) {
-//                "Bulgarian" -> view.targetText.text = collection.translations
-//                "English" -> view.wordOfTheDayTV.text = wordOfTheDay.wordEN
-//                "Spanish" -> view.wordOfTheDayTV.text = wordOfTheDay.wordES
-//                "Russian" -> view.wordOfTheDayTV.text = wordOfTheDay.wordRU
-//            }
+            when (translation.sourceLang) {
+                "Bulgarian" -> view.srcLangIV.setImageResource(R.drawable.ic_bulgarian)
+                "English" -> view.srcLangIV.setImageResource(R.drawable.ic_english)
+                "Spanish" -> view.srcLangIV.setImageResource(R.drawable.ic_spanish)
+                "Russian" -> view.srcLangIV.setImageResource(R.drawable.ic_russian)
+            }
+
+            when (translation.targetLang) {
+                "Bulgarian" -> view.tgtLangIV.setImageResource(R.drawable.ic_bulgarian)
+                "English" -> view.tgtLangIV.setImageResource(R.drawable.ic_english)
+                "Spanish" -> view.tgtLangIV.setImageResource(R.drawable.ic_spanish)
+                "Russian" -> view.tgtLangIV.setImageResource(R.drawable.ic_russian)
+            }
 
             itemView.isActivated = isActivated
         }
