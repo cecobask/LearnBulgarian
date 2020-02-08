@@ -126,7 +126,7 @@ class WordOfTheDayFavouritesFragment : Fragment() {
                                     swipeHandler.setSwipingStatus(false)
 
                                     // Create callback for ActionMode and initialize it.
-                                    actionModeCallback = ActionModeCallback("")
+                                    actionModeCallback = ActionModeCallback("", context!!, "")
                                     actionModeCallback?.startActionMode(
                                         view,
                                         R.menu.action_items,

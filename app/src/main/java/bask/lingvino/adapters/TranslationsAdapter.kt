@@ -16,7 +16,6 @@ import bask.lingvino.models.Translation
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DatabaseReference
 import kotlinx.android.synthetic.main.translation_item.view.*
-import kotlinx.android.synthetic.main.translator.view.*
 
 class TranslationsAdapter(var translations: ArrayList<Translation>,
                           recyclerView: RecyclerView,

@@ -3,9 +3,7 @@ package bask.lingvino.fragments
 import android.Manifest
 import android.app.Activity
 import android.content.*
-import android.media.AudioAttributes
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.text.Editable
@@ -14,13 +12,17 @@ import android.text.TextWatcher
 import android.text.method.ScrollingMovementMethod
 import android.view.*
 import android.view.inputmethod.EditorInfo
-import android.widget.*
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
 import bask.lingvino.models.Translation
+import bask.lingvino.utils.CognitiveServices
 import bask.lingvino.utils.LoadFirebaseDataCallback
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
@@ -43,20 +45,13 @@ import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslatorOption
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.mindorks.paracamera.Camera
 import kotlinx.android.synthetic.main.translator.*
 import kotlinx.android.synthetic.main.translator.view.*
-import okhttp3.*
-import org.redundent.kotlin.xml.XmlVersion
-import org.redundent.kotlin.xml.xml
 import pub.devrel.easypermissions.AfterPermissionGranted
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 import timber.log.Timber
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 
 class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.PermissionCallbacks {
 
@@ -73,9 +68,6 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     private lateinit var sourceLangIV: ImageView
     private lateinit var targetLangIV: ImageView
     private lateinit var camera: Camera
-    private lateinit var remoteConfig: FirebaseRemoteConfig
-    private lateinit var httpClient: OkHttpClient
-    private lateinit var accessToken: String
     private lateinit var mediaPlayer: MediaPlayer // For playing text pronunciations.
     private lateinit var sharedPref: SharedPreferences
     private lateinit var mView: View
@@ -84,6 +76,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     private lateinit var fbUser: FirebaseUser
     private lateinit var spokenLangName: String
     private lateinit var targetLangName: String
+    private lateinit var congnitiveServices: CognitiveServices
     private val REQUESTCODESPEECH = 10001
     private val REQUESTCODECAMERA = 10002
     private val REQUESTCODESETTINGS = 10003
@@ -149,19 +142,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
         val copyBtn: AppCompatImageButton = view.findViewById(R.id.copyBtn)
         clipboardManager = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         progressBar = view.findViewById(R.id.progressBar)
-
-        // Get remote config, used to store API keys.
-        remoteConfig = FirebaseRemoteConfig.getInstance()
-
-        // Create an OkHttpClient.
-        httpClient = OkHttpClient()
-
-        // Retrieve access token for Speech API.
-        getSpeechAccessToken(remoteConfig.getString("SPEECH_SERVICE_API_KEY"))
-        { token -> accessToken = token!! }
-
         sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
-
         spokenLangName = sharedPref.getString("SPOKEN_LANG_NAME", "English")!!
         val spokenLangFlag = sharedPref.getInt("SPOKEN_LANG_FLAG", R.drawable.ic_english)
         targetLangName = sharedPref.getString("TARGET_LANG_NAME", "Bulgarian")!!
@@ -240,6 +221,9 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
         translatorCollections = databaseRef.child("users")
             .child(fbUser.uid)
             .child("translatorCollections")
+
+        // This class handles pronunciations.
+        congnitiveServices = CognitiveServices(context!!)
     }
 
     override fun onClick(v: View?) {
@@ -287,7 +271,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                 openCamera()
             }
             R.id.pronounceBtn -> {
-                pronounceText(translationTV.text.toString())
+                congnitiveServices.pronounceText(translationTV.text.toString(), targetLangName)
             }
             R.id.favBtn -> {
                 showSaveToCollectionDialog(
@@ -456,107 +440,6 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
             targetLangIV.setImageResource(targetLangFlag)
             targetLangIV.tag = targetLangFlag
         }.build()
-    }
-
-    // Retrieve access token for Speech API.
-    private fun getSpeechAccessToken(key: String, callback: (String?) -> Unit) {
-        val request = Request.Builder()
-            .url("https://northeurope.api.cognitive.microsoft.com/sts/v1.0/issuetoken")
-            .addHeader("Ocp-Apim-Subscription-Key", key)
-            .post(RequestBody.create(null, ""))
-            .build()
-
-        // Async http POST request.
-        httpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Timber.tag("accessToken").d(e)
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                // Pass token to callback.
-                callback(response.body()?.string())
-            }
-
-        })
-    }
-
-    // Takes text and synthesizes it into speech.
-    private fun pronounceText(text: String) {
-        // Default values.
-        var name = "en-GB-George-Apollo"
-        var lang = "en-GB"
-
-        // Determine what language and which speaker to use for pronunciations.
-        when (targetLangTV.text) {
-            "English" -> {
-                name = "en-GB-George-Apollo"
-                lang = "en-GB"
-            }
-            "Bulgarian" -> {
-                name = "bg-BG-Ivan"
-                lang = "bg-BG"
-            }
-            "Spanish" -> {
-                name = "es-ES-Pablo-Apollo"
-                lang = "es-ES"
-            }
-            "Russian" -> {
-                name = "ru-RU-Pavel-Apollo"
-                lang = "ru-RU"
-            }
-        }
-
-        // Construct XML body for the HTTP request.
-        val body = xml("speak") {
-            version = XmlVersion.V10
-            attribute("version", "1.0")
-            attribute("xml:lang", lang)
-            "voice" {
-                attribute("name", name)
-                attribute("xml:gender", "Male")
-                attribute("xml:lang", lang)
-                -text
-            }
-        }.toString()
-
-        val request = Request.Builder()
-            .url("https://northeurope.tts.speech.microsoft.com/cognitiveservices/v1")
-            .addHeader("Authorization", "Bearer $accessToken")
-            .addHeader("Content-Type", "application/ssml+xml")
-            .addHeader("X-Microsoft-OutputFormat", "audio-16khz-32kbitrate-mono-mp3")
-            .addHeader("cache-control", "no-cache")
-            .post(RequestBody.create(MediaType.parse("stream"), body))
-            .build()
-
-        // Async HTTP POST request that fetches an audio file that will be played on user's device.
-        httpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Timber.tag("pronounce").d(e)
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                // Get the audio response and save the file to temp storage.
-                val inputStream = response.body()?.byteStream()
-                val file = File.createTempFile("speech", ".mp3", context?.obbDir)
-                val outputStream = FileOutputStream(file)
-                inputStream?.copyTo(outputStream)
-                outputStream.close()
-
-                // Create MediaPlayer instance that uses the audio result from HTTP request.
-                mediaPlayer =
-                    MediaPlayer.create(context, Uri.fromFile(file))
-                        .apply {
-                            setAudioAttributes(
-                                AudioAttributes.Builder()
-                                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                                    .build()
-                            )
-                        }
-
-                // Play the pronunciation of the translated text.
-                mediaPlayer.start()
-            }
-        })
     }
 
     private fun translateText(text: String) {

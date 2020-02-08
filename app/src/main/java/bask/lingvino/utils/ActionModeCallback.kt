@@ -1,5 +1,6 @@
 package bask.lingvino.utils
 
+import android.content.Context
 import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
@@ -16,11 +17,12 @@ import com.google.firebase.database.FirebaseDatabase
 /**
  * Helper class for ActionMode.
  */
-class ActionModeCallback(private val collectionName: String) : ActionMode.Callback {
+class ActionModeCallback(private val collectionName: String, private val context: Context, private val targetLang: String) : ActionMode.Callback {
 
     // Store values when ActionMode is created.
     private lateinit var tracker: SelectionTracker<Long>
     private lateinit var trackerStr: SelectionTracker<String>
+    private lateinit var cognitiveServices: CognitiveServices
     private var mode: ActionMode? = null
     @MenuRes
     private var menuResId: Int = 0
@@ -30,6 +32,7 @@ class ActionModeCallback(private val collectionName: String) : ActionMode.Callba
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         this.mode = mode
         mode.menuInflater.inflate(menuResId, menu)
+        cognitiveServices = CognitiveServices(context)
         return true
     }
 
@@ -79,6 +82,11 @@ class ActionModeCallback(private val collectionName: String) : ActionMode.Callba
                 adapterStr?.removeItems(adapterStr?.getSelectedItemsById(selectedIds)!!, collectionRef)
                 mode.finish()
             }
+        }
+        else if (item.itemId == R.id.pronounceItem) {
+            val selection = trackerStr.selection.map { it }
+            val textToPronounce = adapterStr!!.getSelectedItemsById(selection)[0].translation
+            cognitiveServices.pronounceText(textToPronounce, targetLang)
         }
         return true
     }

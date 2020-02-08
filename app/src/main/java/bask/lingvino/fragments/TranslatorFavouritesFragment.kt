@@ -122,7 +122,11 @@ class TranslatorFavouritesFragment : Fragment() {
                                 super.onSelectionChanged()
                                 if (tracker.hasSelection() && actionModeCallback == null) {
                                     // Create callback for ActionMode and initialize it.
-                                    actionModeCallback = ActionModeCallback(collectionName)
+                                    val selection = tracker.selection.map { it }
+                                    val targetLang = adapter.getSelectedItemsById(selection)[0].targetLang
+                                    actionModeCallback = ActionModeCallback(
+                                        collectionName, context!!, targetLang
+                                    )
                                     actionModeCallback?.startActionMode(
                                         view,
                                         R.menu.action_items,
