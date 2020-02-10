@@ -3,7 +3,6 @@ package bask.lingvino.fragments
 import android.Manifest
 import android.app.Activity
 import android.content.*
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.text.Editable
@@ -68,7 +67,6 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     private lateinit var sourceLangIV: ImageView
     private lateinit var targetLangIV: ImageView
     private lateinit var camera: Camera
-    private lateinit var mediaPlayer: MediaPlayer // For playing text pronunciations.
     private lateinit var sharedPref: SharedPreferences
     private lateinit var mView: View
     private lateinit var translatorCollections: DatabaseReference
@@ -305,7 +303,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
 
                     // Triggers this callback when the user clicks on "Done" button.
                     listItemsMultiChoice(items = collections) { _, _, items ->
-                        val translationObj = Translation(input, "null", translation, spokenLangName,
+                        val translationObj = Translation(input, translation, spokenLangName,
                             targetLangName)
                         translationObj.expanded = null // Trick to not push value for expanded to DB.
 

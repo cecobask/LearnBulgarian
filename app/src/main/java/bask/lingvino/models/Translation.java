@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 
 public class Translation {
     private String input;
-    private String pronunciationURL;
     private String translation;
     private Boolean expanded;
     private String id;
@@ -13,10 +12,9 @@ public class Translation {
 
     public Translation() {}
 
-    public Translation(String input, String pronunciationURL, String translation, String sourceLang,
+    public Translation(String input, String translation, String sourceLang,
                        String targetLang) {
         this.input = input;
-        this.pronunciationURL = pronunciationURL;
         this.translation = translation;
         this.expanded = false;
         this.sourceLang = sourceLang;
@@ -60,10 +58,11 @@ public class Translation {
     public String toString() {
         return "Translation{" +
                 "input='" + input + '\'' +
-                ", pronunciationURL='" + pronunciationURL + '\'' +
                 ", translation='" + translation + '\'' +
                 ", expanded=" + expanded +
                 ", id='" + id + '\'' +
+                ", sourceLang='" + sourceLang + '\'' +
+                ", targetLang='" + targetLang + '\'' +
                 '}';
     }
 }

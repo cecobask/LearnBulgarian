@@ -5,8 +5,6 @@ import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
-import android.media.AudioAttributes
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.os.StrictMode
@@ -22,6 +20,7 @@ import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
 import bask.lingvino.models.WordOfTheDay
+import bask.lingvino.utils.CognitiveServices
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -38,10 +37,10 @@ class WordOfTheDayFragment : Fragment() {
 
     private lateinit var databaseRef: DatabaseReference
     private lateinit var WOTDDB: DatabaseReference
-    private lateinit var mediaPlayer: MediaPlayer // For playing word pronunciation.
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var sharedPref: SharedPreferences
     private lateinit var date: String
+    private lateinit var congnitiveServices: CognitiveServices
 
     private lateinit var wotdDateTV: TextView
     private lateinit var wotdTV: TextView
@@ -133,6 +132,9 @@ class WordOfTheDayFragment : Fragment() {
         wotdRandomFAB.setOnClickListener {
             getRandomWord()
         }
+
+        // This class handles pronunciations.
+        congnitiveServices = CognitiveServices(context!!)
     }
 
     private fun getRandomWord() {
@@ -253,17 +255,7 @@ class WordOfTheDayFragment : Fragment() {
                 wotdTV.text = wordTgt
                 wotdDefinitionTV.text = definition
                 highlightWord(exampleTgt, wordTgt, wotdExampleTV)
-                // Create MediaPlayer instance that uses URL from Google Cloud Storage.
-                // to play word pronunciation.
-                mediaPlayer =
-                    MediaPlayer.create(context, Uri.parse(pronunciation))
-                        .apply {
-                            setAudioAttributes(
-                                AudioAttributes.Builder()
-                                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                                    .build()
-                            )
-                        }
+
                 wotdTransliterationTV.text = transliteration
                 wotdTypeTV.text = currentWOTD.wordType
                 wotdPronounceFAB.visibility = View.VISIBLE
@@ -274,7 +266,9 @@ class WordOfTheDayFragment : Fragment() {
                 if (!returningUser) balloon.showAlignRight(wotdExampleTV)
 
                 // Play word pronunciation on click of pronounce FAB.
-                wotdPronounceFAB.setOnClickListener { mediaPlayer.start() }
+                wotdPronounceFAB.setOnClickListener {
+                    congnitiveServices.startMediaPlayer(Uri.parse(pronunciation))
+                }
 
                 // Switch between English and Bulgarian example sentences.
                 wotdExampleTV.setOnClickListener {

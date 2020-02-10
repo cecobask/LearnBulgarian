@@ -112,20 +112,24 @@ class CognitiveServices(val context: Context) {
                 inputStream?.copyTo(outputStream)
                 outputStream.close()
 
-                // Create MediaPlayer instance that uses the audio result from HTTP request.
-                mediaPlayer =
-                    MediaPlayer.create(context, Uri.fromFile(file))
-                        .apply {
-                            setAudioAttributes(
-                                AudioAttributes.Builder()
-                                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                                    .build()
-                            )
-                        }
-
-                // Play the pronunciation of the translated text.
-                mediaPlayer.start()
+                // Play the pronunciation.
+                startMediaPlayer(Uri.fromFile(file))
             }
         })
+    }
+
+    fun startMediaPlayer(uri: Uri) {
+        mediaPlayer =
+            MediaPlayer.create(context, uri)
+                .apply {
+                    setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .build()
+                    )
+                }
+
+        // Play the pronunciation.
+        mediaPlayer.start()
     }
 }
