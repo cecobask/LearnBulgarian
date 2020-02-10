@@ -11,10 +11,7 @@ import android.text.TextWatcher
 import android.text.method.ScrollingMovementMethod
 import android.view.*
 import android.view.inputmethod.EditorInfo
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageButton
@@ -22,7 +19,7 @@ import androidx.fragment.app.Fragment
 import bask.lingvino.R
 import bask.lingvino.models.Translation
 import bask.lingvino.utils.CognitiveServices
-import bask.lingvino.utils.LoadFirebaseDataCallback
+import bask.lingvino.utils.FirebaseDataCallback
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.setActionButtonEnabled
@@ -51,6 +48,7 @@ import pub.devrel.easypermissions.AfterPermissionGranted
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 import timber.log.Timber
+import java.util.*
 
 class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.PermissionCallbacks {
 
@@ -98,8 +96,8 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_saved_translations -> {
-                getCollectionNames(object : LoadFirebaseDataCallback {
-                    override fun onCallback(collections: MutableList<String>) {
+                getCollectionNames(object : FirebaseDataCallback {
+                    override fun onData(collections: MutableList<String>) {
                         // Open up a dialog with selection of all user's collections.
                         showChooseCollectionDialog(collections)
                     }
@@ -284,8 +282,8 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     // Afterwards the user is prompted to select which collection/s to add a translation to.
     private fun showSaveToCollectionDialog(input: String, translation: String) {
         // Load collection names from Firebase.
-        getCollectionNames(object : LoadFirebaseDataCallback {
-            override fun onCallback(collections: MutableList<String>) {
+        getCollectionNames(object : FirebaseDataCallback {
+            override fun onData(collections: MutableList<String>) {
                 // Show a dialog with checkboxes that match user's collection names.
                 MaterialDialog(context!!).show {
                     title(text = "Save to collection/s:")
@@ -310,8 +308,28 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                         // Push the Translation object to selected collections.
                         items.forEach { item ->
                             val collection = item.toString().substringBeforeLast(" (")
-                            translatorCollections.child(collection).push()
-                                .setValue(translationObj)
+                            checkIfTranslationExists(
+                                collection, input, translation, object : FirebaseDataCallback {
+                                    override fun onData(exists: Boolean) {
+                                        when (exists) {
+                                            true ->
+                                                Snackbar.make(
+                                                    mView.translateBtn,
+                                                    "Translation already exists in collection '$collection'.",
+                                                    Snackbar.LENGTH_SHORT
+                                                ).show()
+                                            false -> {
+                                                translatorCollections.child(collection).push()
+                                                    .setValue(translationObj)
+                                                Snackbar.make(
+                                                    mView.translateBtn,
+                                                    "Successfully added to collection '$collection'.",
+                                                    Snackbar.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                        }
+                                    }
+                                })
                         }
                     }
                 }
@@ -319,7 +337,35 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
         })
     }
 
-    private fun getCollectionNames(callback: LoadFirebaseDataCallback
+    private fun checkIfTranslationExists(collection: String,
+                                         inputStr: String,
+                                         translationStr: String,
+                                         callback: FirebaseDataCallback
+    ) {
+        translatorCollections.child(collection)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onCancelled(p0: DatabaseError) =
+                    Timber.tag("translatorCollections").e(p0.message)
+
+                override fun onDataChange(p0: DataSnapshot) {
+                    // Check if any translations from the collection match the newly created one.
+                    val translationExists = p0.children.any { translationSnap ->
+                        val translationObj = translationSnap.getValue(Translation::class.java)
+                        translationObj?.translation?.toLowerCase(Locale.getDefault()) ==
+                                translationStr.toLowerCase(Locale.getDefault())
+                                &&
+                                translationObj.input?.toLowerCase(Locale.getDefault()) ==
+                                inputStr.toLowerCase(Locale.getDefault())
+                    }
+
+                    // Pass boolean value to the callback.
+                    callback.onData(translationExists)
+                }
+
+            })
+    }
+
+    private fun getCollectionNames(callback: FirebaseDataCallback
     ) {
         // Show progress bar.
         mView.progressBar.visibility = View.VISIBLE
@@ -337,7 +383,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                 p0.children.forEach { collectionNames.add("${it.key!!} (${it.childrenCount} items)") }
 
                 // Trigger callback to make collection names accessible outside this scope.
-                callback.onCallback(collectionNames)
+                callback.onData(collectionNames)
 
                 // Hide progress bar.
                 mView.progressBar.visibility = View.GONE
