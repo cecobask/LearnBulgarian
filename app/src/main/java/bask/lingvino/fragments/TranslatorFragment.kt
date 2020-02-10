@@ -220,6 +220,29 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
 
         // This class handles pronunciations.
         congnitiveServices = CognitiveServices(context!!)
+
+        // Create empty 'Favourites' collection if it doesn't exist.
+        createFavouritesCollection()
+    }
+
+    private fun createFavouritesCollection() {
+        translatorCollections.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                TODO(
+                    "not implemented"
+                ) //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+                // Check if 'Favourites' collection exists.
+                val collectionExists = p0.children.any { collection ->
+                    collection.key == "Favourites"
+                }
+                if (!collectionExists)
+                // Create empty 'Favourites' collection if it doesn't exist.
+                    translatorCollections.child("Favourites").setValue("null")
+            }
+        })
     }
 
     override fun onClick(v: View?) {
@@ -426,7 +449,16 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     private fun showChooseCollectionDialog(collections: List<String>) {
         MaterialDialog(context!!).show {
             title(text = "Choose collection:")
-            listItemsSingleChoice(items = collections) { _, _, collection ->
+
+            // Get indices of collections with 0 elements in them and disable them in the dialog.
+            val disabledIndices = collections.mapIndexedNotNull { index, collection ->
+                if (collection.endsWith("(0 items)")) index
+                else null
+            }.toIntArray()
+
+            listItemsSingleChoice(
+                items = collections, disabledIndices = disabledIndices
+            ) { _, _, collection ->
                 // Open selected collection in a new Fragment.
                 fragmentManager!!
                     .beginTransaction()
