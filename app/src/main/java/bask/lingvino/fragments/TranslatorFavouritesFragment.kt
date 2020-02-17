@@ -1,11 +1,14 @@
 package bask.lingvino.fragments
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.EditText
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.selection.SelectionPredicates
 import androidx.recyclerview.selection.SelectionTracker
@@ -17,6 +20,7 @@ import bask.lingvino.R
 import bask.lingvino.adapters.TranslationsAdapter
 import bask.lingvino.models.Translation
 import bask.lingvino.utils.ActionModeCallback
+import bask.lingvino.utils.TranslationFilter
 import bask.lingvino.utils.TranslationsCollectionDetailsLookup
 import bask.lingvino.utils.TranslationsCollectionKeyProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -35,6 +39,7 @@ class TranslatorFavouritesFragment : Fragment() {
     private lateinit var tracker: SelectionTracker<String>
     private var actionModeCallback: ActionModeCallback? = null
     private lateinit var collectionName: String
+    private lateinit var translationFilter: TranslationFilter
 
     companion object {
         private const val argKey = "collectionName"
@@ -57,6 +62,7 @@ class TranslatorFavouritesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
 
         database = FirebaseDatabase.getInstance()
         firebaseAuth = FirebaseAuth.getInstance()
@@ -145,6 +151,8 @@ class TranslatorFavouritesFragment : Fragment() {
                         })
                         // Attach SelectionTracker to the adapter.
                         adapter.tracker = tracker
+
+                        translationFilter = TranslationFilter(adapter, translationsList)
                     }
                 }
 
@@ -164,6 +172,37 @@ class TranslatorFavouritesFragment : Fragment() {
 
             })
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_search, menu)
+
+        // Make SearchView take up the whole width of the ActionBar.
+        val searchView = menu.findItem(R.id.action_search)?.actionView as SearchView
+        searchView.maxWidth = Int.MAX_VALUE
+        searchView.queryHint = "Search for translations..."
+
+        // Change the colour of clear input button and hint text colour of SearchView.
+        val searchClose: ImageView = searchView.findViewById(androidx.appcompat.R.id.search_close_btn)
+        searchClose.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP)
+        val searchEditText: EditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text)
+        searchEditText.setHintTextColor(Color.GRAY)
+
+        // Listen for user input into SearchView and filter based on the query.
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(query: String?): Boolean {
+                // Perform filtering based on input value.
+                translationFilter.filter(query)
+                return true
+            }
+
+        })
+
+        super.onCreateOptionsMenu(menu,inflater)
     }
 
     override fun onResume() {

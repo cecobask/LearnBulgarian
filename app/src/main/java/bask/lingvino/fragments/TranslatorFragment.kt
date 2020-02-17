@@ -571,7 +571,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                 e.printStackTrace()
             }
         } else
-        // Request the required permissions.
+            // Request the required permissions.
             EasyPermissions.requestPermissions(
                 this,
                 "CAMERA and WRITE_EXTERNAL_STORAGE permissions are required for this feature.",
