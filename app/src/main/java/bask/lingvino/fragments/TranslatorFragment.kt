@@ -225,26 +225,6 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
         createFavouritesCollection()
     }
 
-    private fun createFavouritesCollection() {
-        translatorCollections.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onCancelled(p0: DatabaseError) {
-                TODO(
-                    "not implemented"
-                ) //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onDataChange(p0: DataSnapshot) {
-                // Check if 'Favourites' collection exists.
-                val collectionExists = p0.children.any { collection ->
-                    collection.key == "Favourites"
-                }
-                if (!collectionExists)
-                // Create empty 'Favourites' collection if it doesn't exist.
-                    translatorCollections.child("Favourites").setValue("null")
-            }
-        })
-    }
-
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.switchLangBtn -> {
@@ -299,6 +279,24 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                 )
             }
         }
+    }
+
+    private fun createFavouritesCollection() {
+        translatorCollections.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                Timber.tag("translatorCollections").e(p0.message)
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+                // Check if 'Favourites' collection exists.
+                val collectionExists = p0.children.any { collection ->
+                    collection.key == "Favourites"
+                }
+                if (!collectionExists)
+                // Create empty 'Favourites' collection if it doesn't exist.
+                    translatorCollections.child("Favourites").setValue("null")
+            }
+        })
     }
 
     // Gets existing user collections and enables the creation of new collections.
@@ -403,7 +401,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
 
             override fun onDataChange(p0: DataSnapshot) {
                 val collectionNames = mutableListOf<String>()
-                p0.children.forEach { collectionNames.add("${it.key!!} (${it.childrenCount} items)") }
+                p0.children.forEach { collectionNames.add("${it.key!!} (${it.childrenCount})") }
 
                 // Trigger callback to make collection names accessible outside this scope.
                 callback.onData(collectionNames)
@@ -450,41 +448,44 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
         MaterialDialog(context!!).show {
             title(text = "Choose collection:")
 
-            // Get indices of collections with 0 elements in them and disable them in the dialog.
-            val disabledIndices = collections.mapIndexedNotNull { index, collection ->
-                if (collection.endsWith("(0 items)")) index
-                else null
-            }.toIntArray()
+            // Disable 'Remove' button initially, as there is no selection.
+            this.setActionButtonEnabled(WhichButton.NEUTRAL, false)
 
             listItemsSingleChoice(
-                items = collections, disabledIndices = disabledIndices
+                items = collections, waitForPositiveButton = false
             ) { _, _, collection ->
+                // 'Go' button is only enabled if the selected collection is not empty.
+                this.setActionButtonEnabled(WhichButton.POSITIVE, !collection.endsWith("(0)"))
+                // 'Remove' button is always disabled for 'Favourites' collection and enabled for the rest.
+                this.setActionButtonEnabled(
+                    WhichButton.NEUTRAL,
+                    collection.toString().substringBeforeLast(" (") != "Favourites"
+                )
+            }
+
+            positiveButton(text = "Go") { dialog ->
                 // Open selected collection in a new Fragment.
+                val selectedIndex = collections.indices.find { dialog.isItemChecked(it) }
                 fragmentManager!!
                     .beginTransaction()
                     .replace(
                         R.id.fragmentContainer,
                         TranslatorFavouritesFragment.newInstance(
-                            collection.toString().substringBeforeLast(" (")
+                            collections[selectedIndex!!].substringBeforeLast(" (")
                         )
                     )
                     .addToBackStack(null)
                     .commit()
             }
-            positiveButton(text = "Go")
             negativeButton(text = "Cancel")
             @Suppress("DEPRECATION")
-            neutralButton(text = "Remove") {
+            neutralButton(text = "Remove") { dialog ->
                 // Determine which collection was selected and remove it.
-                for (i in collections.indices) {
-                    if (it.isItemChecked(i))
-                        translatorCollections.child(collections[i]).removeValue()
-                }
+                val selectedIndex = collections.indices.find { dialog.isItemChecked(it) }
+                translatorCollections
+                    .child(collections[selectedIndex!!].substringBeforeLast(" ("))
+                    .removeValue()
             }
-
-            // Disable 'Remove' button if there are no collections.
-            this.setActionButtonEnabled(WhichButton.NEUTRAL, collections.isNotEmpty())
-
         }
     }
 
