@@ -33,4 +33,5 @@
     <string name="saved_translations">Saved translations</string>
     <string name="translatorFavsTitle">Saved translations</string>
     <string name="action_bar_pronounce_button">Pronounce selection</string>
+    <string name="all_languages_filter">All languages</string>
 </resources>

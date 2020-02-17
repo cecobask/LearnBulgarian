@@ -1,6 +1,7 @@
 package bask.lingvino.fragments
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
@@ -23,6 +24,10 @@ import bask.lingvino.utils.ActionModeCallback
 import bask.lingvino.utils.TranslationFilter
 import bask.lingvino.utils.TranslationsCollectionDetailsLookup
 import bask.lingvino.utils.TranslationsCollectionKeyProvider
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.list.listItemsSingleChoice
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -31,7 +36,7 @@ import com.google.firebase.database.ValueEventListener
 import timber.log.Timber
 import kotlin.collections.ArrayList
 
-class TranslatorFavouritesFragment : Fragment() {
+class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
 
     private lateinit var database: FirebaseDatabase
     private lateinit var adapter: TranslationsAdapter
@@ -40,6 +45,10 @@ class TranslatorFavouritesFragment : Fragment() {
     private var actionModeCallback: ActionModeCallback? = null
     private lateinit var collectionName: String
     private lateinit var translationFilter: TranslationFilter
+    private lateinit var langFiltersCG: ChipGroup
+    private lateinit var fromLangChip: Chip
+    private lateinit var toLangChip: Chip
+    private lateinit var sharedPref: SharedPreferences
 
     companion object {
         private const val argKey = "collectionName"
@@ -63,6 +72,12 @@ class TranslatorFavouritesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
+
+        // Init widgets.
+        langFiltersCG = view.findViewById(R.id.langFiltersCG)
+        fromLangChip = view.findViewById(R.id.fromLangChip)
+        toLangChip = view.findViewById(R.id.toLangChip)
+        sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
 
         database = FirebaseDatabase.getInstance()
         firebaseAuth = FirebaseAuth.getInstance()
@@ -172,6 +187,10 @@ class TranslatorFavouritesFragment : Fragment() {
 
             })
         }
+
+        // Set click listeners.
+        fromLangChip.setOnClickListener(this)
+        toLangChip.setOnClickListener(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -209,5 +228,37 @@ class TranslatorFavouritesFragment : Fragment() {
         super.onResume()
         // Change toolbar title.
         (activity as? AppCompatActivity)?.supportActionBar?.title = collectionName
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.fromLangChip -> {
+                showLanguageFilterDialog(fromLangChip)
+            }
+            R.id.toLangChip -> {
+                showLanguageFilterDialog(toLangChip)
+            }
+        }
+    }
+
+    // Displays a dialog, where the user can select languages to filter by.
+    private fun showLanguageFilterDialog(chip: Chip) {
+        MaterialDialog(context!!).show {
+            // Only check the chip if its value is not "All languages".
+            chip.isChecked = chip.text != "All languages"
+            title(text = "Pick a language filter:")
+            listItemsSingleChoice(
+                items = listOf("English", "Bulgarian", "Spanish", "Russian", "All languages")
+            ) { _, _, text ->
+                chip.text = text // Update the text of the relevant chip.
+                // Perform filtering of phrases based on the values of the chips.
+                translationFilter.filterBySourceAndTarget(
+                    fromLangChip.text.toString(),
+                    toLangChip.text.toString()
+                )
+                // Only check the chip if its value is not "All languages".
+                chip.isChecked = text != "All languages"
+            }
+        }
     }
 }

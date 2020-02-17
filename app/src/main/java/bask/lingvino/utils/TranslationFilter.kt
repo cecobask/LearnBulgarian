@@ -40,4 +40,33 @@ class TranslationFilter(private val adapter: TranslationsAdapter,
             adapter.notifyDataSetChanged()
         }
     }
+
+    fun filterBySourceAndTarget(source: String, target: String) {
+        val results = FilterResults()
+        val filteredTranslations: List<Translation>
+        if (source == "All languages" && target == "All languages") {
+            results.values = originalTranslations
+            results.count = originalTranslations.size
+        } else if (source == "All languages") {
+            filteredTranslations = originalTranslations.filter {
+                it.targetLang == target
+            }
+            results.values = filteredTranslations
+            results.count = filteredTranslations.size
+        } else if (target == "All languages") {
+            filteredTranslations = originalTranslations.filter {
+                it.sourceLang == source
+            }
+            results.values = filteredTranslations
+            results.count = filteredTranslations.size
+        } else {
+            filteredTranslations = originalTranslations.filter {
+                it.sourceLang == source && it.targetLang == target
+            }
+            results.values = filteredTranslations
+            results.count = filteredTranslations.size
+        }
+
+        publishResults("", results)
+    }
 }
