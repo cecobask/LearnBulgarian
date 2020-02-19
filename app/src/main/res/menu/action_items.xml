@@ -4,11 +4,11 @@
         android:id="@+id/pronounceItem"
         android:icon="@drawable/ic_speaker"
         android:iconTint="@color/white"
-        android:title="@string/action_bar_pronounce_button"
+        android:title="@string/actionBarPronounceButton"
         android:visible="false" />
     <item
         android:id="@+id/deleteItems"
-        android:title="@string/action_bar_delete_button"
+        android:title="@string/actionBarDeleteButton"
         android:icon="@drawable/ic_delete"
         android:iconTint="@color/white" />
 </menu>

@@ -12,7 +12,7 @@
         <item
             android:id="@+id/navItemLang"
             android:icon="@drawable/ic_languages"
-            android:title="@string/language_options" />
+            android:title="@string/languageOptions" />
         <item
             android:id="@+id/navItemLogOut"
             android:icon="@drawable/ic_logout"

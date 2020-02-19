@@ -8,9 +8,7 @@ import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.os.StrictMode
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -40,7 +38,7 @@ class WordOfTheDayFragment : Fragment() {
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var sharedPref: SharedPreferences
     private lateinit var date: String
-    private lateinit var congnitiveServices: CognitiveServices
+    private lateinit var cognitiveServices: CognitiveServices
 
     private lateinit var wotdDateTV: TextView
     private lateinit var wotdTV: TextView
@@ -79,6 +77,7 @@ class WordOfTheDayFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
 
         // Fix for error caused by: android.os.NetworkOnMainThreadException.
         val policy: StrictMode.ThreadPolicy = StrictMode.ThreadPolicy.Builder().permitAll().build()
@@ -134,7 +133,34 @@ class WordOfTheDayFragment : Fragment() {
         }
 
         // This class handles pronunciations.
-        congnitiveServices = CognitiveServices(context!!)
+        cognitiveServices = CognitiveServices(context!!)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_wotd, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        WOTDDB.addListenerForSingleValueEvent(object : ValueEventListener {
+//            override fun onCancelled(p0: DatabaseError) {
+//                Timber.tag("calendarView").d(p0.toException())
+//            }
+//
+//            override fun onDataChange(p0: DataSnapshot) {
+//
+//            }
+//        })
+        // Open CalendarView.
+        fragmentManager!!
+            .beginTransaction()
+            .replace(
+                R.id.fragmentContainer,
+                CalendarViewFragment.newInstance())
+            .addToBackStack(null)
+            .commit()
+
+        return super.onOptionsItemSelected(item)
     }
 
     private fun getRandomWord() {
@@ -267,7 +293,7 @@ class WordOfTheDayFragment : Fragment() {
 
                 // Play word pronunciation on click of pronounce FAB.
                 wotdPronounceFAB.setOnClickListener {
-                    congnitiveServices.startMediaPlayer(Uri.parse(pronunciation))
+                    cognitiveServices.startMediaPlayer(Uri.parse(pronunciation))
                 }
 
                 // Switch between English and Bulgarian example sentences.

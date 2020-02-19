@@ -56,7 +56,7 @@ class HomeActivity : AppCompatActivity() {
         setupDrawerContent(navView)
 
         // Tie DrawerLayout events to the ActionBarToggle.
-        drawerToggle = ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.drawer_open, R.string.drawer_close)
+        drawerToggle = ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.drawerOpen, R.string.drawerClose)
         mDrawer.addDrawerListener(drawerToggle)
 
         sharedPref = getSharedPreferences("learnBulgarian", 0)
