@@ -27,8 +27,6 @@ import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonAnimation
 import com.skydoves.balloon.createBalloon
 import timber.log.Timber
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 class WordOfTheDayFragment : Fragment() {
@@ -142,23 +140,27 @@ class WordOfTheDayFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        WOTDDB.addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onCancelled(p0: DatabaseError) {
-//                Timber.tag("calendarView").d(p0.toException())
-//            }
-//
-//            override fun onDataChange(p0: DataSnapshot) {
-//
-//            }
-//        })
-        // Open CalendarView.
-        fragmentManager!!
-            .beginTransaction()
-            .replace(
-                R.id.fragmentContainer,
-                CalendarViewFragment.newInstance())
-            .addToBackStack(null)
-            .commit()
+        WOTDDB.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                Timber.tag("calendarView").d(p0.toException())
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+                val dates = mutableListOf<String>()
+                p0.children.forEach {
+                    dates.add(it.key!!)
+                }
+                // Open CalendarView.
+                fragmentManager!!
+                    .beginTransaction()
+                    .replace(
+                        R.id.fragmentContainer,
+                        CalendarViewFragment.newInstance(dates.toTypedArray())
+                    )
+                    .addToBackStack(null)
+                    .commit()
+            }
+        })
 
         return super.onOptionsItemSelected(item)
     }
@@ -275,9 +277,9 @@ class WordOfTheDayFragment : Fragment() {
                 }
 
                 // Set values for all widgets.
-                wotdDateTV.text = LocalDate.parse(
-                    currentWOTD.wordDate, DateTimeFormatter.ofPattern("d-M-yyyy")
-                ).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+                wotdDateTV.text = java.time.LocalDate.parse(
+                    currentWOTD.wordDate, java.time.format.DateTimeFormatter.ofPattern("d-M-yyyy")
+                ).format(java.time.format.DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
                 wotdTV.text = wordTgt
                 wotdDefinitionTV.text = definition
                 highlightWord(exampleTgt, wordTgt, wotdExampleTV)

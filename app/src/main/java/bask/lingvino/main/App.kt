@@ -8,6 +8,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.jakewharton.threetenabp.AndroidThreeTen
 import timber.log.Timber
 
 class App : Application() {
@@ -41,6 +42,9 @@ class App : Application() {
                     }
                 }
         }
+
+        // Initialize ThreeTenABP library.
+        AndroidThreeTen.init(this)
 
     }
 }
