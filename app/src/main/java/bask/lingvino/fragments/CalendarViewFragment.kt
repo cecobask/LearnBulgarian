@@ -12,6 +12,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
+import bask.lingvino.models.CalendarWord
+import bask.lingvino.models.WordOfTheDay
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.kizitonwose.calendarview.CalendarView
 import com.kizitonwose.calendarview.model.CalendarDay
 import com.kizitonwose.calendarview.model.CalendarMonth
@@ -20,33 +24,48 @@ import com.kizitonwose.calendarview.ui.DayBinder
 import com.kizitonwose.calendarview.ui.MonthHeaderFooterBinder
 import com.kizitonwose.calendarview.ui.ViewContainer
 import com.kizitonwose.calendarview.utils.yearMonth
+import com.skydoves.balloon.*
 import kotlinx.android.synthetic.main.calendarviewheader.view.*
 import org.threeten.bp.DayOfWeek
 import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
 import org.threeten.bp.format.DateTimeFormatter
-import timber.log.Timber
 
 class CalendarViewFragment: Fragment() {
 
     private lateinit var calendarView: CalendarView
-    private lateinit var wotdDates: MutableList<LocalDate>
-    private var selectedDate: LocalDate? = null
+    private lateinit var calendarWords: List<CalendarWord>
+    private var today: LocalDate = LocalDate.now()
 
     companion object {
-        private const val argKey = "wotdDates"
-        fun newInstance(dates: Array<String>): CalendarViewFragment {
-            val args = Bundle().apply { putStringArray(argKey, dates) }
+        private const val argKey = "wordObjects"
+        fun newInstance(wotdsJSON: String): CalendarViewFragment {
+            // Receive JSON array of WordOfTheDay objects.
+            val args = Bundle().apply { putString(argKey, wotdsJSON) }
             return CalendarViewFragment().apply { arguments = args }
         }
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        arguments?.getStringArray("wotdDates").let {
-            wotdDates = it?.map { dateString ->
-                LocalDate.parse(dateString, DateTimeFormatter.ofPattern("d-M-yyyy"))
-            }!!.toMutableList()
+        val sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
+        val targetLang = sharedPref.getString("TARGET_LANG_NAME", "Bulgarian")!!
+        arguments?.getString("wordObjects").let { json ->
+            val words: MutableList<WordOfTheDay> =
+                Gson().fromJson(json, object : TypeToken<List<WordOfTheDay>>() {}.type)
+            calendarWords = words.map {
+                // Create object with wotdDate (string) parsed as LocalDate of specified format
+                // and determine value for word, based on target language.
+                CalendarWord(
+                    LocalDate.parse(it.wordDate, DateTimeFormatter.ofPattern("d-M-yyyy")),
+                    when (targetLang) {
+                        "Bulgarian" -> it.wordBG
+                        "English" -> it.wordEN
+                        "Russian" -> it.wordRU
+                        else -> it.wordES
+                    }
+                )
+            }
         }
     }
 
@@ -61,30 +80,67 @@ class CalendarViewFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         calendarView = view.findViewById(R.id.calendarView)
-        calendarView.setup(wotdDates.first().yearMonth, YearMonth.now(), DayOfWeek.MONDAY)
+        calendarView.setup(
+            calendarWords.first().date.yearMonth, calendarWords.last().date.yearMonth, DayOfWeek.MONDAY
+        )
 
         class DayViewContainer(view: View) : ViewContainer(view) {
             // Will be set when this container is bound.
             lateinit var day: CalendarDay
 
             val textView = with(view) {
+                // Open WordOfTheDay for clicked date.
                 setOnClickListener {
-                    if (day.owner == DayOwner.THIS_MONTH) {
-                        if (selectedDate == day.date) {
-                            selectedDate = null
-                            calendarView.notifyDayChanged(day)
-                        } else {
-                            val oldDate = selectedDate
-                            selectedDate = day.date
-                            calendarView.notifyDateChanged(day.date)
-                            oldDate?.let { calendarView.notifyDateChanged(oldDate) }
+                    if (day.date in calendarWords.map { it.date }) {
+                        fragmentManager!!
+                            .beginTransaction()
+                            .replace(
+                                R.id.fragmentContainer,
+                                WordOfTheDayFragment.newInstance(
+                                    day.date.format(DateTimeFormatter.ofPattern("d-M-yyyy"))
+                                )
+                            )
+                            .addToBackStack(null)
+                            .commit()
+                    }
+                }
+
+                // Show tooltip with word value for long clicked date.
+                setOnLongClickListener {
+                    // Check if there is a word from that day.
+                    if (day.date in calendarWords.map { it.date }) {
+                        createBalloon(context!!) {
+                            setArrowOrientation(ArrowOrientation.BOTTOM)
+                            setArrowPosition( // Align arrow position, based day of the week.
+                                when (day.date.dayOfWeek.toString()) {
+                                    "MONDAY" -> 0.15f
+                                    "TUESDAY" -> 0.45f
+                                    "SATURDAY" -> 0.55f
+                                    "SUNDAY" -> 0.85f
+                                    else -> 0.5f
+                                }
+                            )
+                            setWidthRatio(0.5f)
+                            setHeight(70)
+                            setAlpha(1f)
+                            setText(calendarWords.find { it.date == day.date }!!.text)
+                            setTextSize(18f)
+                            setTextTypeface(Typeface.BOLD)
+                            setTextColorResource(R.color.white)
+                            setBackgroundColorResource(R.color.colorPrimaryDark)
+                            setBalloonAnimation(BalloonAnimation.FADE)
+                            setShowTime(1)
+                            setAutoDismissDuration(1500)
+                            showAlignTop(this.build())
                         }
                     }
+                    true
                 }
                 return@with this as TextView
             }
         }
 
+        // Controls each date from the calendar.
         calendarView.dayBinder = object : DayBinder<DayViewContainer> {
             override fun create(view: View) = DayViewContainer(view)
             override fun bind(container: DayViewContainer, day: CalendarDay) {
@@ -92,16 +148,17 @@ class CalendarViewFragment: Fragment() {
                 val textView = container.textView
                 textView.text = day.date.dayOfMonth.toString()
 
+                // Make sure dates from different months are not shown on the same line.
                 if (day.owner == DayOwner.THIS_MONTH) {
                     textView.visibility = View.VISIBLE
                     when (day.date) {
-                        !in wotdDates -> {
+                        !in calendarWords.map { it.date } -> {
                             textView.setTextColor(
                                 ContextCompat.getColor(context!!, R.color.disabled)
                             )
                             textView.background = null
                         }
-                        selectedDate -> {
+                        today -> {
                             textView.setTextColor(ContextCompat.getColor(context!!, R.color.white))
                             textView.setBackgroundResource(R.drawable.selected_date)
                         }
@@ -120,6 +177,8 @@ class CalendarViewFragment: Fragment() {
         class MonthViewContainer(view: View) : ViewContainer(view) {
             val textView = view.calendarViewHeaderText
         }
+
+        // Controls the header for each month.
         calendarView.monthHeaderBinder = object : MonthHeaderFooterBinder<MonthViewContainer> {
             override fun create(view: View) = MonthViewContainer(view)
             override fun bind(container: MonthViewContainer, month: CalendarMonth) {

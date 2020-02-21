@@ -22,6 +22,7 @@ import bask.lingvino.utils.CognitiveServices
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.gson.Gson
 import com.skydoves.balloon.ArrowOrientation
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonAnimation
@@ -146,16 +147,16 @@ class WordOfTheDayFragment : Fragment() {
             }
 
             override fun onDataChange(p0: DataSnapshot) {
-                val dates = mutableListOf<String>()
+                val wordObjects = mutableListOf<WordOfTheDay>()
                 p0.children.forEach {
-                    dates.add(it.key!!)
+                    wordObjects.add(it.getValue(WordOfTheDay::class.java)!!)
                 }
                 // Open CalendarView.
                 fragmentManager!!
                     .beginTransaction()
                     .replace(
                         R.id.fragmentContainer,
-                        CalendarViewFragment.newInstance(dates.toTypedArray())
+                        CalendarViewFragment.newInstance(Gson().toJson(wordObjects))
                     )
                     .addToBackStack(null)
                     .commit()

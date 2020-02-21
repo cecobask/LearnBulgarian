@@ -4,7 +4,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 data class WordOfTheDay (
-    val wordDate: String = "",
+    var wordDate: String = "",
     val wordBG: String = "",
     val wordEN: String = "",
     val wordRU: String = "",
