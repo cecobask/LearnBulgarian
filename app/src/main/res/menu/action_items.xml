@@ -7,6 +7,12 @@
         android:title="@string/actionBarPronounceButton"
         android:visible="false" />
     <item
+        android:id="@+id/moveItem"
+        android:icon="@drawable/ic_move"
+        android:iconTint="@color/white"
+        android:title="@string/actionBarMoveButton"
+        android:visible="false" />
+    <item
         android:id="@+id/deleteItems"
         android:title="@string/actionBarDeleteButton"
         android:icon="@drawable/ic_delete"

@@ -36,4 +36,5 @@
     <string name="allLanguagesFilter">All languages</string>
     <string name="calendarViewTitle">Calendar View</string>
     <string name="wotdCalendar">Word of the Day Calendar</string>
+    <string name="actionBarMoveButton">Move to</string>
 </resources>
