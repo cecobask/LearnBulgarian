@@ -48,7 +48,9 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
     private lateinit var langFiltersCG: ChipGroup
     private lateinit var fromLangChip: Chip
     private lateinit var toLangChip: Chip
+    private lateinit var clearFiltersIV: ImageView
     private lateinit var sharedPref: SharedPreferences
+    private lateinit var translationsList: MutableList<Translation>
 
     companion object {
         private const val argKey = "collectionName"
@@ -77,6 +79,7 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
         langFiltersCG = view.findViewById(R.id.langFiltersCG)
         fromLangChip = view.findViewById(R.id.fromLangChip)
         toLangChip = view.findViewById(R.id.toLangChip)
+        clearFiltersIV = view.findViewById(R.id.clearFiltersIV)
         sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
 
         database = FirebaseDatabase.getInstance()
@@ -96,7 +99,7 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
                 // Fetch translations.
                 override fun onDataChange(p0: DataSnapshot) {
                     if (p0.exists()) {
-                        val translationsList = mutableListOf<Translation>()
+                        translationsList = mutableListOf()
                         p0.children.forEach {
                             val translation = it.getValue(Translation::class.java)!!.apply {
                                 id = it.key
@@ -167,7 +170,9 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
                         // Attach SelectionTracker to the adapter.
                         adapter.tracker = tracker
 
-                        translationFilter = TranslationFilter(adapter, translationsList)
+                        translationFilter = TranslationFilter(adapter,
+                            translationsList as ArrayList<Translation>
+                        )
                     }
                 }
 
@@ -191,6 +196,7 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
         // Set click listeners.
         fromLangChip.setOnClickListener(this)
         toLangChip.setOnClickListener(this)
+        clearFiltersIV.setOnClickListener(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -238,6 +244,9 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
             R.id.toLangChip -> {
                 showLanguageFilterDialog(toLangChip)
             }
+            R.id.clearFiltersIV -> {
+                clearFilters()
+            }
         }
     }
 
@@ -246,6 +255,7 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
         MaterialDialog(context!!).show {
             // Only check the chip if its value is not "All languages".
             chip.isChecked = chip.text != "All languages"
+            showHideClearFiltersIV()
             title(text = "Pick a language filter:")
             listItemsSingleChoice(
                 items = listOf("English", "Bulgarian", "Spanish", "Russian", "All languages")
@@ -258,7 +268,34 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
                 )
                 // Only check the chip if its value is not "All languages".
                 chip.isChecked = text != "All languages"
+                showHideClearFiltersIV()
             }
         }
+    }
+
+    private fun showHideClearFiltersIV() {
+        // Hide the view if there are no filters applied.
+        clearFiltersIV.visibility =
+            if (fromLangChip.text != "All languages" || toLangChip.text != "All languages") View.VISIBLE
+            else View.GONE
+    }
+
+    private fun clearFilters() {
+        // Modify chips.
+        fromLangChip.apply {
+            text = getString(R.string.allLanguagesFilter)
+            isChecked = false
+        }
+        toLangChip.apply {
+            text = getString(R.string.allLanguagesFilter)
+            isChecked = false
+        }
+
+        // Reset filter results.
+        translationFilter.filterBySourceAndTarget(
+            fromLangChip.text.toString(), toLangChip.text.toString()
+        )
+
+        showHideClearFiltersIV()
     }
 }
