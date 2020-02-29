@@ -173,6 +173,28 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
                         translationFilter = TranslationFilter(adapter,
                             translationsList as ArrayList<Translation>
                         )
+
+                        val spokenLang = sharedPref.getString("SPOKEN_LANG_NAME", "English")!!
+                        val targetLang = sharedPref.getString("TARGET_LANG_NAME", "Bulgarian")!!
+
+                        fromLangChip.apply {
+                            text = spokenLang
+                            // Only check the chip if its value is not "All languages".
+                            isChecked = this.text != "All languages"
+                        }
+                        toLangChip.apply {
+                            text = targetLang
+                            // Only check the chip if its value is not "All languages".
+                            isChecked = this.text != "All languages"
+                        }
+
+                        // Apply default filters, based on current source and target language.
+                        translationFilter.filterBySourceAndTarget(
+                            spokenLang,
+                            targetLang
+                        )
+
+                        showHideClearFiltersIV()
                     }
                 }
 
@@ -257,8 +279,12 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
             chip.isChecked = chip.text != "All languages"
             showHideClearFiltersIV()
             title(text = "Pick a language filter:")
+            val selectionItems =
+                listOf("English", "Bulgarian", "Spanish", "Russian", "All languages")
+
             listItemsSingleChoice(
-                items = listOf("English", "Bulgarian", "Spanish", "Russian", "All languages")
+                items = selectionItems,
+                initialSelection = selectionItems.indexOf(chip.text)
             ) { _, _, text ->
                 chip.text = text // Update the text of the relevant chip.
                 // Perform filtering of phrases based on the values of the chips.
