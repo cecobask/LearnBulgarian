@@ -7,8 +7,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
@@ -25,10 +25,10 @@ import com.kizitonwose.calendarview.ui.MonthHeaderFooterBinder
 import com.kizitonwose.calendarview.ui.ViewContainer
 import com.kizitonwose.calendarview.utils.yearMonth
 import com.skydoves.balloon.*
+import kotlinx.android.synthetic.main.calendarviewday.view.*
 import kotlinx.android.synthetic.main.calendarviewheader.view.*
 import org.threeten.bp.DayOfWeek
 import org.threeten.bp.LocalDate
-import org.threeten.bp.YearMonth
 import org.threeten.bp.format.DateTimeFormatter
 
 class CalendarViewFragment: Fragment() {
@@ -50,6 +50,7 @@ class CalendarViewFragment: Fragment() {
         super.onAttach(context)
         val sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
         val targetLang = sharedPref.getString("TARGET_LANG_NAME", "Bulgarian")!!
+        val sourceLang = sharedPref.getString("SOURCE_LANG_NAME", "English")!!
         arguments?.getString("wordObjects").let { json ->
             val words: MutableList<WordOfTheDay> =
                 Gson().fromJson(json, object : TypeToken<List<WordOfTheDay>>() {}.type)
@@ -63,9 +64,15 @@ class CalendarViewFragment: Fragment() {
                         "English" -> it.wordEN
                         "Russian" -> it.wordRU
                         else -> it.wordES
+                    },
+                    when (sourceLang) {
+                        "Bulgarian" -> it.wordBG
+                        "English" -> it.wordEN
+                        "Russian" -> it.wordRU
+                        else -> it.wordES
                     }
                 )
-            }
+            }.reversed()
         }
     }
 
@@ -81,14 +88,17 @@ class CalendarViewFragment: Fragment() {
 
         calendarView = view.findViewById(R.id.calendarView)
         calendarView.setup(
-            calendarWords.first().date.yearMonth, calendarWords.last().date.yearMonth, DayOfWeek.MONDAY
+            calendarWords.first().date.yearMonth,
+            calendarWords.last().date.yearMonth, DayOfWeek.MONDAY
         )
+        calendarView.scrollToMonth(calendarWords.last().date.yearMonth)
 
         class DayViewContainer(view: View) : ViewContainer(view) {
             // Will be set when this container is bound.
             lateinit var day: CalendarDay
-
-            val textView = with(view) {
+            val calendarDay = view.calendarDay
+            val calendarWOTD = view.calendarWOTD
+            val cLayout = with(view.calendarDayLayout) {
                 // Open WordOfTheDay for clicked date.
                 setOnClickListener {
                     if (day.date in calendarWords.map { it.date }) {
@@ -123,7 +133,7 @@ class CalendarViewFragment: Fragment() {
                             setWidthRatio(0.5f)
                             setHeight(70)
                             setAlpha(1f)
-                            setText(calendarWords.find { it.date == day.date }!!.text)
+                            setText(calendarWords.find { it.date == day.date }!!.sourceWord)
                             setTextSize(18f)
                             setTextTypeface(Typeface.BOLD)
                             setTextColorResource(R.color.white)
@@ -136,7 +146,7 @@ class CalendarViewFragment: Fragment() {
                     }
                     true
                 }
-                return@with this as TextView
+                return@with this
             }
         }
 
@@ -145,31 +155,39 @@ class CalendarViewFragment: Fragment() {
             override fun create(view: View) = DayViewContainer(view)
             override fun bind(container: DayViewContainer, day: CalendarDay) {
                 container.day = day
-                val textView = container.textView
-                textView.text = day.date.dayOfMonth.toString()
+                val calendarDay = container.calendarDay
+                val calendarWOTD = container.calendarWOTD
+                val cLayout = container.cLayout
+
+                // Display day and WOTD values.
+                calendarDay.text = day.date.dayOfMonth.toString()
+                calendarWOTD.text = calendarWords.find { it.date == day.date }?.targetWord
 
                 // Make sure dates from different months are not shown on the same line.
                 if (day.owner == DayOwner.THIS_MONTH) {
-                    textView.visibility = View.VISIBLE
+                    cLayout.visibility = View.VISIBLE
                     when (day.date) {
+                        // The date is not part of the 'calendarWords' list.
                         !in calendarWords.map { it.date } -> {
-                            textView.setTextColor(
+                            calendarDay.setTextColor(
                                 ContextCompat.getColor(context!!, R.color.disabled)
                             )
-                            textView.background = null
+                            calendarDay.background = null
                         }
+                        // The date is today.
                         today -> {
-                            textView.setTextColor(ContextCompat.getColor(context!!, R.color.white))
-                            textView.setBackgroundResource(R.drawable.selected_date)
+                            calendarDay.setTextColor(ContextCompat.getColor(context!!, R.color.white))
+                            calendarDay.setBackgroundResource(R.drawable.selected_date)
                         }
+                        // The date has a WOTD value.
                         else -> {
-                            textView.setTextColor(ContextCompat.getColor(context!!, R.color.red))
-                            textView.setTypeface(null, Typeface.BOLD)
-                            textView.background = null
+                            calendarDay.setTextColor(ContextCompat.getColor(context!!, R.color.colorPrimaryDark))
+                            calendarDay.setTypeface(null, Typeface.BOLD)
+                            calendarDay.background = null
                         }
                     }
                 } else {
-                    textView.visibility = View.INVISIBLE
+                    cLayout.visibility = View.INVISIBLE
                 }
             }
         }
