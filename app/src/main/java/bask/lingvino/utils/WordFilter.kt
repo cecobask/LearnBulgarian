@@ -3,18 +3,19 @@ package bask.lingvino.utils
 import android.widget.Filter
 import androidx.fragment.app.FragmentActivity
 import bask.lingvino.adapters.WordOfTheDayAdapter
+import bask.lingvino.fragments.WordOfTheDayFavouritesFragment
 import bask.lingvino.models.WordOfTheDay
 
 
 class WordFilter(private val adapter: WordOfTheDayAdapter,
                  private val originalWords: ArrayList<WordOfTheDay>,
-                 private val activity: FragmentActivity?
+                 private val activity: FragmentActivity
 ) : Filter() {
 
     override fun performFiltering(prefix: CharSequence?): FilterResults {
         // Initialise an object that holds the query results.
         val results = FilterResults()
-        val sharedPref = activity?.getSharedPreferences("learnBulgarian", 0)
+        val sharedPref = activity.getSharedPreferences("learnBulgarian", 0)
         val targetLang = sharedPref?.getString("TARGET_LANG_NAME", "Bulgarian")
 
         if (prefix.isNullOrEmpty()) {
@@ -42,11 +43,11 @@ class WordFilter(private val adapter: WordOfTheDayAdapter,
     @Suppress("unchecked_cast")
     override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
         adapter.favouriteWords = results?.values as ArrayList<WordOfTheDay>
+        adapter.notifyDataSetChanged()
 
-        if (results.count >= 0) adapter.notifyDataSetChanged()
-        else {
-            adapter.favouriteWords = originalWords
-            adapter.notifyDataSetChanged()
-        }
+        val fragment = activity.supportFragmentManager.findFragmentByTag(
+            "WordOfTheDayFavouritesFragment"
+        ) as WordOfTheDayFavouritesFragment
+        fragment.noResultsVisible(results.count == 0) // If no results, show  a feedback message to the user.
     }
 }

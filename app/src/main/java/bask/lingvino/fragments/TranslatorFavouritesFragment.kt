@@ -34,7 +34,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import timber.log.Timber
-import kotlin.collections.ArrayList
 
 class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
 
@@ -51,6 +50,7 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
     private lateinit var clearFiltersIV: ImageView
     private lateinit var sharedPref: SharedPreferences
     private lateinit var translationsList: MutableList<Translation>
+    private lateinit var noResultsIV: ImageView
 
     companion object {
         private const val argKey = "collectionName"
@@ -80,6 +80,7 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
         fromLangChip = view.findViewById(R.id.fromLangChip)
         toLangChip = view.findViewById(R.id.toLangChip)
         clearFiltersIV = view.findViewById(R.id.clearFiltersIV)
+        noResultsIV = view.findViewById(R.id.noResultsIV)
         sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
 
         database = FirebaseDatabase.getInstance()
@@ -170,8 +171,10 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
                         // Attach SelectionTracker to the adapter.
                         adapter.tracker = tracker
 
-                        translationFilter = TranslationFilter(adapter,
-                            translationsList as ArrayList<Translation>
+                        translationFilter = TranslationFilter(
+                            adapter,
+                            translationsList as ArrayList<Translation>,
+                            activity!!
                         )
 
                         val spokenLang = sharedPref.getString("SPOKEN_LANG_NAME", "English")!!
@@ -304,6 +307,10 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
         clearFiltersIV.visibility =
             if (fromLangChip.text != "All languages" || toLangChip.text != "All languages") View.VISIBLE
             else View.GONE
+    }
+
+    fun noResultsVisible(boolean: Boolean) {
+        noResultsIV.visibility = if (boolean) View.VISIBLE else View.GONE
     }
 
     private fun clearFilters() {

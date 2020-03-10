@@ -35,6 +35,7 @@ class WordOfTheDayFavouritesFragment : Fragment() {
     private lateinit var tracker: SelectionTracker<Long>
     private var actionModeCallback: ActionModeCallback? = null
     private lateinit var wordFilter: WordFilter
+    private lateinit var noResultsIV: ImageView
 
     companion object {
         fun newInstance(): WordOfTheDayFavouritesFragment {
@@ -54,6 +55,7 @@ class WordOfTheDayFavouritesFragment : Fragment() {
 
         database = FirebaseDatabase.getInstance()
         firebaseAuth = FirebaseAuth.getInstance()
+        noResultsIV = view.findViewById(R.id.noResultsIV)
 
         val wotdFavouritesRV = view.findViewById<RecyclerView>(R.id.wotdFavouritesRV)
 
@@ -147,7 +149,7 @@ class WordOfTheDayFavouritesFragment : Fragment() {
                         adapter.tracker = tracker
 
                         // Initialise WordOfTheDay filtering object for later use.
-                        wordFilter = WordFilter(adapter, favouriteWords, activity)
+                        wordFilter = WordFilter(adapter, favouriteWords, activity!!)
                     }
                 }
 
@@ -204,6 +206,10 @@ class WordOfTheDayFavouritesFragment : Fragment() {
         // Change toolbar title.
         (activity as? AppCompatActivity)?.supportActionBar?.title =
             resources.getString(R.string.favWordsTitle)
+    }
+
+    fun noResultsVisible(boolean: Boolean) {
+        noResultsIV.visibility = if (boolean) View.VISIBLE else View.GONE
     }
 
 }

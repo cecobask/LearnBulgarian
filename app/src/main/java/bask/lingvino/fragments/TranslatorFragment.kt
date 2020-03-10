@@ -11,7 +11,10 @@ import android.text.TextWatcher
 import android.text.method.ScrollingMovementMethod
 import android.view.*
 import android.view.inputmethod.EditorInfo
-import android.widget.*
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageButton
@@ -466,13 +469,15 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
             positiveButton(text = "Go") { dialog ->
                 // Open selected collection in a new Fragment.
                 val selectedIndex = collections.indices.find { dialog.isItemChecked(it) }
+                val translatorFavsFragment = TranslatorFavouritesFragment.newInstance(
+                    collections[selectedIndex!!].substringBeforeLast(" (")
+                )
                 fragmentManager!!
                     .beginTransaction()
                     .replace(
                         R.id.fragmentContainer,
-                        TranslatorFavouritesFragment.newInstance(
-                            collections[selectedIndex!!].substringBeforeLast(" (")
-                        )
+                        translatorFavsFragment,
+                        translatorFavsFragment.javaClass.simpleName
                     )
                     .addToBackStack(null)
                     .commit()

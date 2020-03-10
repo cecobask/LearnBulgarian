@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
@@ -24,7 +23,10 @@ import com.kizitonwose.calendarview.ui.DayBinder
 import com.kizitonwose.calendarview.ui.MonthHeaderFooterBinder
 import com.kizitonwose.calendarview.ui.ViewContainer
 import com.kizitonwose.calendarview.utils.yearMonth
-import com.skydoves.balloon.*
+import com.skydoves.balloon.ArrowOrientation
+import com.skydoves.balloon.BalloonAnimation
+import com.skydoves.balloon.createBalloon
+import com.skydoves.balloon.showAlignTop
 import kotlinx.android.synthetic.main.calendarviewday.view.*
 import kotlinx.android.synthetic.main.calendarviewheader.view.*
 import org.threeten.bp.DayOfWeek
@@ -102,13 +104,15 @@ class CalendarViewFragment: Fragment() {
                 // Open WordOfTheDay for clicked date.
                 setOnClickListener {
                     if (day.date in calendarWords.map { it.date }) {
+                        val wotdFragment = WordOfTheDayFragment.newInstance(
+                            day.date.format(DateTimeFormatter.ofPattern("d-M-yyyy"))
+                        )
                         fragmentManager!!
                             .beginTransaction()
                             .replace(
                                 R.id.fragmentContainer,
-                                WordOfTheDayFragment.newInstance(
-                                    day.date.format(DateTimeFormatter.ofPattern("d-M-yyyy"))
-                                )
+                                wotdFragment,
+                                wotdFragment.javaClass.simpleName
                             )
                             .addToBackStack(null)
                             .commit()

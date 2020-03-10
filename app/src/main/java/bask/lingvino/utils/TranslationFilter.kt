@@ -1,18 +1,18 @@
 package bask.lingvino.utils
 
 import android.widget.Filter
+import androidx.fragment.app.FragmentActivity
 import bask.lingvino.adapters.TranslationsAdapter
+import bask.lingvino.fragments.TranslatorFavouritesFragment
 import bask.lingvino.models.Translation
 
 
 class TranslationFilter(private val adapter: TranslationsAdapter,
                         private val originalTranslations: ArrayList<Translation>,
-                        private var translationsFiltered: ArrayList<Translation> = ArrayList()
+                        private val activity: FragmentActivity
 ) : Filter() {
 
-    init {
-        translationsFiltered = originalTranslations
-    }
+    private var translationsFiltered: ArrayList<Translation> = originalTranslations
 
     override fun performFiltering(prefix: CharSequence?): FilterResults {
         // Initialise an object that holds the query results.
@@ -38,12 +38,14 @@ class TranslationFilter(private val adapter: TranslationsAdapter,
     @Suppress("unchecked_cast")
     override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
         adapter.translations = results?.values as ArrayList<Translation>
+        adapter.notifyDataSetChanged()
 
-        if (results.count >= 0) adapter.notifyDataSetChanged()
-        else {
-            adapter.translations = translationsFiltered
-            adapter.notifyDataSetChanged()
-        }
+        val fragment = activity.supportFragmentManager.findFragmentByTag(
+            "TranslatorFavouritesFragment"
+        ) as TranslatorFavouritesFragment
+        fragment.noResultsVisible(
+            results.count == 0
+        ) // If no results, show  a feedback message to the user.
     }
 
     fun filterBySourceAndTarget(source: String, target: String) {

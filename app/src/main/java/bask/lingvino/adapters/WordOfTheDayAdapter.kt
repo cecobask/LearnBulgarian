@@ -85,8 +85,9 @@ class WordOfTheDayAdapter(
         init {
             v.setOnClickListener {
                 val date = favouriteWords[adapterPosition].wordDate
+                val wotdFragment = WordOfTheDayFragment.newInstance(date)
                 fm!!.beginTransaction()
-                    .replace(R.id.fragmentContainer, WordOfTheDayFragment.newInstance(date))
+                    .replace(R.id.fragmentContainer, wotdFragment, wotdFragment.javaClass.simpleName)
                     .addToBackStack(null)
                     .commit()
             }

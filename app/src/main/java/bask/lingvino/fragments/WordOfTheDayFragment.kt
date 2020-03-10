@@ -152,11 +152,13 @@ class WordOfTheDayFragment : Fragment() {
                     wordObjects.add(it.getValue(WordOfTheDay::class.java)!!)
                 }
                 // Open CalendarView.
+                val calendarFragment = CalendarViewFragment.newInstance(Gson().toJson(wordObjects))
                 fragmentManager!!
                     .beginTransaction()
                     .replace(
                         R.id.fragmentContainer,
-                        CalendarViewFragment.newInstance(Gson().toJson(wordObjects))
+                        calendarFragment,
+                        calendarFragment.javaClass.simpleName
                     )
                     .addToBackStack(null)
                     .commit()
@@ -180,11 +182,13 @@ class WordOfTheDayFragment : Fragment() {
                 // Select a random word from the list of previously selected WOTD.
                 val dates = mutableListOf<String>()
                 p0.children.forEach { dates.add(it.key!!) }
+                val wotdFragment = newInstance(dates.random())
                 fragmentManager!!
                     .beginTransaction()
                     .replace(
                         R.id.fragmentContainer,
-                        newInstance(dates.random())
+                        wotdFragment,
+                        wotdFragment.javaClass.simpleName
                     )
                     .addToBackStack(null)
                     .commit()
@@ -381,11 +385,13 @@ class WordOfTheDayFragment : Fragment() {
 
                         // Open user's favourite words collection in a new Fragment.
                         wotdListFAB.setOnClickListener {
+                            val wotdFavsFragment = WordOfTheDayFavouritesFragment.newInstance()
                             fragmentManager!!
                                 .beginTransaction()
                                 .replace(
                                     R.id.fragmentContainer,
-                                    WordOfTheDayFavouritesFragment.newInstance()
+                                    wotdFavsFragment,
+                                    wotdFavsFragment.javaClass.simpleName
                                 )
                                 .addToBackStack(null)
                                 .commit()
