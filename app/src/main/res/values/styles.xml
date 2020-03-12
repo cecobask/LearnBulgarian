@@ -72,4 +72,11 @@
         <item name="android:textColor">@android:color/primary_text_light</item>
     </style>
 
+    <style name="FButtonStyle">
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
 </resources>

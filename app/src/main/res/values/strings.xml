@@ -39,4 +39,5 @@
     <string name="actionBarMoveButton">Move to</string>
     <string name="quizTitle">Quiz Game</string>
     <string name="leaderboard">Leaderboard</string>
+    <string name="question">Question</string>
 </resources>
