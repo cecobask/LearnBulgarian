@@ -37,4 +37,6 @@
     <string name="calendarViewTitle">Calendar View</string>
     <string name="wotdCalendar">Word of the Day Calendar</string>
     <string name="actionBarMoveButton">Move to</string>
+    <string name="quizTitle">Quiz Game</string>
+    <string name="leaderboard">Leaderboard</string>
 </resources>
