@@ -75,7 +75,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     private lateinit var fbUser: FirebaseUser
     private lateinit var spokenLangName: String
     private lateinit var targetLangName: String
-    private lateinit var congnitiveServices: CognitiveServices
+    private lateinit var cognitiveServices: CognitiveServices
     private val REQUESTCODESPEECH = 10001
     private val REQUESTCODECAMERA = 10002
     private val REQUESTCODESETTINGS = 10003
@@ -222,7 +222,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
             .child("translatorCollections")
 
         // This class handles pronunciations.
-        congnitiveServices = CognitiveServices(context!!)
+        cognitiveServices = CognitiveServices(context!!)
 
         // Create empty 'Favourites' collection if it doesn't exist.
         createFavouritesCollection()
@@ -273,7 +273,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                 openCamera()
             }
             R.id.pronounceBtn -> {
-                congnitiveServices.pronounceText(translationTV.text.toString(), targetLangName)
+                cognitiveServices.pronounceText(translationTV.text.toString(), targetLangName)
             }
             R.id.favBtn -> {
                 showSaveToCollectionDialog(
