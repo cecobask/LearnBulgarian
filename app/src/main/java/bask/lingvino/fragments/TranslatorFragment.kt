@@ -256,7 +256,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
             R.id.copyBtn -> {
                 // Copy translation to clipboard.
                 val myClip: ClipData = ClipData.newPlainText("translation", translationTV.text)
-                clipboardManager.primaryClip = myClip
+                clipboardManager.setPrimaryClip(myClip)
 
                 // Show a SnackBar to inform the user.
                 Snackbar.make(translationTV, "Translation copied.", Snackbar.LENGTH_SHORT).show()
