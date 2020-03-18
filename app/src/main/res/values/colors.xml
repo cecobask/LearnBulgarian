@@ -8,8 +8,10 @@
     <color name="white">#FFFFFF</color>
     <color name="red">#F44336</color>
     <color name="gray">#707070</color>
+    <color name="green">#2F6820</color>
     <color name="disabled">#AAAAAA</color>
     <color name="maroon">#C9BB0000</color>
     <color name="selectedItem">#2D008577</color>
     <color name="spinnerBackground">#324CB5A6</color>
+    <color name="correctDialogBackground">#E4FFFFFF</color>
 </resources>

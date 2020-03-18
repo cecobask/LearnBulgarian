@@ -8,7 +8,7 @@
     android:padding="20dp">
 
     <RelativeLayout
-        android:id="@+id/topBadgeLL"
+        android:id="@+id/topBadgeRL"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:paddingHorizontal="10dp"
@@ -31,6 +31,7 @@
             android:layout_toEndOf="@+id/gemIV"
             android:gravity="center"
             android:paddingHorizontal="5dp"
+            android:textColor="@color/black"
             android:textSize="20sp" />
 
         <TextView
@@ -96,6 +97,16 @@
             style="@style/FButtonStyle" />
 
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="gone"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

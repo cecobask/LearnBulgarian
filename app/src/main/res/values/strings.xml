@@ -40,4 +40,6 @@
     <string name="quizTitle">Quiz Game</string>
     <string name="leaderboard">Leaderboard</string>
     <string name="question">Question</string>
+    <string name="correct">Correct!</string>
+    <string name="next">Next</string>
 </resources>
