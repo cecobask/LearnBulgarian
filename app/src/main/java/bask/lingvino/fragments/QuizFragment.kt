@@ -71,13 +71,10 @@ class QuizFragment : Fragment(), View.OnClickListener {
         timeTV = view.findViewById(R.id.timeTV)
         progressBar = view.findViewById(R.id.progressBar)
 
-        changeElementsVisibility(listOf(topBadgeRL, questionLL, answersLL), listOf(progressBar))
-
         questionsRef = FirebaseDatabase.getInstance().reference
             .child("quizGame")
             .child("questions")
         fbUser = FirebaseAuth.getInstance().currentUser!!
-        questions = mutableListOf()
 
 //        val question1 = QuizQuestion("What is the English translation of the Bulgarian word 'патица'?", "duck", "cat", "duck", "chicken", "pig")
 //        val question2 = QuizQuestion("What is the English translation of the Bulgarian word 'куче'?", "dog", "dog", "cat", "duck", "pigeon")
@@ -95,7 +92,7 @@ class QuizFragment : Fragment(), View.OnClickListener {
         countDownTimer = CountDownTimerSupport(20000, 1000)
         countDownTimer.setOnCountDownTimerListener(object : OnCountDownTimerListener {
             override fun onFinish() {
-                Timber.tag("seleccc").d("time up!")
+                timeUp()
             }
 
             override fun onTick(millisUntilFinished: Long) {
@@ -129,15 +126,12 @@ class QuizFragment : Fragment(), View.OnClickListener {
         questionsRef.addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onCancelled(p0: DatabaseError) {
                 Timber.tag("loadQuestions()").d(p0.toException())
-                changeElementsVisibility(
-                    listOf(progressBar), listOf(topBadgeRL, questionLL, answersLL)
-                )
+                progressBar.visibility = View.GONE
             }
 
             override fun onDataChange(p0: DataSnapshot) {
-                changeElementsVisibility(
-                    listOf(progressBar), listOf(topBadgeRL, questionLL, answersLL)
-                )
+                showContent()
+                questions = mutableListOf() // Initialise an empty list.
                 p0.children.forEach {
                     // Add each object to the list of Questions.
                     val question = it.getValue(QuizQuestion::class.java)!!
@@ -160,40 +154,61 @@ class QuizFragment : Fragment(), View.OnClickListener {
         answerD.text = currentQuestion.optionD
         gemTV.text = "0"
 
+        // Reset the timer to 20 seconds and start countdown.
+        countDownTimer.reset()
         countDownTimer.start()
     }
 
-    private fun changeElementsVisibility(elementsToHide: List<View> = emptyList(),
-                                         elementsToShow: List<View> = emptyList()
-    ) {
-        elementsToHide.forEach { element ->
-            element.visibility = View.GONE
-        }
-        elementsToShow.forEach { element ->
-            element.visibility = View.VISIBLE
-        }
+    private fun showContent() {
+        progressBar.visibility = View.GONE
+        topBadgeRL.visibility = View.VISIBLE
+        questionLL.visibility = View.VISIBLE
+        answersLL.visibility = View.VISIBLE
     }
 
     private fun correctDialog() {
-        onPause()
+        onPause() // Pause the countdown timer.
 
         Dialog(context!!).apply {
             requestWindowFeature(Window.FEATURE_NO_TITLE) // Hides the title.
             window?.setBackgroundDrawable(
-                ColorDrawable(Color.TRANSPARENT)
-            ) // Transparent background.
+                ColorDrawable(Color.TRANSPARENT) // Transparent background.
+            )
             setContentView(R.layout.dialog_correct)
             setCancelable(false) // Prevent closure of the dialog window.
             show()
 
-            findViewById<FButton>(R.id.nextButton).setOnClickListener {
-                this.dismiss() // Close the dialog window.
+            // Listen for button clicks.
+            findViewById<FButton>(R.id.nextButton).also { button ->
+                button.setOnClickListener { // Listen for button clicks.
+                    this.dismiss() // Close the dialog window.
 
-                // Display the next question.
-                questionIndex++
-                currentQuestion = questions[questionIndex]
-                countDownTimer.reset()
-                displayQuestion()
+                    // Display the next question.
+                    questionIndex++
+                    currentQuestion = questions[questionIndex]
+                    displayQuestion()
+                }
+                button.buttonColor = resources.getColor(R.color.fbutton_color_green_sea, null)
+            }
+        }
+    }
+
+    private fun timeUp() {
+        Dialog(context!!).apply {
+            requestWindowFeature(Window.FEATURE_NO_TITLE) // Hides the title.
+            window?.setBackgroundDrawable(
+                ColorDrawable(Color.TRANSPARENT) // Transparent background.
+            )
+            setContentView(R.layout.dialog_time_up)
+            setCancelable(false) // Prevent closure of the dialog window.
+            show()
+
+            findViewById<FButton>(R.id.playAgainButton).also { button ->
+                button.setOnClickListener { // Listen for button clicks.
+                    this.dismiss() // Close the dialog window.
+                    loadQuestions() // Start a new game.
+                }
+                button.buttonColor = resources.getColor(R.color.fbutton_color_pomegranate, null)
             }
         }
     }
