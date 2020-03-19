@@ -44,4 +44,7 @@
     <string name="next">Next</string>
     <string name="time_up">Time up!</string>
     <string name="play_again">Play again</string>
+    <string name="wrong">Wrong!</string>
+    <string name="victory">Victory!</string>
+    <string name="cancel">Cancel</string>
 </resources>

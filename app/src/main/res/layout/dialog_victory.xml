@@ -8,11 +8,11 @@
     android:padding="30dp">
 
     <TextView
-        android:id="@+id/timeUpTV"
+        android:id="@+id/victoryTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/time_up"
-        android:textColor="@color/fbutton_color_pumpkin"
+        android:text="@string/victory"
+        android:textColor="@color/fbutton_color_nephritis"
         android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -20,14 +20,15 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/timeUpIV"
+        android:id="@+id/victoryIV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:src="@drawable/ic_siren"
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/ic_victory"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/timeUpTV"
+        app:layout_constraintTop_toBottomOf="@+id/victoryTV"
         tools:ignore="ContentDescription" />
 
     <info.hoang8f.widget.FButton
@@ -43,21 +44,21 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/playAgainButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/timeUpIV" />
+        app:layout_constraintTop_toBottomOf="@+id/victoryIV" />
 
     <info.hoang8f.widget.FButton
         android:id="@+id/playAgainButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="20dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:text="@string/play_again"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="20dp"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/cancelButton"
-        app:layout_constraintTop_toBottomOf="@+id/timeUpIV" />
+        app:layout_constraintTop_toBottomOf="@+id/victoryIV" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

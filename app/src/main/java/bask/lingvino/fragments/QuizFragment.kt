@@ -118,8 +118,10 @@ class QuizFragment : Fragment(), View.OnClickListener {
                 correctDialog()
                 return
             }
-            Timber.tag("seleccc").d("Congratulations! You answered all questions correctly.")
-        } else Timber.tag("seleccc").d("Incorrect answer!")
+            victoryDialog()
+        } else { // Wrong answer.
+            wrongDialog()
+        }
     }
 
     private fun loadQuestions() {
@@ -139,6 +141,7 @@ class QuizFragment : Fragment(), View.OnClickListener {
                 }
 
                 questions.shuffle() // Randomise questions.
+                questionIndex = 0
                 currentQuestion = questions[questionIndex] // Initialise to Question with index 0.
                 displayQuestion()
             }
@@ -178,7 +181,6 @@ class QuizFragment : Fragment(), View.OnClickListener {
             setCancelable(false) // Prevent closure of the dialog window.
             show()
 
-            // Listen for button clicks.
             findViewById<FButton>(R.id.nextButton).also { button ->
                 button.setOnClickListener { // Listen for button clicks.
                     this.dismiss() // Close the dialog window.
@@ -193,6 +195,58 @@ class QuizFragment : Fragment(), View.OnClickListener {
         }
     }
 
+    private fun wrongDialog() {
+        onPause() // Pause the countdown timer.
+
+        Dialog(context!!).apply {
+            requestWindowFeature(Window.FEATURE_NO_TITLE) // Hides the title.
+            window?.setBackgroundDrawable(
+                ColorDrawable(Color.TRANSPARENT) // Transparent background.
+            )
+            setContentView(R.layout.dialog_wrong)
+            setCancelable(false) // Prevent closure of the dialog window.
+            show()
+
+            findViewById<FButton>(R.id.playAgainButton).also { button ->
+                button.setOnClickListener { // Listen for button clicks.
+                    this.dismiss() // Close the dialog window.
+                    loadQuestions() // Start a new game.
+                }
+                button.buttonColor = resources.getColor(R.color.fbutton_color_pomegranate, null)
+            }
+        }
+    }
+
+    private fun victoryDialog() {
+        onPause() // Pause the countdown timer.
+
+        Dialog(context!!).apply {
+            requestWindowFeature(Window.FEATURE_NO_TITLE) // Hides the title.
+            window?.setBackgroundDrawable(
+                ColorDrawable(Color.TRANSPARENT) // Transparent background.
+            )
+            setContentView(R.layout.dialog_victory)
+            setCancelable(false) // Prevent closure of the dialog window.
+            show()
+
+            findViewById<FButton>(R.id.playAgainButton).also { playAgainButton ->
+                playAgainButton.setOnClickListener { // Listen for button clicks.
+                    this.dismiss() // Close the dialog window.
+                    loadQuestions() // Start a new game.
+                }
+                playAgainButton.buttonColor = resources.getColor(R.color.fbutton_color_nephritis, null)
+            }
+
+            findViewById<FButton>(R.id.cancelButton).also { cancelButton ->
+                cancelButton.setOnClickListener { // Listen for button clicks.
+                    this.dismiss() // Close the dialog window.
+                    fragmentManager?.popBackStack() // Go back to previous fragment.
+                }
+                cancelButton.buttonColor = resources.getColor(R.color.fbutton_color_asbestos, null)
+            }
+        }
+    }
+
     private fun timeUp() {
         Dialog(context!!).apply {
             requestWindowFeature(Window.FEATURE_NO_TITLE) // Hides the title.
@@ -203,12 +257,20 @@ class QuizFragment : Fragment(), View.OnClickListener {
             setCancelable(false) // Prevent closure of the dialog window.
             show()
 
-            findViewById<FButton>(R.id.playAgainButton).also { button ->
-                button.setOnClickListener { // Listen for button clicks.
+            findViewById<FButton>(R.id.playAgainButton).also { playAgainButton ->
+                playAgainButton.setOnClickListener { // Listen for button clicks.
                     this.dismiss() // Close the dialog window.
                     loadQuestions() // Start a new game.
                 }
-                button.buttonColor = resources.getColor(R.color.fbutton_color_pomegranate, null)
+                playAgainButton.buttonColor = resources.getColor(R.color.fbutton_color_pumpkin, null)
+            }
+
+            findViewById<FButton>(R.id.cancelButton).also { cancelButton ->
+                cancelButton.setOnClickListener { // Listen for button clicks.
+                    this.dismiss() // Close the dialog window.
+                    fragmentManager?.popBackStack() // Go back to previous fragment.
+                }
+                cancelButton.buttonColor = resources.getColor(R.color.fbutton_color_asbestos, null)
             }
         }
     }
