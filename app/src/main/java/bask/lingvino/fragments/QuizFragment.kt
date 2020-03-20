@@ -4,7 +4,6 @@ import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.view.*
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -23,7 +22,6 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import info.hoang8f.widget.FButton
 import timber.log.Timber
-import java.util.*
 
 class QuizFragment : Fragment(), View.OnClickListener {
 
@@ -116,6 +114,25 @@ class QuizFragment : Fragment(), View.OnClickListener {
         pickQuizTopic()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_quiz, menu)
+
+        super.onCreateOptionsMenu(menu,inflater)
+    }
+
+    override fun onClick(v: View?) {
+        val clickedButton = v as FButton
+        if (clickedButton.text == currentQuestion.answer) {
+            if (questionIndex != questions.lastIndex) { // Correct answer.
+                correctDialog()
+                return
+            }
+            victoryDialog() // All answers correct.
+        } else { // Wrong answer.
+            wrongDialog()
+        }
+    }
+
     private fun pickQuizTopic() {
         contentLoading()
         quizTopicsRef.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -139,25 +156,6 @@ class QuizFragment : Fragment(), View.OnClickListener {
             }
 
         })
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_quiz, menu)
-
-        super.onCreateOptionsMenu(menu,inflater)
-    }
-
-    override fun onClick(v: View?) {
-        val clickedButton = v as FButton
-        if (clickedButton.text == currentQuestion.answer) { // Correct answer.
-            if (questionIndex != questions.lastIndex) {
-                correctDialog()
-                return
-            }
-            victoryDialog() // All answers correct.
-        } else { // Wrong answer.
-            wrongDialog()
-        }
     }
 
     private fun loadQuestions() {
@@ -223,7 +221,7 @@ class QuizFragment : Fragment(), View.OnClickListener {
                 ColorDrawable(Color.TRANSPARENT) // Transparent background.
             )
             setContentView(layout)
-            setCancelable(false) // Prevent closure of the dialog window.
+            setCancelable(!isCorrectDialog) // Prevent closure of the dialog window.
             show()
 
             if (isCorrectDialog) {
@@ -255,6 +253,16 @@ class QuizFragment : Fragment(), View.OnClickListener {
                     pickQuizTopic() // Provide topic options.
                 }
                 pickTopicButton.buttonColor = resources.getColor(colorTheme, null)
+            }
+
+            setOnDismissListener { // Handle clicks outside the dialog.
+                // Disable answer buttons.
+                for (button in arrayOf(answerA, answerB, answerC, answerD))
+                    button.apply {
+                        isEnabled = false
+                        buttonColor = resources.getColor(R.color.fbutton_color_silver, null)
+                        setTextColor(resources.getColor(R.color.fbutton_color_clouds, null))
+                    }
             }
         }
     }
