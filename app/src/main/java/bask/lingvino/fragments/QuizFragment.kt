@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
 import bask.lingvino.models.QuizQuestion
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.dyhdyh.support.countdowntimer.CountDownTimerSupport
 import com.dyhdyh.support.countdowntimer.OnCountDownTimerListener
 import com.google.firebase.auth.FirebaseAuth
@@ -21,6 +23,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import info.hoang8f.widget.FButton
 import timber.log.Timber
+import java.util.*
 
 class QuizFragment : Fragment(), View.OnClickListener {
 
@@ -37,9 +40,10 @@ class QuizFragment : Fragment(), View.OnClickListener {
     private lateinit var answerD: FButton
     private lateinit var countDownTimer: CountDownTimerSupport
     private lateinit var timeTV: TextView
-    private lateinit var questionsRef: DatabaseReference
+    private lateinit var quizTopicsRef: DatabaseReference
     private lateinit var fbUser: FirebaseUser
     private lateinit var progressBar: ProgressBar
+    private lateinit var quizTopic: String
     private var questionIndex: Int = 0
 
     companion object {
@@ -71,17 +75,24 @@ class QuizFragment : Fragment(), View.OnClickListener {
         timeTV = view.findViewById(R.id.timeTV)
         progressBar = view.findViewById(R.id.progressBar)
 
-        questionsRef = FirebaseDatabase.getInstance().reference
+        quizTopicsRef = FirebaseDatabase.getInstance().reference
             .child("quizGame")
-            .child("questions")
+            .child("topics")
         fbUser = FirebaseAuth.getInstance().currentUser!!
 
 //        val question1 = QuizQuestion("What is the English translation of the Bulgarian word 'патица'?", "duck", "cat", "duck", "chicken", "pig")
 //        val question2 = QuizQuestion("What is the English translation of the Bulgarian word 'куче'?", "dog", "dog", "cat", "duck", "pigeon")
 //        val question3 = QuizQuestion("What is the English translation of the Bulgarian word 'слон'?", "elephant", "wolf", "dolphin", "pigeon", "elephant")
-//        databaseRef.child("quizGame").child("questions").push().setValue(question1)
-//        databaseRef.child("quizGame").child("questions").push().setValue(question2)
-//        databaseRef.child("quizGame").child("questions").push().setValue(question3)
+//        quizTopicsRef.child("animals").push().setValue(question1)
+//        quizTopicsRef.child("animals").push().setValue(question2)
+//        quizTopicsRef.child("animals").push().setValue(question3)
+//
+//        val question4 = QuizQuestion("What is the English translation of the Bulgarian word 'яйце'?", "egg", "burger", "egg", "chicken", "omelet")
+//        val question5 = QuizQuestion("What is the English translation of the Bulgarian word 'ориз'?", "rice", "rice", "burger", "beans", "ham")
+//        val question6 = QuizQuestion("What is the English translation of the Bulgarian word 'шунка'?", "ham", "rice", "omelet", "ham", "egg")
+//        quizTopicsRef.child("food").push().setValue(question4)
+//        quizTopicsRef.child("food").push().setValue(question5)
+//        quizTopicsRef.child("food").push().setValue(question6)
 
         // Set click listeners to answer buttons.
         answerA.setOnClickListener(this)
@@ -102,7 +113,32 @@ class QuizFragment : Fragment(), View.OnClickListener {
 
         })
 
-        loadQuestions()
+        pickQuizTopic()
+    }
+
+    private fun pickQuizTopic() {
+        contentLoading()
+        quizTopicsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                Timber.tag("pickTopicQuiz()").e(p0.toException())
+                contentLoading(showProgressBar = false)
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+                contentLoading(showProgressBar = false)
+                val topicsList = mutableListOf<String>()
+                p0.children.forEach { topicsList.add(it.key!!) }
+
+                MaterialDialog(context!!).show {
+                    title(text = "Pick a quiz topic:")
+                    listItemsSingleChoice(items = topicsList) { _, _, topic ->
+                        quizTopic = "$topic"
+                        loadQuestions()
+                    }
+                }
+            }
+
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -118,21 +154,22 @@ class QuizFragment : Fragment(), View.OnClickListener {
                 correctDialog()
                 return
             }
-            victoryDialog()
+            victoryDialog() // All answers correct.
         } else { // Wrong answer.
             wrongDialog()
         }
     }
 
     private fun loadQuestions() {
-        questionsRef.addListenerForSingleValueEvent(object : ValueEventListener{
+        contentLoading()
+        quizTopicsRef.child(quizTopic).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
                 Timber.tag("loadQuestions()").d(p0.toException())
-                progressBar.visibility = View.GONE
+                contentLoading(showProgressBar = false)
             }
 
             override fun onDataChange(p0: DataSnapshot) {
-                showContent()
+                contentLoading(showProgressBar = false, showContent = true)
                 questions = mutableListOf() // Initialise an empty list.
                 p0.children.forEach {
                     // Add each object to the list of Questions.
@@ -162,117 +199,80 @@ class QuizFragment : Fragment(), View.OnClickListener {
         countDownTimer.start()
     }
 
-    private fun showContent() {
-        progressBar.visibility = View.GONE
-        topBadgeRL.visibility = View.VISIBLE
-        questionLL.visibility = View.VISIBLE
-        answersLL.visibility = View.VISIBLE
+    private fun contentLoading(showProgressBar: Boolean = true, showContent: Boolean = false) {
+        // Only show content when everything's loaded.
+        if (!showProgressBar && showContent) {
+            progressBar.visibility = View.GONE
+            topBadgeRL.visibility = View.VISIBLE
+            questionLL.visibility = View.VISIBLE
+            answersLL.visibility = View.VISIBLE
+        } else {
+            progressBar.visibility = View.VISIBLE
+            topBadgeRL.visibility = View.GONE
+            questionLL.visibility = View.GONE
+            answersLL.visibility = View.GONE
+        }
+    }
+
+    private fun buildDialog(layout: Int, colorTheme: Int, isCorrectDialog: Boolean = false) {
+        onPause() // Pause the countdown timer.
+
+        Dialog(context!!).apply {
+            requestWindowFeature(Window.FEATURE_NO_TITLE) // Hides the title.
+            window?.setBackgroundDrawable(
+                ColorDrawable(Color.TRANSPARENT) // Transparent background.
+            )
+            setContentView(layout)
+            setCancelable(false) // Prevent closure of the dialog window.
+            show()
+
+            if (isCorrectDialog) {
+                findViewById<FButton>(R.id.nextButton).also { nextButton ->
+                    nextButton.setOnClickListener { // Listen for button clicks.
+                        this.dismiss() // Close the dialog window.
+
+                        // Display the next question.
+                        questionIndex++
+                        currentQuestion = questions[questionIndex]
+                        displayQuestion()
+                    }
+                    nextButton.buttonColor = resources.getColor(colorTheme, null)
+                }
+                return
+            }
+
+            findViewById<FButton>(R.id.playAgainButton).also { playAgainButton ->
+                playAgainButton.setOnClickListener { // Listen for button clicks.
+                    this.dismiss() // Close the dialog window.
+                    loadQuestions() // Start a new game.
+                }
+                playAgainButton.buttonColor = resources.getColor(colorTheme, null)
+            }
+
+            findViewById<FButton>(R.id.pickTopicButton).also { pickTopicButton ->
+                pickTopicButton.setOnClickListener { // Listen for button clicks.
+                    this.dismiss() // Close the dialog window.
+                    pickQuizTopic() // Provide topic options.
+                }
+                pickTopicButton.buttonColor = resources.getColor(colorTheme, null)
+            }
+        }
     }
 
     private fun correctDialog() {
-        onPause() // Pause the countdown timer.
-
-        Dialog(context!!).apply {
-            requestWindowFeature(Window.FEATURE_NO_TITLE) // Hides the title.
-            window?.setBackgroundDrawable(
-                ColorDrawable(Color.TRANSPARENT) // Transparent background.
-            )
-            setContentView(R.layout.dialog_correct)
-            setCancelable(false) // Prevent closure of the dialog window.
-            show()
-
-            findViewById<FButton>(R.id.nextButton).also { button ->
-                button.setOnClickListener { // Listen for button clicks.
-                    this.dismiss() // Close the dialog window.
-
-                    // Display the next question.
-                    questionIndex++
-                    currentQuestion = questions[questionIndex]
-                    displayQuestion()
-                }
-                button.buttonColor = resources.getColor(R.color.fbutton_color_green_sea, null)
-            }
-        }
+        buildDialog(R.layout.dialog_correct, R.color.fbutton_color_green_sea, true)
     }
 
     private fun wrongDialog() {
-        onPause() // Pause the countdown timer.
-
-        Dialog(context!!).apply {
-            requestWindowFeature(Window.FEATURE_NO_TITLE) // Hides the title.
-            window?.setBackgroundDrawable(
-                ColorDrawable(Color.TRANSPARENT) // Transparent background.
-            )
-            setContentView(R.layout.dialog_wrong)
-            setCancelable(false) // Prevent closure of the dialog window.
-            show()
-
-            findViewById<FButton>(R.id.playAgainButton).also { button ->
-                button.setOnClickListener { // Listen for button clicks.
-                    this.dismiss() // Close the dialog window.
-                    loadQuestions() // Start a new game.
-                }
-                button.buttonColor = resources.getColor(R.color.fbutton_color_pomegranate, null)
-            }
-        }
+        buildDialog(R.layout.dialog_wrong, R.color.fbutton_color_pomegranate)
     }
 
     private fun victoryDialog() {
-        onPause() // Pause the countdown timer.
-
-        Dialog(context!!).apply {
-            requestWindowFeature(Window.FEATURE_NO_TITLE) // Hides the title.
-            window?.setBackgroundDrawable(
-                ColorDrawable(Color.TRANSPARENT) // Transparent background.
-            )
-            setContentView(R.layout.dialog_victory)
-            setCancelable(false) // Prevent closure of the dialog window.
-            show()
-
-            findViewById<FButton>(R.id.playAgainButton).also { playAgainButton ->
-                playAgainButton.setOnClickListener { // Listen for button clicks.
-                    this.dismiss() // Close the dialog window.
-                    loadQuestions() // Start a new game.
-                }
-                playAgainButton.buttonColor = resources.getColor(R.color.fbutton_color_nephritis, null)
-            }
-
-            findViewById<FButton>(R.id.cancelButton).also { cancelButton ->
-                cancelButton.setOnClickListener { // Listen for button clicks.
-                    this.dismiss() // Close the dialog window.
-                    fragmentManager?.popBackStack() // Go back to previous fragment.
-                }
-                cancelButton.buttonColor = resources.getColor(R.color.fbutton_color_asbestos, null)
-            }
-        }
+        buildDialog(R.layout.dialog_victory, R.color.fbutton_color_nephritis)
     }
 
     private fun timeUp() {
-        Dialog(context!!).apply {
-            requestWindowFeature(Window.FEATURE_NO_TITLE) // Hides the title.
-            window?.setBackgroundDrawable(
-                ColorDrawable(Color.TRANSPARENT) // Transparent background.
-            )
-            setContentView(R.layout.dialog_time_up)
-            setCancelable(false) // Prevent closure of the dialog window.
-            show()
-
-            findViewById<FButton>(R.id.playAgainButton).also { playAgainButton ->
-                playAgainButton.setOnClickListener { // Listen for button clicks.
-                    this.dismiss() // Close the dialog window.
-                    loadQuestions() // Start a new game.
-                }
-                playAgainButton.buttonColor = resources.getColor(R.color.fbutton_color_pumpkin, null)
-            }
-
-            findViewById<FButton>(R.id.cancelButton).also { cancelButton ->
-                cancelButton.setOnClickListener { // Listen for button clicks.
-                    this.dismiss() // Close the dialog window.
-                    fragmentManager?.popBackStack() // Go back to previous fragment.
-                }
-                cancelButton.buttonColor = resources.getColor(R.color.fbutton_color_asbestos, null)
-            }
-        }
+        buildDialog(R.layout.dialog_time_up, R.color.fbutton_color_pumpkin)
     }
 
     override fun onPause() {

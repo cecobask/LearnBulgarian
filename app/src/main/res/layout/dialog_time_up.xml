@@ -31,14 +31,14 @@
         tools:ignore="ContentDescription" />
 
     <info.hoang8f.widget.FButton
-        android:id="@+id/cancelButton"
+        android:id="@+id/pickTopicButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="5dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:text="@string/cancel"
+        android:text="@string/pick_topic"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/playAgainButton"
@@ -57,7 +57,7 @@
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/cancelButton"
+        app:layout_constraintStart_toEndOf="@+id/pickTopicButton"
         app:layout_constraintTop_toBottomOf="@+id/timeUpIV" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

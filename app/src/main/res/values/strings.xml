@@ -45,6 +45,7 @@
     <string name="time_up">Time up!</string>
     <string name="play_again">Play again</string>
     <string name="wrong">Wrong!</string>
-    <string name="victory">Victory!</string>
+    <string name="victory">Well done!</string>
     <string name="cancel">Cancel</string>
+    <string name="pick_topic">Pick a topic</string>
 </resources>
