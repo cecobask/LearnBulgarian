@@ -32,10 +32,11 @@
             android:layout_height="match_parent"
             android:layout_toEndOf="@+id/gemIV"
             android:gravity="center"
+            android:text="0"
             android:paddingHorizontal="5dp"
             android:textColor="@color/black"
             android:textSize="20sp"
-            tools:ignore="RelativeOverlap" />
+            tools:ignore="HardcodedText,RelativeOverlap" />
 
         <ImageView
             android:id="@+id/timeIV"

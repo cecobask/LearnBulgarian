@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import info.hoang8f.widget.FButton
 import timber.log.Timber
+import java.time.LocalDate
 
 class QuizFragment : Fragment(), View.OnClickListener {
 
@@ -39,10 +40,13 @@ class QuizFragment : Fragment(), View.OnClickListener {
     private lateinit var countDownTimer: CountDownTimerSupport
     private lateinit var timeTV: TextView
     private lateinit var quizTopicsRef: DatabaseReference
+    private lateinit var dbRef: DatabaseReference
+    private lateinit var userStats: DatabaseReference
     private lateinit var fbUser: FirebaseUser
     private lateinit var progressBar: ProgressBar
     private lateinit var quizTopic: String
     private var questionIndex: Int = 0
+    private val yearMonth = LocalDate.now().toString().dropLast(3)
 
     companion object {
         fun newInstance(): QuizFragment {
@@ -73,10 +77,10 @@ class QuizFragment : Fragment(), View.OnClickListener {
         timeTV = view.findViewById(R.id.timeTV)
         progressBar = view.findViewById(R.id.progressBar)
 
-        quizTopicsRef = FirebaseDatabase.getInstance().reference
-            .child("quizGame")
-            .child("topics")
+        dbRef = FirebaseDatabase.getInstance().reference
         fbUser = FirebaseAuth.getInstance().currentUser!!
+        quizTopicsRef = dbRef.child("quizGame/topics")
+        userStats = dbRef.child("users/${fbUser.uid}/quizStats")
 
 //        val question1 = QuizQuestion("What is the English translation of the Bulgarian word 'патица'?", "duck", "cat", "duck", "chicken", "pig")
 //        val question2 = QuizQuestion("What is the English translation of the Bulgarian word 'куче'?", "dog", "dog", "cat", "duck", "pigeon")
@@ -122,8 +126,9 @@ class QuizFragment : Fragment(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         val clickedButton = v as FButton
-        if (clickedButton.text == currentQuestion.answer) {
-            if (questionIndex != questions.lastIndex) { // Correct answer.
+        if (clickedButton.text == currentQuestion.answer) { // Correct answer.
+            incrementMonthlyScore()
+            if (questionIndex != questions.lastIndex) {
                 correctDialog()
                 return
             }
@@ -135,7 +140,7 @@ class QuizFragment : Fragment(), View.OnClickListener {
 
     private fun pickQuizTopic() {
         contentLoading()
-        quizTopicsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        dbRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
                 Timber.tag("pickTopicQuiz()").e(p0.toException())
                 contentLoading(showProgressBar = false)
@@ -143,8 +148,13 @@ class QuizFragment : Fragment(), View.OnClickListener {
 
             override fun onDataChange(p0: DataSnapshot) {
                 contentLoading(showProgressBar = false)
+
+                // Get a list of topics.
                 val topicsList = mutableListOf<String>()
-                p0.children.forEach { topicsList.add(it.key!!) }
+                p0.child("quizGame/topics").children.forEach { topicsList.add(it.key!!) }
+
+                // Retrieve the user score for current month and display it.
+                gemTV.text = p0.child("users/${fbUser.uid}/quizStats/$yearMonth").value.toString()
 
                 MaterialDialog(context!!).show {
                     title(text = "Pick a quiz topic:")
@@ -190,7 +200,6 @@ class QuizFragment : Fragment(), View.OnClickListener {
         answerB.text = currentQuestion.optionB
         answerC.text = currentQuestion.optionC
         answerD.text = currentQuestion.optionD
-        gemTV.text = "0"
 
         // Reset the timer to 20 seconds and start countdown.
         countDownTimer.reset()
@@ -255,7 +264,7 @@ class QuizFragment : Fragment(), View.OnClickListener {
                 pickTopicButton.buttonColor = resources.getColor(colorTheme, null)
             }
 
-            setOnDismissListener { // Handle clicks outside the dialog.
+            setOnCancelListener { // Handle clicks outside the dialog.
                 // Disable answer buttons.
                 for (button in arrayOf(answerA, answerB, answerC, answerD))
                     button.apply {
@@ -265,6 +274,22 @@ class QuizFragment : Fragment(), View.OnClickListener {
                     }
             }
         }
+    }
+
+    private fun incrementMonthlyScore() {
+        userStats.child(yearMonth).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                Timber.tag("correctDialog()").e(p0.toException())
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+                val score = (p0.value as Long).toInt() + 1
+                gemTV.text = "$score"
+                userStats.child(yearMonth)
+                    .setValue(if (p0.value == null) 1 else score)
+            }
+
+        })
     }
 
     private fun correctDialog() {
