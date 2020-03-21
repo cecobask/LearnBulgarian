@@ -37,7 +37,7 @@ class CalendarViewFragment: Fragment() {
 
     private lateinit var calendarView: CalendarView
     private lateinit var calendarWords: List<CalendarWord>
-    private var today: LocalDate = LocalDate.now()
+    private val today: LocalDate = LocalDate.now()
 
     companion object {
         private const val argKey = "wordObjects"
@@ -74,7 +74,7 @@ class CalendarViewFragment: Fragment() {
                         else -> it.wordES
                     }
                 )
-            }.reversed()
+            }.sorted()
         }
     }
 
