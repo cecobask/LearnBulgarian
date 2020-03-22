@@ -17,10 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
-import bask.lingvino.fragments.LanguagePickerFragment
-import bask.lingvino.fragments.QuizFragment
-import bask.lingvino.fragments.TranslatorFragment
-import bask.lingvino.fragments.WordOfTheDayFragment
+import bask.lingvino.fragments.*
 import bask.lingvino.main.App
 import com.bumptech.glide.Glide
 import com.facebook.login.LoginManager
@@ -84,6 +81,23 @@ class HomeActivity : AppCompatActivity() {
                     Glide.with(applicationContext).load(R.drawable.ic_user_default).into(userPhotoIV)
                 }
                 userEmailTV.text = currentUser.email
+            }
+        }
+
+        supportFragmentManager.apply {
+            // Ensure current fragment reflects the navigation menu item selected.
+            addOnBackStackChangedListener {
+                when (this.findFragmentById(R.id.fragmentContainer)) {
+                    is WordOfTheDayFragment -> navView.setCheckedItem(R.id.navItemWOTD)
+                    is WordOfTheDayFavouritesFragment -> navView.setCheckedItem(R.id.navItemWOTD)
+                    is CalendarViewFragment -> navView.setCheckedItem(R.id.navItemWOTD)
+                    is TranslatorFragment -> navView.setCheckedItem(R.id.navItemTranslate)
+                    is TranslatorFavouritesFragment -> navView.setCheckedItem(R.id.navItemTranslate)
+                    is LanguagePickerFragment -> navView.setCheckedItem(R.id.navItemLang)
+                    is QuizFragment -> navView.setCheckedItem(R.id.navItemQuiz)
+                    // TODO: Add leader board fragment when you have it done!
+                    else -> navView.checkedItem?.isChecked = false
+                }
             }
         }
     }

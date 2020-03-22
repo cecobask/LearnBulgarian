@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import bask.lingvino.R
 import bask.lingvino.models.QuizQuestion
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.callbacks.onCancel
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.dyhdyh.support.countdowntimer.CountDownTimerSupport
 import com.dyhdyh.support.countdowntimer.OnCountDownTimerListener
@@ -158,6 +159,8 @@ class QuizFragment : Fragment(), View.OnClickListener {
 
                 MaterialDialog(context!!).show {
                     title(text = "Pick a quiz topic:")
+                    cancelOnTouchOutside(false)
+                    onCancel { fragmentManager?.popBackStack() } // Go to previous fragment.
                     listItemsSingleChoice(items = topicsList) { _, _, topic ->
                         quizTopic = "$topic"
                         loadQuestions()
