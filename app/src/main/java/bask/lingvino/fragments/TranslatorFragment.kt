@@ -18,6 +18,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageButton
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
 import bask.lingvino.models.Translation
@@ -329,6 +330,9 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                             targetLangName)
                         translationObj.expanded = null // Trick to not push value for expanded to DB.
 
+                        // Change button tint to red.
+                        mView.favBtn.setColorFilter(ContextCompat.getColor(context, R.color.red))
+
                         // Push the Translation object to selected collections.
                         items.forEach { item ->
                             val collection = item.toString().substringBeforeLast(" (")
@@ -538,6 +542,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                         // Show translation layout and display the translation text.
                         translationRL.visibility = View.VISIBLE
                         translationTV.text = translation
+                        mView.favBtn.setColorFilter(ContextCompat.getColor(context!!, R.color.white))
                     }
                     // Log the error.
                     .addOnFailureListener { Timber.tag("translation").d(it) }
@@ -615,6 +620,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                 if (resultCode == Activity.RESULT_OK && null != data) {
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     // Set userInputTIET's value to the text from speech recognition.
+                    @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
                     userInputTIET.setText(result[0])
                     // Translate the text.
                     translateBtn.performClick()

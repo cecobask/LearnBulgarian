@@ -1,6 +1,7 @@
 package bask.lingvino.utils
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.view.ActionMode
 import android.view.Menu
@@ -14,6 +15,7 @@ import bask.lingvino.adapters.WordOfTheDayAdapter
 import bask.lingvino.models.Translation
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItemsMultiChoice
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import timber.log.Timber
@@ -23,7 +25,11 @@ import kotlin.reflect.typeOf
 /**
  * Helper class for ActionMode.
  */
-class ActionModeCallback(private val collectionName: String, private val context: Context, private val targetLang: String) : ActionMode.Callback {
+class ActionModeCallback(
+    private val collectionName: String,
+    private val context: Context,
+    private val targetLang: String
+) : ActionMode.Callback {
 
     // Store values when ActionMode is created.
     private lateinit var tracker: SelectionTracker<Long>
@@ -220,6 +226,15 @@ class ActionModeCallback(private val collectionName: String, private val context
                             }
                         }
                     }
+                    // Show a SnackBar to inform the user.
+                    val targetCollections = relevantCollections.map { it.key }
+                        .toString()
+                        .dropLast(1)
+                        .drop(1)
+                    Snackbar.make(
+                        (context as Activity).window.decorView.findViewById(android.R.id.content),
+                        "Translation/s copied to $targetCollections.", Snackbar.LENGTH_SHORT
+                    ).show()
                     finishActionMode()
                 }
             })
