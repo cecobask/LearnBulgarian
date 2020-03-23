@@ -95,7 +95,7 @@ class HomeActivity : AppCompatActivity() {
                     is TranslatorFavouritesFragment -> navView.setCheckedItem(R.id.navItemTranslate)
                     is LanguagePickerFragment -> navView.setCheckedItem(R.id.navItemLang)
                     is QuizFragment -> navView.setCheckedItem(R.id.navItemQuiz)
-                    // TODO: Add leader board fragment when you have it done!
+                    is QuizLeaderboard -> navView.setCheckedItem(R.id.navItemQuiz)
                     else -> navView.checkedItem?.isChecked = false
                 }
             }

@@ -125,6 +125,26 @@ class QuizFragment : Fragment(), View.OnClickListener {
         super.onCreateOptionsMenu(menu,inflater)
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_leaderboard -> {
+                // Open QuizLeaderboard.
+                val quizLeaderboardFragment = QuizLeaderboard.newInstance()
+                fragmentManager!!
+                    .beginTransaction()
+                    .replace(
+                        R.id.fragmentContainer,
+                        quizLeaderboardFragment,
+                        quizLeaderboardFragment.javaClass.simpleName
+                    )
+                    .addToBackStack(null)
+                    .commit()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onClick(v: View?) {
         val clickedButton = v as FButton
         if (clickedButton.text == currentQuestion.answer) { // Correct answer.
@@ -155,7 +175,9 @@ class QuizFragment : Fragment(), View.OnClickListener {
                 p0.child("quizGame/topics").children.forEach { topicsList.add(it.key!!) }
 
                 // Retrieve the user score for current month and display it.
-                gemTV.text = p0.child("users/${fbUser.uid}/quizStats/$yearMonth").value.toString()
+                val scoreSnapshot = p0.child("users/${fbUser.uid}/quizStats/$yearMonth")
+                val score = if (scoreSnapshot.exists()) scoreSnapshot.value.toString() else "0"
+                gemTV.text = score
 
                 MaterialDialog(context!!).show {
                     title(text = "Pick a quiz topic:")
@@ -286,10 +308,9 @@ class QuizFragment : Fragment(), View.OnClickListener {
             }
 
             override fun onDataChange(p0: DataSnapshot) {
-                val score = (p0.value as Long).toInt() + 1
+                val score = Integer.valueOf(gemTV.text.toString()) + 1
                 gemTV.text = "$score"
-                userStats.child(yearMonth)
-                    .setValue(if (p0.value == null) 1 else score)
+                userStats.child(yearMonth).setValue(score)
             }
 
         })

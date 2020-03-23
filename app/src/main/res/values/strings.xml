@@ -38,6 +38,7 @@
     <string name="wotdCalendar">Word of the Day Calendar</string>
     <string name="actionBarMoveButton">Move to</string>
     <string name="quizTitle">Quiz Game</string>
+    <string name="quizLeaderboardTitle">Quiz Leaderboard</string>
     <string name="leaderboard">Leaderboard</string>
     <string name="question">Question</string>
     <string name="correct">Correct!</string>
@@ -48,4 +49,8 @@
     <string name="victory">Well done!</string>
     <string name="cancel">Cancel</string>
     <string name="pick_topic">Pick a topic</string>
+    <string name="leaderboard_position">#</string>
+    <string name="leaderboard_email">EMAIL</string>
+    <string name="leaderboard_month">MONTH</string>
+    <string name="leaderboard_year">YEAR</string>
 </resources>
