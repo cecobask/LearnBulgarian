@@ -15,15 +15,16 @@ import bask.lingvino.models.LeaderboardUser
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
+import com.kizitonwose.calendarview.utils.yearMonth
+import org.threeten.bp.LocalDate
 import timber.log.Timber
-import java.time.LocalDate
 
 class QuizLeaderboard : Fragment() {
 
     private lateinit var usersRef: DatabaseReference
     private lateinit var fbUser: FirebaseUser
     private lateinit var leaderboardRV: RecyclerView
-    private val yearMonth = LocalDate.now().toString().dropLast(3)
+    private val date = LocalDate.now()
 
     companion object {
         fun newInstance(): QuizLeaderboard {
@@ -65,11 +66,26 @@ class QuizLeaderboard : Fragment() {
                     LeaderboardUser().apply {
                         userID = it.key!!
                         email = "${it.child("email").value}"
-                        currentMonthScore = (it.child("quizStats/$yearMonth").value as Long).toInt()
-                        it.child("quizStats").children.forEach { month ->
-                            yearlyScore += ((month).value as Long).toInt()
+                        currentMonthScore = with(currentMonthScore) {
+                            it.child("quizStats/${date.yearMonth}").run {
+                                if (this.exists()) (this.value as Long).toInt()
+                                else this@with
+                            }
                         }
-                        leaderboardUsers.add(this)
+                        currentYearScore = with(currentYearScore) {
+                            it.child("quizStats").run {
+                                var currentYearScore = this@with // Default is 0.
+                                if (this.exists()) { // If the user has played a quiz game before.
+                                    this.children.forEach { dateSnapshot ->
+                                        // Sum the monthly scores of the current year.
+                                        if (dateSnapshot.key!!.startsWith("${date.year}"))
+                                            currentYearScore += ((dateSnapshot).value as Long).toInt()
+                                    }
+                                }
+                                currentYearScore // Returns 0 or sum of monthly scores.
+                            }
+                        }
+                        leaderboardUsers.add(this) // Add the user to a list.
                     }
                 }
                 leaderboardRV.adapter = LeaderboardAdapter(

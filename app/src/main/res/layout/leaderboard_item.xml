@@ -30,12 +30,12 @@
         android:id="@+id/currentMonthScore"
         style="@style/LeaderBoardItemStyle"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/yearlyScore"
+        app:layout_constraintEnd_toStartOf="@+id/currentYearScore"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_percent="0.2" />
 
     <TextView
-        android:id="@+id/yearlyScore"
+        android:id="@+id/currentYearScore"
         style="@style/LeaderBoardItemStyle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
