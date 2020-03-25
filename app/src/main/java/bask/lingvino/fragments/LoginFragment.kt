@@ -16,10 +16,12 @@ import bask.lingvino.R
 import bask.lingvino.activities.HomeActivity
 import bask.lingvino.activities.LanguageSelectionActivity
 import bask.lingvino.main.App
+import com.afollestad.materialdialogs.MaterialDialog
 import com.androidadvance.topsnackbar.TSnackbar
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
+import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.facebook.login.widget.LoginButton
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -29,10 +31,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.google.firebase.auth.FacebookAuthProvider
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
-import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.*
 
 
 class LoginFragment : Fragment() {
@@ -42,9 +41,11 @@ class LoginFragment : Fragment() {
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var callbackManager: CallbackManager
     private lateinit var googleBtn: Button
+    private lateinit var facebookBtn: LoginButton
     private lateinit var emailLayout: TextInputLayout
     private lateinit var passwordLayout: TextInputLayout
     private lateinit var sharedPref: SharedPreferences
+    private var credentialToLink: AuthCredential? = null
 
     companion object {
         fun newInstance(): LoginFragment {
@@ -70,12 +71,12 @@ class LoginFragment : Fragment() {
         val passwordET = view.findViewById<TextInputEditText>(R.id.passwordET)
         val loginBtn = view.findViewById<Button>(R.id.loginBtn)
         googleBtn = view.findViewById(R.id.googleBtnCustom)
-        val facebookBtn = view.findViewById<LoginButton>(R.id.facebookBtn)
+        facebookBtn = view.findViewById(R.id.facebookBtn)
         val facebookBtnCustom = view.findViewById<Button>(R.id.facebookBtnCustom)
         emailLayout = view.findViewById(R.id.emailLayout)
         passwordLayout = view.findViewById(R.id.passwordLayout)
 
-        // Workaround for implementing custom social media button
+        // Workaround for implementing custom social media button.
         facebookBtnCustom.setOnClickListener { facebookBtn.performClick() }
 
         // FirebaseAuth using signInWithEmail() with provided params.
@@ -119,8 +120,6 @@ class LoginFragment : Fragment() {
         }
     }
 
-    // Sign in with Firebase.
-    @Throws(FirebaseAuthException::class)
     private fun signInWithEmail(view: View, email: String, password: String) {
         showMessage(view, "Authenticating...")
 
@@ -162,58 +161,102 @@ class LoginFragment : Fragment() {
 
     }
 
-    // Sign in with Google.
-    private fun signInWithGoogle(acct: GoogleSignInAccount) {
-        val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
-        firebaseAuth.signInWithCredential(credential).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                // Check if user has picked spoken and target language for the app.
-                if (!hasUserPickedLanguages()) {
-                    finishActivityAndStartLanguageSelection()
-                } else {
-                    finishActivityAndStartHome()
-                }
-            } else {
-                showMessage(googleBtn, "Error: $task.exception")
-            }
-        }
+    private fun signInWithGoogle(credential: AuthCredential) {
+        showMessage(googleBtn, "Authenticating...")
+        signInWithCredential(credential)
     }
 
-    // Sign in with Facebook.
     private fun signInWithFacebook(view: LoginButton) {
         // Grant permission to access user's email, friends list and public profile data.
         view.setPermissions(listOf("email", "public_profile", "user_friends"))
         view.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(loginResult: LoginResult) {
+                showMessage(facebookBtn, "Authenticating...")
                 // Extract token from the result and use it to sign in with Firebase.
                 val credential = FacebookAuthProvider.getCredential(loginResult.accessToken.token)
-                firebaseAuth.signInWithCredential(credential)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            // Check if user has picked spoken and target language for the app.
-                            if (!hasUserPickedLanguages()) {
-                                finishActivityAndStartLanguageSelection()
-                            } else {
-                                finishActivityAndStartHome()
-                            }
-                        } else {
-                            showMessage(view, "Error: ${task.exception.toString()}")
-                        }
-                    }
+                signInWithCredential(credential)
             }
 
             override fun onCancel() {}
 
             override fun onError(exception: FacebookException) {
-                showMessage(view, "Error: $exception")
+                showMessage(view, exception.localizedMessage!!)
             }
         })
     }
 
+    private fun signInWithCredential(credential: AuthCredential) {
+        firebaseAuth.signInWithCredential(credential)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    // Check if the method is called with credentials to link.
+                    if (credentialToLink != null) {
+                        // Link the two auth providers.
+                        firebaseAuth.currentUser?.linkWithCredential(credentialToLink!!)
+                            ?.addOnCompleteListener { credentialToLink = null }
+                    }
+                    // Check if user has picked spoken and target language for the app.
+                    if (!hasUserPickedLanguages()) {
+                        finishActivityAndStartLanguageSelection()
+                    } else {
+                        finishActivityAndStartHome()
+                    }
+                } else { // Task failed.
+                    when (val e = (task.exception as FirebaseAuthException).errorCode) {
+                        "ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL" ->
+                            handleUserCollision(
+                                task.exception as FirebaseAuthUserCollisionException
+                            )
+                        else -> {
+                            showMessage(emailLayout, e)
+                        }
+                    }
+                }
+            }
+    }
+
+    private fun handleUserCollision(exception: FirebaseAuthUserCollisionException) {
+        val email = exception.email!!
+        credentialToLink = exception.updatedCredential!!
+        firebaseAuth.fetchSignInMethodsForEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val signInMethods = task.result?.signInMethods!!
+                    if (signInMethods.contains("google.com")) {
+                        // Ask the user if they want to link their Google and Facebook accounts.
+                        MaterialDialog(context!!).show {
+                            cancelable(false)
+                            title(text = "Auth providers collision")
+                            message(
+                                text = "Your email is linked to a Google sign-in auth provider. " +
+                                        "If you'd like to link Facebook too, it will require " +
+                                        "you to confirm your Google account identity."
+                            )
+                            positiveButton(text = "AGREE") {
+                                startActivityForResult( // Call the Google sign-in dialog.
+                                    googleSignInClient.signInIntent, signInReqCodeGoogle
+                                )
+                            }
+                            negativeButton(text = "DISAGREE") {
+                                LoginManager.getInstance().logOut() // Log out from Facebook.
+                            }
+                        }
+                    } else if (signInMethods.contains("facebook.com")) {
+                        facebookBtn.performClick() // Forward to the Facebook sign-in page.
+                    }
+                }
+            }
+    }
+
     // Use TopSnackBar to show meaningful messages to the user.
     private fun showMessage(view: View, message: String) {
-        TSnackbar.make(view, HtmlCompat.fromHtml("<font color=\"#ffffff\">$message</font>", HtmlCompat.FROM_HTML_MODE_LEGACY),
-            TSnackbar.LENGTH_LONG).show()
+        TSnackbar.make(
+            view,
+            HtmlCompat.fromHtml(
+                "<font color=\"#ffffff\">$message</font>", HtmlCompat.FROM_HTML_MODE_LEGACY
+            ),
+            TSnackbar.LENGTH_LONG
+        ).show()
     }
 
     private fun finishActivityAndStartHome() {
@@ -238,9 +281,10 @@ class LoginFragment : Fragment() {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 val account = task.getResult(ApiException::class.java)!!
-                signInWithGoogle(account)
+                val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+                signInWithGoogle(credential)
             } catch (e: ApiException) {
-                showMessage(googleBtn, "Error: $e")
+                showMessage(googleBtn, e.localizedMessage!!)
             }
         } else {
             // Pass the activity result back to the Facebook SDK.
