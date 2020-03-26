@@ -54,7 +54,7 @@ class QuizLeaderboard : Fragment() {
         loadUsersData()
     }
 
-    private fun loadUsersData() {
+    private fun loadUsersData(sortBy: String = "month", order: String = "descending") {
         usersRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
                 Timber.tag("loadUsersData()").e(p0.toException())
@@ -88,10 +88,24 @@ class QuizLeaderboard : Fragment() {
                         leaderboardUsers.add(this) // Add the user to a list.
                     }
                 }
+
+                when (sortBy) {
+                    "month" ->
+                        leaderboardUsers.sortWith( // First sort by monthly score, then by yearly score.
+                            compareBy({ it.currentMonthScore }, { it.currentYearScore })
+                        )
+                    "year" -> {
+                        leaderboardUsers.sortWith( // First sort by yearly score, then by monthly score.
+                            compareBy({ it.currentYearScore }, { it.currentMonthScore })
+                        )
+                    }
+                }
+
+                if (order == "descending") leaderboardUsers.reverse()
+
                 leaderboardRV.adapter = LeaderboardAdapter(
                     leaderboardUsers as ArrayList<LeaderboardUser>
                 )
-                Timber.tag("seleccc").d(leaderboardUsers.toString())
             }
         })
     }
