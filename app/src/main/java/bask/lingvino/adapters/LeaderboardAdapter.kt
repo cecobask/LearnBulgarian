@@ -7,10 +7,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import bask.lingvino.R
 import bask.lingvino.models.LeaderboardUser
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.leaderboard_item.view.*
 
 class LeaderboardAdapter(var leaderboardUsers: ArrayList<LeaderboardUser>) :
     RecyclerView.Adapter<LeaderboardAdapter.LeaderboardHolder>() {
+
+    val currentUser = FirebaseAuth.getInstance().currentUser!!
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LeaderboardHolder =
         LeaderboardHolder(
@@ -30,6 +33,10 @@ class LeaderboardAdapter(var leaderboardUsers: ArrayList<LeaderboardUser>) :
             val username = leaderboardUser.username
             val currentMonthScore = leaderboardUser.currentMonthScore
             val currentYearScore = leaderboardUser.currentYearScore
+
+            // Highlight current user's row.
+            if (currentUser.uid == leaderboardUser.userID)
+                view.setBackgroundColor(view.resources.getColor(R.color.selectedItem, null))
 
             @SuppressLint("SetTextI18n")
             view.position.text = "${adapterPosition + 1}"
