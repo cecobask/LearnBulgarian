@@ -50,7 +50,7 @@
     <string name="cancel">Cancel</string>
     <string name="pick_topic">Pick a topic</string>
     <string name="leaderboard_position">#</string>
-    <string name="leaderboard_email">EMAIL</string>
+    <string name="leaderboard_username">USERNAME</string>
     <string name="leaderboard_month">MONTH</string>
     <string name="leaderboard_year">YEAR</string>
 </resources>

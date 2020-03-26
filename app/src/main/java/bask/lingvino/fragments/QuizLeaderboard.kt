@@ -65,7 +65,7 @@ class QuizLeaderboard : Fragment() {
                 p0.children.forEach {
                     LeaderboardUser().apply {
                         userID = it.key!!
-                        email = "${it.child("email").value}"
+                        username = "${it.child("username").value}"
                         currentMonthScore = with(currentMonthScore) {
                             it.child("quizStats/${date.yearMonth}").run {
                                 if (this.exists()) (this.value as Long).toInt()

@@ -16,6 +16,7 @@ import bask.lingvino.R
 import bask.lingvino.activities.HomeActivity
 import bask.lingvino.activities.LanguageSelectionActivity
 import bask.lingvino.main.App
+import bask.lingvino.models.User
 import com.afollestad.materialdialogs.MaterialDialog
 import com.androidadvance.topsnackbar.TSnackbar
 import com.facebook.CallbackManager
@@ -32,6 +33,8 @@ import com.google.android.gms.tasks.Task
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.*
+import com.google.firebase.database.*
+import timber.log.Timber
 
 
 class LoginFragment : Fragment() {
@@ -45,6 +48,7 @@ class LoginFragment : Fragment() {
     private lateinit var emailLayout: TextInputLayout
     private lateinit var passwordLayout: TextInputLayout
     private lateinit var sharedPref: SharedPreferences
+    private lateinit var usersRef: DatabaseReference
     private var credentialToLink: AuthCredential? = null
 
     companion object {
@@ -65,6 +69,7 @@ class LoginFragment : Fragment() {
         callbackManager = CallbackManager.Factory.create()
 
         sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
+        usersRef = FirebaseDatabase.getInstance().getReference("users")
 
         // Instantiate widgets.
         val emailET = view.findViewById<TextInputEditText>(R.id.emailET)
@@ -195,12 +200,7 @@ class LoginFragment : Fragment() {
                         firebaseAuth.currentUser?.linkWithCredential(credentialToLink!!)
                             ?.addOnCompleteListener { credentialToLink = null }
                     }
-                    // Check if user has picked spoken and target language for the app.
-                    if (!hasUserPickedLanguages()) {
-                        finishActivityAndStartLanguageSelection()
-                    } else {
-                        finishActivityAndStartHome()
-                    }
+                    checkUserExists()
                 } else { // Task failed.
                     when (val e = (task.exception as FirebaseAuthException).errorCode) {
                         "ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL" ->
@@ -246,6 +246,35 @@ class LoginFragment : Fragment() {
                     }
                 }
             }
+    }
+
+    private fun checkUserExists() {
+        usersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                Timber.tag("checkUserExists()").e(p0.toException())
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+                val currentUser = firebaseAuth.currentUser!!
+                if (!p0.hasChild(currentUser.uid)) { // There isn't a db record for this user.
+                    // Create User object and push it to the Firebase db.
+                    val newUser = User(
+                        currentUser.uid,
+                        currentUser.email!!.substringBefore("@"),
+                        currentUser.email!!
+                    )
+                    usersRef.child(newUser.userID).setValue(newUser)
+                }
+
+                // Check if user has picked spoken and target language for the app.
+                if (!hasUserPickedLanguages()) {
+                    finishActivityAndStartLanguageSelection()
+                } else {
+                    finishActivityAndStartHome()
+                }
+            }
+
+        })
     }
 
     // Use TopSnackBar to show meaningful messages to the user.

@@ -27,13 +27,13 @@ class LeaderboardAdapter(var leaderboardUsers: ArrayList<LeaderboardUser>) :
         private val view: View = v
 
         fun bindItems(leaderboardUser: LeaderboardUser) {
-            val email = leaderboardUser.email
+            val username = leaderboardUser.username
             val currentMonthScore = leaderboardUser.currentMonthScore
             val currentYearScore = leaderboardUser.currentYearScore
 
             @SuppressLint("SetTextI18n")
             view.position.text = "${adapterPosition + 1}"
-            view.email.text = email
+            view.username.text = username
             view.currentMonthScore.text = "$currentMonthScore"
             view.currentYearScore.text = "$currentYearScore"
         }
