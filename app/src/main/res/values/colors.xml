@@ -14,4 +14,14 @@
     <color name="selectedItem">#2D008577</color>
     <color name="spinnerBackground">#324CB5A6</color>
     <color name="quizDialogBackground">#E4FFFFFF</color>
+
+    <color name="light_gray">#F4F4F4</color>
+
+    <color name="deep_purple">#6E3BFB</color>
+    <color name="yellow">#ffb300</color>
+    <color name="dark_blue">#23283a</color>
+    <color name="testcolorblue">#152b38</color>
+    <color name="pink">#fe104d</color>
+
+    <color name="black_overlay">#66000000</color>
 </resources>

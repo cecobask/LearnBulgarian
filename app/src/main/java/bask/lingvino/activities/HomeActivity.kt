@@ -25,6 +25,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import de.hdodenhof.circleimageview.CircleImageView
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -88,6 +89,7 @@ class HomeActivity : AppCompatActivity() {
             // Ensure current fragment reflects the navigation menu item selected.
             addOnBackStackChangedListener {
                 when (this.findFragmentById(R.id.fragmentContainer)) {
+                    is DashboardFragment -> navView.setCheckedItem(R.id.navItemDashboard)
                     is WordOfTheDayFragment -> navView.setCheckedItem(R.id.navItemWOTD)
                     is WordOfTheDayFavouritesFragment -> navView.setCheckedItem(R.id.navItemWOTD)
                     is CalendarViewFragment -> navView.setCheckedItem(R.id.navItemWOTD)
@@ -96,10 +98,12 @@ class HomeActivity : AppCompatActivity() {
                     is LanguagePickerFragment -> navView.setCheckedItem(R.id.navItemLang)
                     is QuizFragment -> navView.setCheckedItem(R.id.navItemQuiz)
                     is QuizLeaderboard -> navView.setCheckedItem(R.id.navItemQuiz)
-                    else -> navView.checkedItem?.isChecked = false
+                    else -> finishAffinity() // Close the app.
                 }
             }
         }
+
+        navView.menu.performIdentifierAction(R.id.navItemDashboard, 0) // Open the Dashboard.
     }
 
     private fun setupDrawerContent(navigationView: NavigationView) {
@@ -107,20 +111,16 @@ class HomeActivity : AppCompatActivity() {
             selectDrawerItem(it)
             true
         }
+
+
     }
 
     private fun selectDrawerItem(menuItem: MenuItem) {
         var currentFragment: Fragment? = null
 
         when (menuItem.itemId) {
-            R.id.navItemLogOut -> {
-                // Logout current user and bring it to the AuthActivity when logoutBtn is pressed.
-                firebaseAuth.signOut()
-                googleSignInClient.signOut()
-                LoginManager.getInstance().logOut()
-                finish()
-                val intent = Intent(this, AuthActivity::class.java)
-                startActivity(intent)
+            R.id.navItemDashboard -> {
+                currentFragment = DashboardFragment.newInstance()
             }
             R.id.navItemWOTD -> {
                 val currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("d-M-yyyy"))
@@ -135,12 +135,20 @@ class HomeActivity : AppCompatActivity() {
             R.id.navItemLang -> {
                 currentFragment = LanguagePickerFragment.newInstance()
             }
+            R.id.navItemLogOut -> {
+                // Logout current user and bring it to the AuthActivity when logoutBtn is pressed.
+                firebaseAuth.signOut()
+                googleSignInClient.signOut()
+                LoginManager.getInstance().logOut()
+                finish()
+                val intent = Intent(this, AuthActivity::class.java)
+                startActivity(intent)
+            }
         }
 
             if (currentFragment !== null) {
                 // Insert the fragment by replacing any existing fragment.
-                val fragmentManager = supportFragmentManager
-                fragmentManager
+                supportFragmentManager
                     .beginTransaction()
                     .replace(R.id.fragmentContainer, currentFragment, currentFragment.javaClass.simpleName)
                     .addToBackStack(null)
@@ -159,7 +167,7 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         if (drawerToggle.onOptionsItemSelected(item)) return true
-        return super.onOptionsItemSelected(item)
+        return super.onOptionsItemSelected(item!!)
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {

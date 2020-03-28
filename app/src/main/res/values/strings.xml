@@ -57,4 +57,5 @@
     <string name="leaderboard_year_desc">YEAR &#x25bc;</string>
     <string name="leaderboard_year">YEAR</string>
     <string name="leaderboard_year_asc">YEAR &#x25b2;</string>
+    <string name="dashboard_title">Dashboard</string>
 </resources>

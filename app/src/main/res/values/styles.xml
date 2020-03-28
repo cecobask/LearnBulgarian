@@ -10,6 +10,7 @@
         <item name="android:fitsSystemWindows">false</item>
         <item name="md_corner_radius">16dp</item>
         <item name="android:itemTextAppearance">@style/CustomMenuTextAppearance</item>
+        <item name="android:windowBackground">@color/light_gray</item>
     </style>
 
     <style name="AuthTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
