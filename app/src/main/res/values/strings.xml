@@ -51,6 +51,10 @@
     <string name="pick_topic">Pick a topic</string>
     <string name="leaderboard_position">#</string>
     <string name="leaderboard_username">USERNAME</string>
-    <string name="leaderboard_month">MONTH &#x25bc;</string>
-    <string name="leaderboard_year">YEAR &#x25b2;</string>
+    <string name="leaderboard_month_desc">MONTH &#x25bc;</string>
+    <string name="leaderboard_month">MONTH</string>
+    <string name="leaderboard_month_asc">MONTH &#x25b2;</string>
+    <string name="leaderboard_year_desc">YEAR &#x25bc;</string>
+    <string name="leaderboard_year">YEAR</string>
+    <string name="leaderboard_year_asc">YEAR &#x25b2;</string>
 </resources>

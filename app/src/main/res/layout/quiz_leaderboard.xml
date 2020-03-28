@@ -31,28 +31,28 @@
             style="@style/LeaderboardHeaderStyle"
             android:text="@string/leaderboard_username"
             app:layout_constraintBottom_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/currentMonthScore"
+            app:layout_constraintEnd_toStartOf="@+id/monthHeader"
             app:layout_constraintStart_toEndOf="@+id/position"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.5" />
 
         <TextView
-            android:id="@+id/currentMonthScore"
+            android:id="@+id/monthHeader"
             style="@style/LeaderboardHeaderStyle"
-            android:text="@string/leaderboard_month"
+            android:text="@string/leaderboard_month_desc"
             app:layout_constraintBottom_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/yearlyScore"
+            app:layout_constraintEnd_toStartOf="@+id/yearHeader"
             app:layout_constraintStart_toEndOf="@+id/username"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.2" />
 
         <TextView
-            android:id="@+id/yearlyScore"
+            android:id="@+id/yearHeader"
             style="@style/LeaderboardHeaderStyle"
             android:text="@string/leaderboard_year"
             app:layout_constraintBottom_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/currentMonthScore"
+            app:layout_constraintStart_toEndOf="@+id/monthHeader"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.2" />
 
