@@ -148,13 +148,14 @@ class QuizFragment : Fragment(), View.OnClickListener {
     override fun onClick(v: View?) {
         val clickedButton = v as FButton
         if (clickedButton.text == currentQuestion.answer) { // Correct answer.
-            incrementMonthlyScore()
+            updateMonthlyScore("+")
             if (questionIndex != questions.lastIndex) {
                 correctDialog()
                 return
             }
             victoryDialog() // All answers correct.
         } else { // Wrong answer.
+            updateMonthlyScore("-")
             wrongDialog()
         }
     }
@@ -301,16 +302,21 @@ class QuizFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    private fun incrementMonthlyScore() {
+    private fun updateMonthlyScore(operator: String) {
         userStats.child(yearMonth).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
                 Timber.tag("correctDialog()").e(p0.toException())
             }
 
             override fun onDataChange(p0: DataSnapshot) {
-                val score = Integer.valueOf(gemTV.text.toString()) + 1
-                gemTV.text = "$score"
-                userStats.child(yearMonth).setValue(score)
+                val currentScore = Integer.valueOf(gemTV.text.toString())
+                val updatedScore = with(currentScore) {
+                    if (operator == "+") this + 1 // Increment score by 1.
+                    else if (operator == "-" && this != 0) this - 1 // Decrement by 1 if score != 0.
+                    else this // Do nothing.
+                }
+                gemTV.text = "$updatedScore"
+                userStats.child(yearMonth).setValue(updatedScore)
             }
 
         })

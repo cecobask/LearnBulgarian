@@ -53,5 +53,4 @@
     <string name="leaderboard_username">USERNAME</string>
     <string name="leaderboard_month">MONTH &#x25bc;</string>
     <string name="leaderboard_year">YEAR &#x25b2;</string>
-    <string name="monthly_score_filter">Monthly score</string>
 </resources>
