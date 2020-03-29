@@ -138,7 +138,6 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
         translationTV = view.findViewById(R.id.translationTV)
         val pronounceBtn: AppCompatImageButton = view.findViewById(R.id.pronounceBtn)
         val favBtn: AppCompatImageButton = view.findViewById(R.id.favBtn)
-        val exportBtn: AppCompatImageButton = view.findViewById(R.id.exportBtn)
         val copyBtn: AppCompatImageButton = view.findViewById(R.id.copyBtn)
         clipboardManager = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         progressBar = view.findViewById(R.id.progressBar)
@@ -169,6 +168,12 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                 // Hide translation layout and clear text from the EditText.
                 mView.translationRL.visibility = View.GONE
                 userInputTIET.text?.clear()
+            }
+            hint = when(spokenLangName) {
+                "Bulgarian" -> resources.getString(R.string.translation_hint_bg)
+                "Spanish" -> resources.getString(R.string.translation_hint_es)
+                "Russian" -> resources.getString(R.string.translation_hint_ru)
+                else -> resources.getString(R.string.translation_hint_en)
             }
         }
 
@@ -218,9 +223,7 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
 
         databaseRef = FirebaseDatabase.getInstance().reference
         fbUser = FirebaseAuth.getInstance().currentUser!!
-        translatorCollections = databaseRef.child("users")
-            .child(fbUser.uid)
-            .child("translatorCollections")
+        translatorCollections = databaseRef.child("users/${fbUser.uid}/translatorCollections")
 
         // This class handles pronunciations.
         cognitiveServices = CognitiveServices(context!!)
@@ -260,7 +263,15 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                 clipboardManager.setPrimaryClip(myClip)
 
                 // Show a SnackBar to inform the user.
-                Snackbar.make(translationTV, "Translation copied.", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(
+                    translationTV,
+                    when(spokenLangName) {
+                        "Bulgarian" -> resources.getString(R.string.translation_copy_bg)
+                        "Spanish" -> resources.getString(R.string.translation_copy_es)
+                        "Russian" -> resources.getString(R.string.translation_copy_ru)
+                        else -> resources.getString(R.string.translation_copy_en)
+                    },
+                    Snackbar.LENGTH_SHORT).show()
             }
             R.id.translateBtn -> {
                 // Translate user input.
@@ -311,11 +322,39 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
             override fun onData(collections: MutableList<String>) {
                 // Show a dialog with checkboxes that match user's collection names.
                 MaterialDialog(context!!).show {
-                    title(text = "Save to collection/s:")
-                    positiveButton(text = "Done")
-                    negativeButton(text = "Cancel")
+                    title(
+                        text = when (spokenLangName) {
+                            "Bulgarian" -> resources.getString(R.string.save_collection_bg)
+                            "Spanish" -> resources.getString(R.string.save_collection_es)
+                            "Russian" -> resources.getString(R.string.save_collection_ru)
+                            else -> resources.getString(R.string.save_collection_en)
+                        }
+                    )
+                    positiveButton(
+                        text = when (spokenLangName) {
+                            "Bulgarian" -> resources.getString(R.string.done_bg)
+                            "Spanish" -> resources.getString(R.string.done_es)
+                            "Russian" -> resources.getString(R.string.done_ru)
+                            else -> resources.getString(R.string.done_en)
+                        }
+                    )
+                    negativeButton(
+                        text = when (spokenLangName) {
+                            "Bulgarian" -> resources.getString(R.string.cancel_bg)
+                            "Spanish" -> resources.getString(R.string.cancel_es)
+                            "Russian" -> resources.getString(R.string.cancel_ru)
+                            else -> resources.getString(R.string.cancel_en)
+                        }
+                    )
                     @Suppress("DEPRECATION")
-                    neutralButton(text = "Create collection") {
+                    neutralButton(
+                        text = when (spokenLangName) {
+                            "Bulgarian" -> resources.getString(R.string.create_collection_bg)
+                            "Spanish" -> resources.getString(R.string.create_collection_es)
+                            "Russian" -> resources.getString(R.string.create_collection_ru)
+                            else -> resources.getString(R.string.create_collection_en)
+                        }
+                    ) {
                         this.cancel()
                         showInputDialog()
                     }
@@ -343,16 +382,26 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                                             true ->
                                                 Snackbar.make(
                                                     mView.translateBtn,
-                                                    "Translation already exists in collection '$collection'.",
-                                                    Snackbar.LENGTH_SHORT
+                                                    when (spokenLangName) {
+                                                        "Bulgarian" -> resources.getString(R.string.translation_exists_bg)
+                                                        "Spanish" -> resources.getString(R.string.translation_exists_es)
+                                                        "Russian" -> resources.getString(R.string.translation_exists_ru)
+                                                        else -> resources.getString(R.string.translation_exists_en)
+                                                    },
+                                                    Snackbar.LENGTH_LONG
                                                 ).show()
                                             false -> {
                                                 translatorCollections.child(collection).push()
                                                     .setValue(translationObj)
                                                 Snackbar.make(
                                                     mView.translateBtn,
-                                                    "Successfully added to collection '$collection'.",
-                                                    Snackbar.LENGTH_SHORT
+                                                    when (spokenLangName) {
+                                                        "Bulgarian" -> resources.getString(R.string.add_success_bg)
+                                                        "Spanish" -> resources.getString(R.string.add_success_es)
+                                                        "Russian" -> resources.getString(R.string.add_success_ru)
+                                                        else -> resources.getString(R.string.add_success_en)
+                                                    },
+                                                    Snackbar.LENGTH_LONG
                                                 ).show()
                                             }
                                         }
@@ -423,7 +472,14 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
     // Prompts the user to input collection name.
     private fun showInputDialog() {
         MaterialDialog(context!!).show {
-            positiveButton(text = "Create") {
+            positiveButton(
+                text = when (spokenLangName) {
+                    "Bulgarian" -> resources.getString(R.string.create_bg)
+                    "Spanish" -> resources.getString(R.string.create_es)
+                    "Russian" -> resources.getString(R.string.create_ru)
+                    else -> resources.getString(R.string.create_en)
+                }
+            ) {
                 it.cancel()
                 // Create empty collection.
                 val input = it.getInputField().text.toString()
@@ -434,11 +490,23 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                     mView.translationTV.text.toString()
                 )
             }
-            negativeButton(text = "Cancel")
+            negativeButton(
+                text = when (spokenLangName) {
+                    "Bulgarian" -> resources.getString(R.string.cancel_bg)
+                    "Spanish" -> resources.getString(R.string.cancel_es)
+                    "Russian" -> resources.getString(R.string.cancel_ru)
+                    else -> resources.getString(R.string.cancel_en)
+                }
+            )
 
             // Validate user input.
             input(
-                hint = "Enter collection name",
+                hint = when (spokenLangName) {
+                    "Bulgarian" -> resources.getString(R.string.enter_collection_name_bg)
+                    "Spanish" -> resources.getString(R.string.enter_collection_name_es)
+                    "Russian" -> resources.getString(R.string.enter_collection_name_ru)
+                    else -> resources.getString(R.string.enter_collection_name_en)
+                },
                 inputType = InputType.TYPE_CLASS_TEXT,
                 maxLength = 25,
                 waitForPositiveButton = false
@@ -453,7 +521,14 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
 
     private fun showChooseCollectionDialog(collections: List<String>) {
         MaterialDialog(context!!).show {
-            title(text = "Choose collection:")
+            title(
+                text = when (spokenLangName) {
+                    "Bulgarian" -> resources.getString(R.string.choose_collection_bg)
+                    "Spanish" -> resources.getString(R.string.choose_collection_es)
+                    "Russian" -> resources.getString(R.string.choose_collection_ru)
+                    else -> resources.getString(R.string.choose_collection_en)
+                }
+            )
 
             // Disable 'Remove' button initially, as there is no selection.
             this.setActionButtonEnabled(WhichButton.NEUTRAL, false)
@@ -470,7 +545,14 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                 )
             }
 
-            positiveButton(text = "Go") { dialog ->
+            positiveButton(
+                text = when (spokenLangName) {
+                    "Bulgarian" -> resources.getString(R.string.go_bg)
+                    "Spanish" -> resources.getString(R.string.go_es)
+                    "Russian" -> resources.getString(R.string.go_ru)
+                    else -> resources.getString(R.string.go_en)
+                }
+            ) { dialog ->
                 // Open selected collection in a new Fragment.
                 val selectedIndex = collections.indices.find { dialog.isItemChecked(it) }
                 val translatorFavsFragment = TranslatorFavouritesFragment.newInstance(
@@ -486,9 +568,23 @@ class TranslatorFragment : Fragment(), View.OnClickListener, EasyPermissions.Per
                     .addToBackStack(null)
                     .commit()
             }
-            negativeButton(text = "Cancel")
+            negativeButton(
+                text = when (spokenLangName) {
+                    "Bulgarian" -> resources.getString(R.string.cancel_bg)
+                    "Spanish" -> resources.getString(R.string.cancel_es)
+                    "Russian" -> resources.getString(R.string.cancel_ru)
+                    else -> resources.getString(R.string.cancel_en)
+                }
+            )
             @Suppress("DEPRECATION")
-            neutralButton(text = "Remove") { dialog ->
+            neutralButton(
+                text = when (spokenLangName) {
+                    "Bulgarian" -> resources.getString(R.string.remove_bg)
+                    "Spanish" -> resources.getString(R.string.remove_es)
+                    "Russian" -> resources.getString(R.string.remove_ru)
+                    else -> resources.getString(R.string.remove_en)
+                }
+            ) { dialog ->
                 // Determine which collection was selected and remove it.
                 val selectedIndex = collections.indices.find { dialog.isItemChecked(it) }
                 translatorCollections

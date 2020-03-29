@@ -49,6 +49,8 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
     private lateinit var toLangChip: Chip
     private lateinit var clearFiltersIV: ImageView
     private lateinit var sharedPref: SharedPreferences
+    private lateinit var spokenLang: String
+    private lateinit var targetLang: String
     private lateinit var translationsList: MutableList<Translation>
     private lateinit var noResultsIV: ImageView
 
@@ -82,6 +84,8 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
         clearFiltersIV = view.findViewById(R.id.clearFiltersIV)
         noResultsIV = view.findViewById(R.id.noResultsIV)
         sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
+        spokenLang = sharedPref.getString("SPOKEN_LANG_NAME", "English")!!
+        targetLang = sharedPref.getString("TARGET_LANG_NAME", "Bulgarian")!!
 
         database = FirebaseDatabase.getInstance()
         firebaseAuth = FirebaseAuth.getInstance()
@@ -177,9 +181,6 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
                             activity!!
                         )
 
-                        val spokenLang = sharedPref.getString("SPOKEN_LANG_NAME", "English")!!
-                        val targetLang = sharedPref.getString("TARGET_LANG_NAME", "Bulgarian")!!
-
                         fromLangChip.apply {
                             text = spokenLang
                             // Only check the chip if its value is not "All languages".
@@ -230,7 +231,12 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
         // Make SearchView take up the whole width of the ActionBar.
         val searchView = menu.findItem(R.id.action_search)?.actionView as SearchView
         searchView.maxWidth = Int.MAX_VALUE
-        searchView.queryHint = "Search for translations..."
+        searchView.queryHint = when(spokenLang) {
+            "Bulgarian" -> resources.getString(R.string.search_translations_bg)
+            "Spanish" -> resources.getString(R.string.search_translations_es)
+            "Russian" -> resources.getString(R.string.search_translations_ru)
+            else -> resources.getString(R.string.search_translations_en)
+        }
 
         // Change the colour of clear input button and hint text colour of SearchView.
         val searchClose: ImageView = searchView.findViewById(androidx.appcompat.R.id.search_close_btn)

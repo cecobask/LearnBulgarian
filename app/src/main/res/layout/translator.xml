@@ -73,7 +73,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:hint="@string/translationHint"
         app:endIconMode="clear_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -161,16 +160,9 @@
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/favBtn"
             style="@style/TranslateImageButtonStyle"
-            android:layout_alignTop="@id/exportBtn"
-            android:layout_toStartOf="@id/exportBtn"
-            android:src="@drawable/ic_heart" />
-
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/exportBtn"
-            style="@style/TranslateImageButtonStyle"
             android:layout_alignTop="@id/copyBtn"
             android:layout_toStartOf="@id/copyBtn"
-            android:src="@drawable/ic_export" />
+            android:src="@drawable/ic_heart" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/copyBtn"

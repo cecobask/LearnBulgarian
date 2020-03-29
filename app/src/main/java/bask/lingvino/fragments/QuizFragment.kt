@@ -187,7 +187,14 @@ class QuizFragment : Fragment(), View.OnClickListener {
                 gemTV.text = score
 
                 MaterialDialog(context!!).show {
-                    title(text = "Pick a quiz topic:")
+                    title(
+                        text = when (spokenLang) {
+                            "Bulgarian" -> resources.getString(R.string.pick_topic_bg)
+                            "Spanish" -> resources.getString(R.string.pick_topic_es)
+                            "Russian" -> resources.getString(R.string.pick_topic_ru)
+                            else -> resources.getString(R.string.pick_topic_en)
+                        }
+                    )
                     cancelOnTouchOutside(false)
                     onCancel { fragmentManager?.popBackStack() } // Go to previous fragment.
                     listItemsSingleChoice(items = topicsList) { _, _, topic ->

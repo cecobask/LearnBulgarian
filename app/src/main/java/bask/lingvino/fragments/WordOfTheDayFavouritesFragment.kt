@@ -1,5 +1,6 @@
 package bask.lingvino.fragments
 
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
@@ -36,6 +37,8 @@ class WordOfTheDayFavouritesFragment : Fragment() {
     private var actionModeCallback: ActionModeCallback? = null
     private lateinit var wordFilter: WordFilter
     private lateinit var noResultsIV: ImageView
+    private lateinit var sharedPref: SharedPreferences
+    private lateinit var spokenLang: String
 
     companion object {
         fun newInstance(): WordOfTheDayFavouritesFragment {
@@ -56,6 +59,8 @@ class WordOfTheDayFavouritesFragment : Fragment() {
         database = FirebaseDatabase.getInstance()
         firebaseAuth = FirebaseAuth.getInstance()
         noResultsIV = view.findViewById(R.id.noResultsIV)
+        sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
+        spokenLang = sharedPref.getString("SPOKEN_LANG_NAME", "English")!!
 
         val wotdFavouritesRV = view.findViewById<RecyclerView>(R.id.wotdFavouritesRV)
 
@@ -176,7 +181,12 @@ class WordOfTheDayFavouritesFragment : Fragment() {
         // Make SearchView take up the whole width of the ActionBar.
         val searchView = searchItem?.actionView as SearchView
         searchView.maxWidth = Int.MAX_VALUE
-        searchView.queryHint = "Search for words..."
+        searchView.queryHint = when(spokenLang) {
+            "Bulgarian" -> resources.getString(R.string.search_words_bg)
+            "Spanish" -> resources.getString(R.string.search_words_es)
+            "Russian" -> resources.getString(R.string.search_words_ru)
+            else -> resources.getString(R.string.search_words_en)
+        }
 
         // Change the colour of clear input button and hint text colour of SearchView.
         val searchClose: ImageView = searchView.findViewById(androidx.appcompat.R.id.search_close_btn)
@@ -204,8 +214,12 @@ class WordOfTheDayFavouritesFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         // Change toolbar title.
-        (activity as? AppCompatActivity)?.supportActionBar?.title =
-            resources.getString(R.string.favWordsTitle)
+        (activity as? AppCompatActivity)?.supportActionBar?.title = when(spokenLang) {
+            "Bulgarian" -> resources.getString(R.string.fav_words_title_bg)
+            "Spanish" -> resources.getString(R.string.fav_words_title_es)
+            "Russian" -> resources.getString(R.string.fav_words_title_ru)
+            else -> resources.getString(R.string.fav_words_title_en)
+        }
     }
 
     fun noResultsVisible(boolean: Boolean) {
