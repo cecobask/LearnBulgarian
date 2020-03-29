@@ -45,7 +45,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/wotdCard"
             android:layout_width="0dp"
-            android:layout_height="220dp"
+            android:layout_height="240dp"
             android:clickable="true"
             android:foreground="?android:attr/selectableItemBackground"
             app:cardCornerRadius="20dp"
@@ -91,10 +91,10 @@
                     android:background="@color/gray" />
 
                 <TextView
+                    android:id="@+id/wotdInfo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="@string/wotd_info" />
+                    android:gravity="center" />
 
             </LinearLayout>
 
@@ -103,7 +103,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/translatorCard"
             android:layout_width="0dp"
-            android:layout_height="220dp"
+            android:layout_height="240dp"
             android:clickable="true"
             android:foreground="?android:attr/selectableItemBackground"
             app:cardCornerRadius="20dp"
@@ -149,10 +149,10 @@
                     android:background="@color/gray" />
 
                 <TextView
+                    android:id="@+id/translatorInfo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="@string/translator_info" />
+                    android:gravity="center" />
 
             </LinearLayout>
 
@@ -161,7 +161,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/quizCard"
             android:layout_width="0dp"
-            android:layout_height="220dp"
+            android:layout_height="240dp"
             android:layout_marginTop="10dp"
             android:clickable="true"
             android:foreground="?android:attr/selectableItemBackground"
@@ -208,10 +208,10 @@
                     android:background="@color/gray" />
 
                 <TextView
+                    android:id="@+id/quizInfo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="@string/quiz_info" />
+                    android:gravity="center" />
 
             </LinearLayout>
 
@@ -220,7 +220,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/languageOptionsCard"
             android:layout_width="0dp"
-            android:layout_height="220dp"
+            android:layout_height="240dp"
             android:layout_marginTop="10dp"
             android:clickable="true"
             android:foreground="?android:attr/selectableItemBackground"
@@ -267,10 +267,10 @@
                     android:background="@color/gray" />
 
                 <TextView
+                    android:id="@+id/languageOptionsInfo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="@string/lang_options_info" />
+                    android:gravity="center" />
 
             </LinearLayout>
 
