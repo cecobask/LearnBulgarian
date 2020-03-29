@@ -27,7 +27,8 @@ import timber.log.Timber
 class ActionModeCallback(
     private val collectionName: String,
     private val context: Context,
-    private val targetLang: String
+    private val targetLang: String,
+    spokenLang: String
 ) : ActionMode.Callback {
 
     // Store values when ActionMode is created.
@@ -40,6 +41,7 @@ class ActionModeCallback(
     private var adapter: WordOfTheDayAdapter? = null
     private var adapterStr: TranslationsAdapter? = null
     private lateinit var userRef: DatabaseReference
+    private val spokenLang = spokenLang
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         this.mode = mode
@@ -153,9 +155,28 @@ class ActionModeCallback(
      */
     private fun showCopyDialog(selectedItems: List<Translation>) {
         MaterialDialog(context).show {
-            title(text = "Copy selected items to:")
-            positiveButton(text = "Done")
-            negativeButton(text = "Cancel")
+            when(spokenLang) {
+                "Bulgarian" -> {
+                    title(text = context.resources.getString(R.string.copy_items_bg))
+                    positiveButton(text = context.resources.getString(R.string.done_bg))
+                    negativeButton(text = context.resources.getString(R.string.cancel_bg))
+                }
+                "Spanish" -> {
+                    title(text = context.resources.getString(R.string.copy_items_es))
+                    positiveButton(text = context.resources.getString(R.string.done_es))
+                    negativeButton(text = context.resources.getString(R.string.cancel_es))
+                }
+                "Russian" -> {
+                    title(text = context.resources.getString(R.string.copy_items_ru))
+                    positiveButton(text = context.resources.getString(R.string.done_ru))
+                    negativeButton(text = context.resources.getString(R.string.cancel_ru))
+                }
+                else -> {
+                    title(text = context.resources.getString(R.string.copy_items_en))
+                    positiveButton(text = context.resources.getString(R.string.done_en))
+                    negativeButton(text = context.resources.getString(R.string.cancel_en))
+                }
+            }
 
             userRef.child("translatorCollections")
                 .addListenerForSingleValueEvent(object : ValueEventListener {
@@ -226,13 +247,18 @@ class ActionModeCallback(
                         }
                     }
                     // Show a SnackBar to inform the user.
-                    val targetCollections = relevantCollections.map { it.key }
-                        .toString()
+                    val targetCollections = relevantCollections.map { it.key }.toString()
                         .dropLast(1)
                         .drop(1)
                     Snackbar.make(
                         (context as Activity).window.decorView.findViewById(android.R.id.content),
-                        "Translation/s copied to $targetCollections.", Snackbar.LENGTH_SHORT
+                        when(spokenLang) {
+                            "Bulgarian" -> context.resources.getString(R.string.translation_copy_to_bg, targetCollections)
+                            "Spanish" -> context.resources.getString(R.string.translation_copy_to_es, targetCollections)
+                            "Russian" -> context.resources.getString(R.string.translation_copy_to_ru, targetCollections)
+                            else -> context.resources.getString(R.string.translation_copy_to_en, targetCollections)
+                        },
+                        Snackbar.LENGTH_SHORT
                     ).show()
                     finishActionMode()
                 }

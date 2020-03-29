@@ -154,7 +154,7 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
                                     val selection = tracker.selection.map { it }
                                     val targetLang = adapter.getSelectedItemsById(selection)[0].targetLang
                                     actionModeCallback = ActionModeCallback(
-                                        collectionName, context!!, targetLang
+                                        collectionName, context!!, targetLang, spokenLang
                                     )
                                     actionModeCallback?.startActionMode(
                                         view,
