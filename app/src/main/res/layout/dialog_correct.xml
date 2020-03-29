@@ -13,7 +13,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="@string/correct"
         android:textColor="@color/fbutton_color_green_sea"
         android:textSize="30sp"
         android:textStyle="bold" />
@@ -29,7 +28,6 @@
         android:id="@+id/nextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/next"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:textColor="@color/white" />

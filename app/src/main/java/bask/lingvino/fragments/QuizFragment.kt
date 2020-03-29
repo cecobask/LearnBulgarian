@@ -1,6 +1,7 @@
 package bask.lingvino.fragments
 
 import android.app.Dialog
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -46,6 +47,8 @@ class QuizFragment : Fragment(), View.OnClickListener {
     private lateinit var fbUser: FirebaseUser
     private lateinit var progressBar: ProgressBar
     private lateinit var quizTopic: String
+    private lateinit var sharedPref: SharedPreferences
+    private lateinit var spokenLang: String
     private var questionIndex: Int = 0
     private val yearMonth = LocalDate.now().toString().dropLast(3)
 
@@ -77,6 +80,9 @@ class QuizFragment : Fragment(), View.OnClickListener {
         answerD = view.findViewById(R.id.answerD)
         timeTV = view.findViewById(R.id.timeTV)
         progressBar = view.findViewById(R.id.progressBar)
+
+        sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
+        spokenLang = sharedPref.getString("SPOKEN_LANG_NAME", "English")!!
 
         dbRef = FirebaseDatabase.getInstance().reference
         fbUser = FirebaseAuth.getInstance().currentUser!!
@@ -247,7 +253,7 @@ class QuizFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    private fun buildDialog(layout: Int, colorTheme: Int, isCorrectDialog: Boolean = false) {
+    private fun buildDialog(layout: Int, colorTheme: Int, dialogType: String) {
         onPause() // Pause the countdown timer.
 
         Dialog(context!!).apply {
@@ -256,12 +262,34 @@ class QuizFragment : Fragment(), View.OnClickListener {
                 ColorDrawable(Color.TRANSPARENT) // Transparent background.
             )
             setContentView(layout)
-            setCancelable(!isCorrectDialog) // Prevent closure of the dialog window.
+            setCancelable(dialogType != "correct") // Prevent closure of the dialog window.
             show()
 
-            if (isCorrectDialog) {
-                findViewById<FButton>(R.id.nextButton).also { nextButton ->
-                    nextButton.setOnClickListener { // Listen for button clicks.
+            if (dialogType == "correct") {
+                val correctTV: TextView = findViewById(R.id.correctTV)
+                val nextButton: FButton = findViewById(R.id.nextButton)
+
+                // Display messages in the appropriate language.
+                when (spokenLang) {
+                    "Bulgarian" -> {
+                        correctTV.text = resources.getString(R.string.correct_bg)
+                        nextButton.text = resources.getString(R.string.next_bg)
+                    }
+                    "Spanish" -> {
+                        correctTV.text = resources.getString(R.string.correct_es)
+                        nextButton.text = resources.getString(R.string.next_es)
+                    }
+                    "Russian" -> {
+                        correctTV.text = resources.getString(R.string.correct_ru)
+                        nextButton.text = resources.getString(R.string.next_ru)
+                    }
+                    else -> {
+                        correctTV.text = resources.getString(R.string.correct_en)
+                        nextButton.text = resources.getString(R.string.next_en)
+                    }
+                }
+
+                nextButton.setOnClickListener { // Listen for button clicks.
                         this.dismiss() // Close the dialog window.
 
                         // Display the next question.
@@ -270,25 +298,66 @@ class QuizFragment : Fragment(), View.OnClickListener {
                         displayQuestion()
                     }
                     nextButton.buttonColor = resources.getColor(colorTheme, null)
-                }
+
                 return
             }
 
-            findViewById<FButton>(R.id.playAgainButton).also { playAgainButton ->
-                playAgainButton.setOnClickListener { // Listen for button clicks.
+            val playAgainButton: FButton = findViewById(R.id.playAgainButton)
+            val pickTopicButton: FButton = findViewById(R.id.pickTopicButton)
+            var victoryTV: TextView? = null
+            var timeUpTV: TextView? = null
+            var wrongTV: TextView? = null
+
+            when (dialogType) {
+                "victory" -> victoryTV = findViewById(R.id.victoryTV)
+                "timeUp" -> timeUpTV = findViewById(R.id.timeUpTV)
+                else -> wrongTV = findViewById(R.id.wrongTV)
+            }
+
+            // Display messages in the appropriate language.
+            when (spokenLang) {
+                "Bulgarian" -> {
+                    playAgainButton.text = resources.getString(R.string.play_again_bg)
+                    pickTopicButton.text = resources.getString(R.string.pick_topic_bg)
+                    if (victoryTV != null) victoryTV.text = resources.getString(R.string.victory_bg)
+                    if (timeUpTV != null) timeUpTV.text = resources.getString(R.string.time_up_bg)
+                    if (wrongTV != null) wrongTV.text = resources.getString(R.string.wrong_bg)
+                }
+                "Spanish" -> {
+                    playAgainButton.text = resources.getString(R.string.play_again_es)
+                    pickTopicButton.text = resources.getString(R.string.pick_topic_es)
+                    if (victoryTV != null) victoryTV.text = resources.getString(R.string.victory_es)
+                    if (timeUpTV != null) timeUpTV.text = resources.getString(R.string.time_up_es)
+                    if (wrongTV != null) wrongTV.text = resources.getString(R.string.wrong_es)
+                }
+                "Russian" -> {
+                    playAgainButton.text = resources.getString(R.string.play_again_ru)
+                    pickTopicButton.text = resources.getString(R.string.pick_topic_ru)
+                    if (victoryTV != null) victoryTV.text = resources.getString(R.string.victory_ru)
+                    if (timeUpTV != null) timeUpTV.text = resources.getString(R.string.time_up_ru)
+                    if (wrongTV != null) wrongTV.text = resources.getString(R.string.wrong_ru)
+                }
+                else -> {
+                    playAgainButton.text = resources.getString(R.string.play_again_en)
+                    pickTopicButton.text = resources.getString(R.string.pick_topic_en)
+                    if (victoryTV != null) victoryTV.text = resources.getString(R.string.victory_en)
+                    if (timeUpTV != null) timeUpTV.text = resources.getString(R.string.time_up_en)
+                    if (wrongTV != null) wrongTV.text = resources.getString(R.string.wrong_en)
+                }
+            }
+
+            playAgainButton.setOnClickListener { // Listen for button clicks.
                     this.dismiss() // Close the dialog window.
                     loadQuestions() // Start a new game.
                 }
-                playAgainButton.buttonColor = resources.getColor(colorTheme, null)
-            }
+            playAgainButton.buttonColor = resources.getColor(colorTheme, null)
 
-            findViewById<FButton>(R.id.pickTopicButton).also { pickTopicButton ->
-                pickTopicButton.setOnClickListener { // Listen for button clicks.
+
+            pickTopicButton.setOnClickListener { // Listen for button clicks.
                     this.dismiss() // Close the dialog window.
                     pickQuizTopic() // Provide topic options.
                 }
-                pickTopicButton.buttonColor = resources.getColor(colorTheme, null)
-            }
+            pickTopicButton.buttonColor = resources.getColor(colorTheme, null)
 
             setOnCancelListener { // Handle clicks outside the dialog.
                 // Disable answer buttons.
@@ -323,19 +392,19 @@ class QuizFragment : Fragment(), View.OnClickListener {
     }
 
     private fun correctDialog() {
-        buildDialog(R.layout.dialog_correct, R.color.fbutton_color_green_sea, true)
+        buildDialog(R.layout.dialog_correct, R.color.fbutton_color_green_sea, "correct")
     }
 
     private fun wrongDialog() {
-        buildDialog(R.layout.dialog_wrong, R.color.fbutton_color_pomegranate)
+        buildDialog(R.layout.dialog_wrong, R.color.fbutton_color_pomegranate, "wrong")
     }
 
     private fun victoryDialog() {
-        buildDialog(R.layout.dialog_victory, R.color.fbutton_color_nephritis)
+        buildDialog(R.layout.dialog_victory, R.color.fbutton_color_nephritis, "victory")
     }
 
     private fun timeUp() {
-        buildDialog(R.layout.dialog_time_up, R.color.fbutton_color_pumpkin)
+        buildDialog(R.layout.dialog_time_up, R.color.fbutton_color_pumpkin, "timeUp")
     }
 
     override fun onPause() {
