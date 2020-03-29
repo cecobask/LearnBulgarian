@@ -58,4 +58,8 @@
     <string name="leaderboard_year">YEAR</string>
     <string name="leaderboard_year_asc">YEAR &#x25b2;</string>
     <string name="dashboard_title">Dashboard</string>
+    <string name="wotd_info">Learn a new word on a daily basis! Play the pronunciations and see the example sentences.</string>
+    <string name="translator_info">Translate using your camera, voice or input!\nSave your translations into custom collections.</string>
+    <string name="quiz_info">Pick a topic and enrich your vocabulary by playing quiz game! Look at the leaderboard.</string>
+    <string name="lang_options_info">Update the source and target languages to fit your preferences at any point in time!</string>
 </resources>
