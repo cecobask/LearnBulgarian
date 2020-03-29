@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
@@ -82,6 +83,7 @@ class HomeActivity : AppCompatActivity() {
                     Glide.with(applicationContext).load(R.drawable.ic_user_default).into(userPhotoIV)
                 }
                 userEmailTV.text = currentUser.email
+                navView.menu.performIdentifierAction(R.id.navItemDashboard, 0) // Open the Dashboard.
             }
         }
 
@@ -102,8 +104,6 @@ class HomeActivity : AppCompatActivity() {
                 }
             }
         }
-
-        navView.menu.performIdentifierAction(R.id.navItemDashboard, 0) // Open the Dashboard.
     }
 
     private fun setupDrawerContent(navigationView: NavigationView) {
@@ -152,7 +152,7 @@ class HomeActivity : AppCompatActivity() {
                     .beginTransaction()
                     .replace(R.id.fragmentContainer, currentFragment, currentFragment.javaClass.simpleName)
                     .addToBackStack(null)
-                    .commit()
+                    .commitAllowingStateLoss()
 
                 // Highlight the selected item.
                 menuItem.isChecked = true

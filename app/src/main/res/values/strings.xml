@@ -62,4 +62,5 @@
     <string name="translator_info">Translate using your camera, voice or input!\nSave your translations into custom collections.</string>
     <string name="quiz_info">Pick a topic and enrich your vocabulary by playing quiz game! Look at the leaderboard.</string>
     <string name="lang_options_info">Update the source and target languages to fit your preferences at any point in time!</string>
+    <string name="welcome_message">Welcome, %1$s!</string>
 </resources>
