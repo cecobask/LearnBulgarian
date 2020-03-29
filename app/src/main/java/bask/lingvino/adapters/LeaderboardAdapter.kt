@@ -10,7 +10,7 @@ import bask.lingvino.models.LeaderboardUser
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.leaderboard_item.view.*
 
-class LeaderboardAdapter(var leaderboardUsers: ArrayList<LeaderboardUser>) :
+class LeaderboardAdapter(private var leaderboardUsers: ArrayList<LeaderboardUser>) :
     RecyclerView.Adapter<LeaderboardAdapter.LeaderboardHolder>() {
 
     val currentUser = FirebaseAuth.getInstance().currentUser!!

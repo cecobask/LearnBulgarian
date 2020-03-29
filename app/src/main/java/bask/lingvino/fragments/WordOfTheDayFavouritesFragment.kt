@@ -110,7 +110,7 @@ class WordOfTheDayFavouritesFragment : Fragment() {
                         itemTouchHelper.attachToRecyclerView(wotdFavouritesRV)
 
                         // SelectionTracker that will allow multiple items to be selected.
-                        tracker = SelectionTracker.Builder<Long>(
+                        tracker = SelectionTracker.Builder(
                             "wordSelection",
                             wotdFavouritesRV,
                             WordKeyProvider(wotdFavouritesRV),

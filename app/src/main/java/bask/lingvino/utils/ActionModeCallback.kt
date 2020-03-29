@@ -19,7 +19,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import timber.log.Timber
-import kotlin.reflect.typeOf
 
 
 /**

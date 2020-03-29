@@ -31,7 +31,6 @@
     <string name="and">and</string>
     <string name="languageOptions">Language Options</string>
     <string name="savedTranslations">Saved translations</string>
-    <string name="translatorFavsTitle">Saved translations</string>
     <string name="actionBarPronounceButton">Pronounce selection</string>
     <string name="allLanguagesFilter">All languages</string>
     <string name="calendarViewTitle">Calendar View</string>
@@ -47,7 +46,6 @@
     <string name="play_again">Play again</string>
     <string name="wrong">Wrong!</string>
     <string name="victory">Well done!</string>
-    <string name="cancel">Cancel</string>
     <string name="pick_topic">Pick a topic</string>
     <string name="leaderboard_position">#</string>
     <string name="leaderboard_username">USERNAME</string>

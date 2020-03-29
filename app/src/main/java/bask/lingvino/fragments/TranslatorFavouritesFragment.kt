@@ -131,7 +131,7 @@ class TranslatorFavouritesFragment : Fragment(), View.OnClickListener {
                         translatorFavouritesRV.setHasFixedSize(true)
 
                         // SelectionTracker that will allow multiple items to be selected.
-                        tracker = SelectionTracker.Builder<String>(
+                        tracker = SelectionTracker.Builder(
                             "collectionSelection",
                             translatorFavouritesRV,
                             TranslationsCollectionKeyProvider(adapter),

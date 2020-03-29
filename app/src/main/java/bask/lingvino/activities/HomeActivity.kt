@@ -6,7 +6,6 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
@@ -26,7 +25,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import de.hdodenhof.circleimageview.CircleImageView
-import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
