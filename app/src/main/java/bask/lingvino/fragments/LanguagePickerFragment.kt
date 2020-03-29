@@ -10,6 +10,7 @@ import android.widget.AdapterView
 import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
 import bask.lingvino.activities.HomeActivity
@@ -52,6 +53,8 @@ class LanguagePickerFragment : Fragment() {
         sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
         val spokenLang = sharedPref.getString("SPOKEN_LANG_NAME", "English")!!
         val targetLang = sharedPref.getString("TARGET_LANG_NAME", "Bulgarian")!!
+
+        displayLabels(spokenLang)
 
         // Prepare Adapters with a list of languages to select from.
         // Set the default selection for "spoken" to Bulgarian and exclude it from from "target".
@@ -103,6 +106,31 @@ class LanguagePickerFragment : Fragment() {
         }
     }
 
+    private fun displayLabels(spokenLang: String) {
+        when(spokenLang) {
+            "Bulgarian" -> {
+                spokenLangTV.text = resources.getString(R.string.spoken_lang_bg)
+                targetLangTV.text = resources.getString(R.string.target_lang_bg)
+                continueBtn.text = resources.getString(R.string.continue_btn_bg)
+            }
+            "Spanish" -> {
+                spokenLangTV.text = resources.getString(R.string.spoken_lang_es)
+                targetLangTV.text = resources.getString(R.string.target_lang_es)
+                continueBtn.text = resources.getString(R.string.continue_btn_es)
+            }
+            "Russian" -> {
+                spokenLangTV.text = resources.getString(R.string.spoken_lang_ru)
+                targetLangTV.text = resources.getString(R.string.target_lang_ru)
+                continueBtn.text = resources.getString(R.string.continue_btn_ru)
+            }
+            else -> {
+                spokenLangTV.text = resources.getString(R.string.spoken_lang_en)
+                targetLangTV.text = resources.getString(R.string.target_lang_en)
+                continueBtn.text = resources.getString(R.string.continue_btn_en)
+            }
+        }
+    }
+
     private fun initLanguagesList(exclusion: String = "none", selectedLang: String = "none"):
             MutableList<LanguageItem> {
         val bg = LanguageItem("Bulgarian", R.drawable.ic_bulgarian)
@@ -129,5 +157,12 @@ class LanguagePickerFragment : Fragment() {
     private fun finishCurrentAndStartHomeActivity() {
         activity?.finish()
         startActivity(Intent(context, HomeActivity::class.java))
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Change toolbar title.
+        (activity as? AppCompatActivity)?.supportActionBar?.title =
+            resources.getString(R.string.language_options)
     }
 }

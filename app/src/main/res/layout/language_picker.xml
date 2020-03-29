@@ -9,7 +9,6 @@
 
     <TextView
         android:id="@+id/spokenLangTV"
-        android:text="@string/spokenLangTV"
         style="@style/LangPickerTextViewStyle" />
 
     <FrameLayout
@@ -57,7 +56,6 @@
 
     <TextView
         android:id="@+id/targetLangTV"
-        android:text="@string/targetLangTV"
         style="@style/LangPickerTextViewStyle" />
 
     <FrameLayout
@@ -80,7 +78,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="50dp"
-        android:backgroundTint="@color/colorPrimary"
-        android:text="@string/continueBtn" />
+        android:backgroundTint="@color/colorPrimary" />
 
 </LinearLayout>
