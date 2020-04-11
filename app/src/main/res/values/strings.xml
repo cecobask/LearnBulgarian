@@ -142,10 +142,10 @@
     <string name="victory_es">¡Bien hecho!</string>
     <string name="victory_ru">Отлично сработано!</string>
     <string name="victory_bg">Справи се отлично!</string>
-    <string name="pick_topic_en">Pick a topic:</string>
-    <string name="pick_topic_es">Elige un tema:</string>
-    <string name="pick_topic_ru">Выбрать тему:</string>
-    <string name="pick_topic_bg">Избери тема:</string>
+    <string name="pick_topic_en">Pick a topic</string>
+    <string name="pick_topic_es">Elige un tema</string>
+    <string name="pick_topic_ru">Выбрать тему</string>
+    <string name="pick_topic_bg">Избери тема</string>
     <string name="leaderboard_position">#</string>
     <string name="leaderboard_username">USERNAME</string>
     <string name="leaderboard_month_desc">MONTH &#x25bc;</string>

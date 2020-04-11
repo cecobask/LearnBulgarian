@@ -89,20 +89,6 @@ class QuizFragment : Fragment(), View.OnClickListener {
         quizTopicsRef = dbRef.child("quizGame/topics")
         userStats = dbRef.child("users/${fbUser.uid}/quizStats")
 
-//        val question1 = QuizQuestion("What is the English translation of the Bulgarian word 'патица'?", "duck", "cat", "duck", "chicken", "pig")
-//        val question2 = QuizQuestion("What is the English translation of the Bulgarian word 'куче'?", "dog", "dog", "cat", "duck", "pigeon")
-//        val question3 = QuizQuestion("What is the English translation of the Bulgarian word 'слон'?", "elephant", "wolf", "dolphin", "pigeon", "elephant")
-//        quizTopicsRef.child("animals").push().setValue(question1)
-//        quizTopicsRef.child("animals").push().setValue(question2)
-//        quizTopicsRef.child("animals").push().setValue(question3)
-//
-//        val question4 = QuizQuestion("What is the English translation of the Bulgarian word 'яйце'?", "egg", "burger", "egg", "chicken", "omelet")
-//        val question5 = QuizQuestion("What is the English translation of the Bulgarian word 'ориз'?", "rice", "rice", "burger", "beans", "ham")
-//        val question6 = QuizQuestion("What is the English translation of the Bulgarian word 'шунка'?", "ham", "rice", "omelet", "ham", "egg")
-//        quizTopicsRef.child("food").push().setValue(question4)
-//        quizTopicsRef.child("food").push().setValue(question5)
-//        quizTopicsRef.child("food").push().setValue(question6)
-
         // Set click listeners to answer buttons.
         answerA.setOnClickListener(this)
         answerB.setOnClickListener(this)
@@ -209,7 +195,13 @@ class QuizFragment : Fragment(), View.OnClickListener {
 
     private fun loadQuestions() {
         contentLoading()
-        quizTopicsRef.child(quizTopic).addListenerForSingleValueEvent(object : ValueEventListener {
+        val lang = when (spokenLang) {
+            "Bulgarian" -> "bg"
+            "Spanish" -> "es"
+            "Russian" -> "ru"
+            else -> "en"
+        }
+        quizTopicsRef.child("$quizTopic/$lang").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
                 Timber.tag("loadQuestions()").d(p0.toException())
                 contentLoading(showProgressBar = false)
