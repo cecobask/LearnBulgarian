@@ -13,7 +13,6 @@ import bask.lingvino.R
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import timber.log.Timber
 
 class DashboardFragment : Fragment(), View.OnClickListener {
 
@@ -59,8 +58,6 @@ class DashboardFragment : Fragment(), View.OnClickListener {
 
         val sharedPref = activity?.getSharedPreferences("learnBulgarian", 0)
         val spokenLanguage = sharedPref?.getString("SPOKEN_LANG_NAME", "Bulgarian")
-
-        Timber.tag("seleccc").d(spokenLanguage)
 
         displayWelcomeMessage(FirebaseAuth.getInstance().currentUser!!.uid, spokenLanguage)
         displayCardsInfo(spokenLanguage)
