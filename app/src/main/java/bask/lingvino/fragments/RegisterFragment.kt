@@ -1,6 +1,7 @@
 package bask.lingvino.fragments
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -15,6 +16,7 @@ import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import bask.lingvino.R
 import bask.lingvino.activities.HomeActivity
+import bask.lingvino.activities.LanguageSelectionActivity
 import bask.lingvino.models.User
 import com.androidadvance.topsnackbar.TSnackbar
 import com.google.android.material.textfield.TextInputEditText
@@ -37,6 +39,7 @@ class RegisterFragment : Fragment(), TextView.OnEditorActionListener {
     private lateinit var confirmPasswordET: TextInputEditText
     private lateinit var confirmPasswordLayout: TextInputLayout
     private lateinit var scrollView: ScrollView
+    private lateinit var sharedPref: SharedPreferences
 
     companion object {
         fun newInstance(): RegisterFragment {
@@ -60,6 +63,7 @@ class RegisterFragment : Fragment(), TextView.OnEditorActionListener {
         confirmPasswordET = view.findViewById(R.id.confirmPasswordET)
         confirmPasswordLayout = view.findViewById(R.id.confirmPasswordLayout)
         scrollView = view.findViewById(R.id.scrollViewRegister)
+        sharedPref = activity!!.getSharedPreferences("learnBulgarian", 0)
         val registerBtn = view.findViewById<Button>(R.id.registerBtn)
 
         // Get user input from fields and attempt to call signUp() with provided params.
@@ -119,9 +123,12 @@ class RegisterFragment : Fragment(), TextView.OnEditorActionListener {
                 val usersDatabase: DatabaseReference = FirebaseDatabase.getInstance().getReference("users")
                 usersDatabase.child(newUser.userID).setValue(newUser)
 
-                // Start Home activity.
-                activity?.finish()
-                startActivity(Intent(context, HomeActivity::class.java))
+                // Check if user has picked spoken and target language for the app.
+                if (!hasUserPickedLanguages()) {
+                    finishActivityAndStartLanguageSelection()
+                } else {
+                    finishActivityAndStartHome()
+                }
             } else {
                 // Handle common exception scenarios.
                 when (val errorMessage = task.exception?.localizedMessage) {
@@ -158,6 +165,20 @@ class RegisterFragment : Fragment(), TextView.OnEditorActionListener {
     private fun showMessage(view: View, message: String) {
         TSnackbar.make(view, HtmlCompat.fromHtml("<font color=\"#ffffff\">$message</font>", HtmlCompat.FROM_HTML_MODE_LEGACY),
             TSnackbar.LENGTH_LONG).show()
+    }
+
+    private fun hasUserPickedLanguages(): Boolean {
+        return sharedPref.contains("SPOKEN_LANG_NAME")
+    }
+
+    private fun finishActivityAndStartHome() {
+        activity?.finishAffinity()
+        startActivity(Intent(context, HomeActivity::class.java))
+    }
+
+    private fun finishActivityAndStartLanguageSelection() {
+        activity?.finishAffinity()
+        startActivity(Intent(context, LanguageSelectionActivity::class.java))
     }
 
     override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
