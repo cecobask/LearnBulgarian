@@ -167,3 +167,32 @@ format. To ensure the JSON data that an admin user inputs is valid, I have imple
 with real-time validation. Whenever it contains an error, the editor would highlight the row and
 provide feedback on mouse hover. The submission of JSON data will only be possible once it is deemed
 valid by the validator.
+
+
+## External dependencies
+- androidx.recyclerview:recyclerview-selection
+- androidx.cardview:cardview
+- com.afollestad.material-dialogs:core
+- com.afollestad.material-dialogs:input
+- com.androidadvance:topsnackbar
+- com.dyhdyh.support:count-down-timer
+- com.facebook.android:facebook-android-sdk
+- com.github.bumptech.glide:glide
+- com.github.kizitonwose:CalendarView
+- com.github.skydoves:balloon
+- com.google.android.material:material
+- com.google.android.gms:play-services-auth
+- com.google.code.gson:gson
+- com.google.firebase:firebase-auth
+- com.google.firebase:firebase-config
+- com.google.firebase:firebase-database
+- com.google.firebase:firebase-ml-natural-language
+- com.google.firebase:firebase-ml-natural-language-translate-model
+- com.google.firebase:firebase-ml-vision
+- com.jakewharton.timber:timber
+- com.mindorks:paracamera
+- com.squareup.okhttp3:okhttp
+- de.hdodenhof:circleimageview
+- info.hoang8f:fbutton
+- org.redundent:kotlin-xml-builder
+- pub.devrel:easypermissions
